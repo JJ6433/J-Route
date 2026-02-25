@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    <main class="container mt-4 mb-4 flex-grow-1">
+        <div class="container mb-4">
+            <h2 class="jroute-section-title"><i class="bi bi-search"></i> 旅行検索</h2>
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="card jroute-card">
+                        <div class="card-header bg-white border-bottom"><strong>フィルター</strong></div>
+                        <div class="card-body">
+                            <form method="get" th:action="@{/place/list}">
+                                <label class="form-label fw-bold">キーワード</label>
+                                <input type="text" name="keyword" class="form-control mb-3 fs-5 py-2"
+                                    placeholder="場所名やキーワード..." th:value="${keyword}">
+
+                                <label class="form-label fw-bold">地域</label>
+                                <select name="region" class="form-select mb-3 fs-5 py-2">
+                                    <option value="">すべて</option>
+                                    <option value="東京" th:selected="${region == '東京'}">東京</option>
+                                    <option value="大阪" th:selected="${region == '大阪'}">大阪</option>
+                                    <option value="福岡" th:selected="${region == '福岡'}">福岡</option>
+                                    <option value="京都" th:selected="${region == '京都'}">京都</option>
+                                </select>
+                                <label class="form-label fw-bold">カテゴリ</label>
+                                <select name="category" class="form-select mb-3 fs-5 py-2">
+                                    <option value="">すべて</option>
+                                    <option value="観光" th:selected="${category == '観光'}">観光</option>
+                                    <option value="グルメ" th:selected="${category == 'グルメ'}">グルメ</option>
+                                    <option value="宿泊" th:selected="${category == '宿泊'}">宿泊</option>
+                                </select>
+                                <label class="form-label fw-bold">並び順</label>
+                                <select name="sort" class="form-select mb-4 fs-5 py-2">
+                                    <option value="latest" th:selected="${sort == 'latest'}">新着順</option>
+                                    <option value="popular" th:selected="${sort == 'popular'}">人気順</option>
+                                    <option value="rating" th:selected="${sort == 'rating'}">評価順</option>
+                                </select>
+                                <button type="submit" class="btn jroute-btn-search w-100">検索</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="row row-cols-1 row-cols-md-3 g-4">
+                        <div class="col" th:each="place : ${places}">
+                            <div class="card jroute-card h-100">
+                                <img th:src="${place.imageUrl != null ? place.imageUrl : 'https://via.placeholder.com/400x250?text=No+Image'}"
+                                    class="card-img-top" alt="旅行先" />
+                                <div class="card-body">
+                                    <span class="badge bg-secondary me-1" th:text="${place.region}"></span>
+                                    <span class="badge bg-light text-dark" th:text="${place.category}"></span>
+                                    <h5 class="card-title mt-2" th:text="${place.name}"></h5>
+                                    <p class="card-text text-truncate small" th:text="${place.description}"></p>
+                                    <p th:if="${place.avgRating != null}" class="small jroute-star-rating mb-0"><i
+                                            class="bi bi-star-fill"></i> <span th:text="${place.avgRating}"></span>
+                                        （<span th:text="${place.reviewCount}"></span>件のレビュー）</p>
+                                </div>
+                                <div class="card-footer bg-white border-0">
+                                    <a th:href="@{/place/detail(id=${place.placeId})}"
+                                        class="btn btn-outline-view btn-sm w-100">詳しく見る <i
+                                            class="bi bi-chevron-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 text-center py-5" th:if="${#lists.isEmpty(places)}">
+                            <p class="text-muted">条件に合う旅行先がありません。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+
+</html>

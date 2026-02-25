@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.PlannerMapper">
+
+    <!-- 사용자별 플랜 목록 -->
+    <select id="findByUserId" resultType="PlannerDto">
+        SELECT 
+            planner_id AS plannerId, 
+            user_id AS userId, 
+            title, 
+            plan_data AS planData, 
+            is_public AS isPublic,
+            created_at AS createdAt
+        FROM planners WHERE user_id = #{userId} ORDER BY created_at DESC
+    </select>
+
+    <!-- 플랜 한 건 조회 -->
+    <select id="findById" resultType="PlannerDto">
+        SELECT 
+            planner_id AS plannerId, 
+            user_id AS userId, 
+            title, 
+            plan_data AS planData, 
+            is_public AS isPublic,
+            created_at AS createdAt
+        FROM planners WHERE planner_id = #{plannerId}
+    </select>
+
+    <!-- 플랜 저장 -->
+    <insert id="insertPlanner" parameterType="PlannerDto" useGeneratedKeys="true" keyProperty="plannerId">
+        INSERT INTO planners (user_id, title, plan_data, is_public)
+        VALUES (#{userId}, #{title}, #{planData}, #{isPublic})
+    </insert>
+
+    <!-- 플랜 수정 -->
+    <update id="updatePlanner" parameterType="PlannerDto">
+        UPDATE planners SET title = #{title}, plan_data = #{planData}
+        WHERE planner_id = #{plannerId}
+    </update>
+
+    <!-- 플랜 삭제 -->
+    <delete id="deletePlanner">
+        DELETE FROM planners WHERE planner_id = #{plannerId}
+    </delete>
+
+    <!-- Collaborative Features -->
+    
+    <update id="updatePublicStatus">
+        UPDATE planners SET is_public = #{isPublic} WHERE planner_id = #{plannerId}
+    </update>
+
+    <insert id="insertCollaborator" parameterType="PlannerCollaboratorDto">
+        INSERT INTO planner_collaborators (planner_id, user_id, role)
+        VALUES (#{plannerId}, #{userId}, #{role})
+    </insert>
+
+    <delete id="deleteCollaborator">
+        DELETE FROM planner_collaborators WHERE planner_id = #{plannerId} AND user_id = #{userId}
+    </delete>
+
+    <select id="findCollaboratorsByPlannerId" resultType="PlannerCollaboratorDto">
+        SELECT 
+            c.collaborator_id AS collaboratorId, 
+            c.planner_id AS plannerId, 
+            c.user_id AS userId, 
+            u.username, 
+            u.nickname, 
+            c.role, 
+            c.created_at AS createdAt
+        FROM planner_collaborators c
+        JOIN users u ON c.user_id = u.user_id
+        WHERE c.planner_id = #{plannerId}
+    </select>
+
+    <select id="checkCollaborator" resultType="Integer">
+        SELECT count(*) FROM planner_collaborators WHERE planner_id = #{plannerId} AND user_id = #{userId}
+    </select>
+
+    <select id="findCollaboratingPlanners" resultType="PlannerDto">
+        SELECT 
+            p.planner_id AS plannerId, 
+            p.user_id AS userId, 
+            p.title, 
+            p.plan_data AS planData, 
+            p.is_public AS isPublic,
+            p.created_at AS createdAt
+        FROM planners p
+        JOIN planner_collaborators c ON p.planner_id = c.planner_id
+        WHERE c.user_id = #{userId}
+        ORDER BY p.created_at DESC
+    </select>
+</mapper>

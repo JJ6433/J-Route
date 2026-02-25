@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.UserMapper">
+
+    <!-- 회원가입 -->
+    <insert id="insertUser" parameterType="UserDto" useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO users (username, password, nickname, role)
+        VALUES (#{username}, #{password}, #{nickname}, #{role})
+    </insert>
+
+    <!-- 로그인: username으로 회원 조회 -->
+    <select id="findByUsername" resultType="UserDto">
+        SELECT user_id AS userId, username, password, nickname, role, created_at AS createdAt
+        FROM users WHERE username = #{username}
+    </select>
+
+    <!-- 회원 한 명 조회 (마이페이지) -->
+    <select id="findById" resultType="UserDto">
+        SELECT user_id AS userId, username, password, nickname, role, created_at AS createdAt
+        FROM users WHERE user_id = #{userId}
+    </select>
+
+    <!-- 정보 수정 (비밀번호 제외) -->
+    <update id="updateUser" parameterType="UserDto">
+        UPDATE users SET nickname = #{nickname} WHERE user_id = #{userId}
+    </update>
+
+    <!-- 비밀번호 변경 -->
+    <update id="updatePassword">
+        UPDATE users SET password = #{encodedPassword} WHERE user_id = #{userId}
+    </update>
+
+    <!-- 회원 탈퇴 -->
+    <delete id="deleteById">
+        DELETE FROM users WHERE user_id = #{userId}
+    </delete>
+
+    <!-- 관리자: 전체 회원 목록 -->
+    <select id="findAll" resultType="UserDto">
+        SELECT user_id AS userId, username, nickname, role, created_at AS createdAt
+        FROM users ORDER BY created_at DESC
+    </select>
+
+    <!-- 관리자: 필터링된 회원 목록 -->
+    <select id="findWithFilters" resultType="UserDto">
+        SELECT user_id AS userId, username, nickname, role, created_at AS createdAt
+        FROM users
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (username LIKE CONCAT('%', #{keyword}, '%') OR nickname LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="role != null and role != ''">
+                AND role = #{role}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND created_at >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND created_at &lt;= CONCAT(#{endDate}, ' 23:59:59')
+            </if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM users
+    </select>
+
+    <!-- 최근 7일간 신규 가입자 통계 -->
+    <select id="getDailyRegistrationStats" resultType="map">
+        SELECT DATE_FORMAT(created_at, '%Y-%m-%d') as date, COUNT(*) as count
+        FROM users
+        WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d')
+        ORDER BY date ASC
+    </select>
+</mapper>

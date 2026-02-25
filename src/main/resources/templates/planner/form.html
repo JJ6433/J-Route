@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    <main class="container mt-4 mb-4 flex-grow-1">
+        <div class="container mb-5">
+            <h2 class="jroute-section-title"><i class="bi bi-magic"></i> AI旅行プランナー</h2>
+            <p class="lead text-muted">簡単な情報を入力するだけで、理想の旅行コースを自動作成！</p>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card jroute-card">
+                        <div class="card-body p-4">
+                            <form id="planner-form" th:action="@{/planner/generate}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label">エリア</label>
+                                    <input type="text" name="region" class="form-control" list="region-options"
+                                        placeholder="例: 札幌, 名古屋, 沖縄" required>
+                                    <datalist id="region-options">
+                                        <option value="東京">
+                                        <option value="大阪">
+                                        <option value="福岡">
+                                        <option value="京都">
+                                        <option value="北海道">
+                                        <option value="名古屋">
+                                        <option value="沖縄">
+                                        <option value="広島">
+                                        <option value="仙台">
+                                    </datalist>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">旅行日数</label>
+                                    <select name="days" class="form-select" required>
+                                        <option value="1泊2日">1泊2日</option>
+                                        <option value="2泊3日">2泊3日</option>
+                                        <option value="3泊4日">3泊4日</option>
+                                        <option value="4泊5日">4泊5日</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">同行者</label>
+                                    <select name="companion" class="form-select">
+                                        <option value="">選択</option>
+                                        <option value="一人旅">一人旅</option>
+                                        <option value="カップル">カップル</option>
+                                        <option value="友達">友達</option>
+                                        <option value="両親">両親</option>
+                                        <option value="子供同伴">子供同伴</option>
+                                        <option value="団体">団体</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">旅行スタイル</label>
+                                    <select name="style" class="form-select">
+                                        <option value="">選択</option>
+                                        <option value="グルメ">グルメ重視</option>
+                                        <option value="観光">観光重視</option>
+                                        <option value="癒し">癒し・リラックス</option>
+                                        <option value="ショッピング">ショッピング</option>
+                                    </select>
+                                </div>
+                                <button type="submit" id="submit-btn" class="btn jroute-btn-primary w-100">
+                                    <span id="btn-text">プラン生成 <i class="bi bi-chevron-right"></i></span>
+                                    <span id="btn-spinner" class="spinner-border spinner-border-sm d-none" role="status"
+                                        aria-hidden="true"></span>
+                                </button>
+                            </form>
+
+                            <!-- Loading Overlay -->
+                            <div id="loading-overlay" class="position-fixed top-0 start-0 w-100 h-100 d-none"
+                                style="background: rgba(255,255,255,0.8); z-index: 9999;">
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100">
+                                    <div class="spinner-grow text-danger mb-3" style="width: 3rem; height: 3rem;"
+                                        role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <h4 class="fw-bold">AIが最適な旅程を生成中です...</h4>
+                                    <p class="text-muted">少々お待ちください。</p>
+                                </div>
+                            </div>
+
+                            <script>
+                                document.getElementById('planner-form').addEventListener('submit', function (e) {
+                                    const btn = document.getElementById('submit-btn');
+                                    const btnText = document.getElementById('btn-text');
+                                    const btnSpinner = document.getElementById('btn-spinner');
+                                    const overlay = document.getElementById('loading-overlay');
+
+                                    // Disable button and show spinner
+                                    btn.disabled = true;
+                                    btnText.classList.add('d-none');
+                                    btnSpinner.classList.remove('d-none');
+
+                                    // Show full-screen overlay
+                                    overlay.classList.remove('d-none');
+                                });
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+
+</html>

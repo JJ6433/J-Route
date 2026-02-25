@@ -1,0 +1,362 @@
+/* J-Route 日本旅行プランナー - 参照デザイン準拠 */
+
+:root {
+  --jroute-red: #E74C3C;
+  --jroute-red-hover: #c0392b;
+  --jroute-text: #333333;
+  --jroute-bg-light: #F8F9FA;
+  --jroute-star: #FFD700;
+  --jroute-footer: #2C3E50;
+  --jroute-white: #FFFFFF;
+  --jroute-radius: 8px;
+  --jroute-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+body {
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+  color: var(--jroute-text);
+  background-color: var(--jroute-white);
+}
+
+/* ========== Header (참조: 토리 아이콘 + J-Route 로고, 빨간 로그인 버튼) ========== */
+.jroute-header {
+  background: var(--jroute-white) !important;
+  border-bottom: 1px solid var(--jroute-bg-light);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.jroute-header .navbar-brand {
+  color: var(--jroute-red) !important;
+  font-weight: 700;
+  font-size: 1.35rem;
+}
+
+.jroute-header .navbar-brand i {
+  color: var(--jroute-red);
+  margin-right: 6px;
+  font-size: 1.2em;
+}
+
+.jroute-header .nav-link {
+  color: var(--jroute-text) !important;
+}
+
+.jroute-header .nav-link:hover,
+.jroute-header .nav-link.active {
+  color: var(--jroute-red) !important;
+}
+
+.jroute-header .nav-link.active {
+  border-bottom: 2px solid var(--jroute-red);
+}
+
+.jroute-btn-login {
+  background: var(--jroute-red) !important;
+  color: var(--jroute-white) !important;
+  border: none;
+  border-radius: var(--jroute-radius);
+  padding: 8px 20px;
+  font-weight: 500;
+}
+
+.jroute-btn-login:hover {
+  background: var(--jroute-red-hover) !important;
+  color: var(--jroute-white) !important;
+}
+
+/* ========== Hero Banner (후지산·벚꽃 분위기, 빨간 강조 텍스트) ========== */
+.jroute-hero {
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+    url('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1600&q=80') center/cover no-repeat;
+  color: var(--jroute-white);
+  padding: 90px 0 110px;
+  margin-bottom: 2.5rem;
+  border-radius: var(--jroute-radius);
+  min-height: 320px;
+}
+
+.jroute-hero h1 {
+  font-weight: 700;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  color: var(--jroute-white);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.jroute-hero .text-accent {
+  color: var(--jroute-red);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.jroute-btn-primary {
+  background: var(--jroute-red) !important;
+  border: none;
+  border-radius: var(--jroute-radius);
+  padding: 12px 28px;
+  font-weight: 600;
+  color: var(--jroute-white) !important;
+}
+
+.jroute-btn-primary:hover {
+  background: var(--jroute-red-hover) !important;
+  color: var(--jroute-white) !important;
+}
+
+.jroute-btn-primary i {
+  margin-left: 6px;
+}
+
+/* ========== Section Title ========== */
+.jroute-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--jroute-text);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem;
+}
+
+.jroute-section-title i {
+  color: var(--jroute-star);
+  margin-right: 6px;
+}
+
+/* ========== Cards (TOP 3 / 人気グルメ等) ========== */
+.jroute-card {
+  background: var(--jroute-white);
+  border: 1px solid var(--jroute-bg-light);
+  border-radius: var(--jroute-radius);
+  box-shadow: var(--jroute-shadow);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.jroute-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.jroute-card .card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+.jroute-card .card-body {
+  padding: 1rem 1.25rem;
+}
+
+.jroute-card .card-title {
+  font-weight: 600;
+  color: var(--jroute-text);
+}
+
+.jroute-card .badge {
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.jroute-star-rating {
+  color: var(--jroute-star);
+}
+
+.jroute-card .btn-outline-view {
+  border: 1px solid var(--jroute-text);
+  color: var(--jroute-text);
+  border-radius: var(--jroute-radius);
+  padding: 8px 16px;
+}
+
+.jroute-card .btn-outline-view:hover {
+  background: var(--jroute-bg-light);
+  border-color: var(--jroute-text);
+  color: var(--jroute-text);
+}
+
+/* ========== Search Bar ========== */
+.jroute-search-bar {
+  background: var(--jroute-bg-light);
+  padding: 1rem 1.25rem;
+  border-radius: var(--jroute-radius);
+  margin-bottom: 2rem;
+}
+
+.jroute-search-bar .form-select {
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.jroute-btn-search {
+  background: var(--jroute-red) !important;
+  border: none;
+  color: var(--jroute-white) !important;
+  border-radius: var(--jroute-radius);
+  padding: 8px 24px;
+  font-weight: 500;
+}
+
+.jroute-btn-search:hover {
+  background: var(--jroute-red-hover) !important;
+  color: var(--jroute-white) !important;
+}
+
+/* ========== Buttons ========== */
+.btn-jroute {
+  background: var(--jroute-red);
+  color: var(--jroute-white);
+  border: none;
+  border-radius: var(--jroute-radius);
+}
+
+.btn-jroute:hover {
+  background: var(--jroute-red-hover);
+  color: var(--jroute-white);
+}
+
+/* ========== Footer ========== */
+.jroute-footer {
+  background: var(--jroute-footer) !important;
+  color: rgba(255, 255, 255, 0.9);
+  padding: 1.5rem 0;
+  margin-top: auto;
+}
+
+.jroute-footer a {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+}
+
+.jroute-footer a:hover {
+  color: var(--jroute-white);
+}
+
+.jroute-footer .footer-divider {
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 8px;
+}
+
+/* ========== Forms ========== */
+.form-control,
+.form-select {
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+/* ========== Detail / Review ========== */
+.jroute-detail-image {
+  border-radius: var(--jroute-radius);
+  box-shadow: var(--jroute-shadow);
+  max-height: 400px;
+  object-fit: cover;
+}
+
+.jroute-review-box {
+  background: var(--jroute-white);
+  border: 1px solid var(--jroute-bg-light);
+  border-radius: var(--jroute-radius);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ========== Utility ========== */
+.text-jroute-red {
+  color: var(--jroute-red);
+}
+
+.bg-jroute-light {
+  background: var(--jroute-bg-light);
+}
+
+/* Fix small font size in dropdown options */
+select.form-select option {
+  font-size: 1.1rem;
+  padding: 10px;
+}
+
+/* New Tagline Style */
+.text-new {
+  color: var(--jroute-red);
+  /* Changed to brand Red */
+  background: rgba(231, 76, 60, 0.1);
+  /* Light red background to match */
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+/* ========== Responsive Design (Mobile First) ========== */
+@media (max-width: 991.98px) {
+  .jroute-hero {
+    padding: 60px 0 80px;
+    min-height: 280px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .jroute-hero h1 {
+    font-size: 1.5rem;
+  }
+
+  .jroute-detail-image {
+    max-height: 250px;
+  }
+
+  .jroute-section-title {
+    font-size: 1.25rem;
+  }
+
+  .jroute-card .card-img-top {
+    height: 180px;
+  }
+
+  /* Adjust timeline for mobile */
+  .itinerary-day-box {
+    padding: 15px !important;
+  }
+
+  .timeline-item {
+    margin-left: 15px !important;
+    padding-left: 20px !important;
+  }
+
+  #loading-overlay h4 {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .jroute-btn-primary {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+.user-sidebar .list-group-item {
+    white-space: nowrap; /* 텍스트가 줄바꿈되지 않게 고정 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.95rem;
+    color: #444;
+    transition: all 0.2s ease;
+}
+
+.user-sidebar .list-group-item-action:hover {
+    background-color: #f0f7ff !important;
+    color: #007bff !important;
+    padding-left: 2rem !important; /* 살짝 오른쪽으로 밀리는 효과 */
+}
+
+.user-sidebar .active {
+    background-color: #007bff !important;
+    color: #fff !important;
+    font-weight: bold;
+}
+
+/* 카테고리 제목 스타일 */
+.user-sidebar .bg-light {
+    border-bottom: 1px solid #eee !important;
+}

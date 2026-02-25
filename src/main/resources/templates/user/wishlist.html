@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    <main class="container mt-5 mb-5 flex-grow-1">
+        <div class="d-flex align-items-center mb-4">
+            <a th:href="@{/mypage}" class="btn btn-light rounded-circle me-3"><i class="bi bi-arrow-left"></i></a>
+            <h2 class="fw-bold mb-0">ブックマークした旅行先</h2>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4" th:if="${!#lists.isEmpty(wishlists)}">
+            <div class="col" th:each="wish : ${wishlists}">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative">
+                    <img th:src="${wish.imageUrl != null ? wish.imageUrl : 'https://via.placeholder.com/400x250?text=No+Image'}"
+                        class="card-img-top" th:alt="${wish.placeName}" style="height: 180px; object-fit: cover;">
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <span class="badge bg-secondary opacity-75" th:text="${wish.placeRegion}">地域</span>
+                            <span class="badge bg-light text-dark border" th:text="${wish.placeCategory}">カテゴリ</span>
+                        </div>
+                        <h5 class="card-title fw-bold text-truncate" th:text="${wish.placeName}">場所名</h5>
+                        <p class="small text-muted mb-0">
+                            <i class="bi bi-clock me-1"></i> <span
+                                th:text="${#temporals.format(wish.createdAt, 'yyyy/MM/dd')}">2023/10/01</span> に保存
+                        </p>
+                    </div>
+                    <div class="card-footer bg-white border-0 pb-3 p-3 pt-0">
+                        <a th:href="@{/place/detail(id=${wish.placeId})}"
+                            class="btn btn-outline-primary btn-sm w-100 rounded-pill">
+                            詳しく見る <i class="bi bi-chevron-right small"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center py-5 bg-light rounded-4" th:if="${#lists.isEmpty(wishlists)}">
+            <div class="display-1 text-muted opacity-25 mb-3"><i class="bi bi-heart"></i></div>
+            <h4 class="text-muted">ブックマークした旅行先がありません。</h4>
+            <p class="text-muted mb-4">気になる旅行先を見つけて保存してみましょう！</p>
+            <a th:href="@{/place/list}" class="btn jroute-btn-search px-4">旅行先を探す</a>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+
+</html>

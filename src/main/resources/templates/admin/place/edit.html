@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/admin}">
+
+<head>
+    <title>旅行先登録・編集</title>
+</head>
+
+<body>
+    <main layout:fragment="content">
+        <div
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+            <h1 class="h3 fw-bold">
+                <i class="bi bi-pencil-square text-success"></i>
+                <span th:text="${place?.placeId != null ? '旅行先の編集' : '旅行先の登録'}">旅行先の登録</span>
+            </h1>
+        </div>
+
+        <div class="card shadow-sm" style="border-radius: 15px; border: none; max-width: 800px;">
+            <div class="card-body p-4">
+                <form th:action="@{/admin/place/save}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="placeId" th:value="${place?.placeId}" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">名前</label>
+                        <input type="text" name="name" class="form-control" th:value="${place?.name}" required
+                            maxlength="100" />
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">カテゴリ</label>
+                            <select name="category" class="form-select" required>
+                                <option value="観光" th:selected="${place?.category == '観光'}">観光</option>
+                                <option value="グルメ" th:selected="${place?.category == 'グルメ'}">グルメ</option>
+                                <option value="宿泊" th:selected="${place?.category == '宿泊'}">宿泊</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">地域</label>
+                            <input type="text" name="region" class="form-control" th:value="${place?.region}" required
+                                maxlength="50" placeholder="例: 東京, 大阪" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">説明</label>
+                        <textarea name="description" class="form-control" rows="4"
+                            th:text="${place?.description}"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">住所（地図API用）</label>
+                        <input type="text" name="address" class="form-control" th:value="${place?.address}"
+                            maxlength="255" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">代表画像</label>
+                        <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                        <p th:if="${place?.imageUrl != null}" class="small text-muted mt-2 mb-0">
+                            <i class="bi bi-info-circle"></i> 現在の画像: <span th:text="${place?.imageUrl}"
+                                class="text-primary"></span>
+                            <br>（変更する場合のみ新しいファイルを選択してください）
+                        </p>
+                    </div>
+
+                    <div class="d-flex justify-content-end border-top pt-3 mt-4">
+                        <button type="submit" class="btn text-white px-4 shadow-sm me-2"
+                            style="background-color: #5BAE51; border: none;">
+                            <i class="bi bi-save"></i> 保存
+                        </button>
+                        <a th:href="@{/admin/place/list}" class="btn btn-light border px-4">キャンセル</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

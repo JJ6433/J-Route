@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <th:block th:replace="~{fragments/head :: headFragment}"></th:block>
+    <style>
+        .jroute-admin-sidebar {
+            background-color: var(--card-bg, #FFFFFF);
+            border-right: 1px solid #eee;
+            min-height: calc(100vh - 140px);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .jroute-admin-nav .nav-link {
+            color: var(--text-color, #333);
+            font-weight: 500;
+            padding: 1rem 1.5rem;
+            border-radius: 0 25px 25px 0;
+            margin-right: 1rem;
+            margin-bottom: 0.2rem;
+            transition: all 0.2s;
+        }
+
+        .jroute-admin-nav .nav-link:hover,
+        .jroute-admin-nav .nav-link.active {
+            background-color: var(--primary-light, #e8f5e9);
+            color: var(--primary-color, #5BAE51);
+        }
+
+        .jroute-admin-nav .nav-link i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100" style="background-color: var(--bg-color, #F7F9FB);">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+
+    <div class="container-fluid flex-grow-1">
+        <div class="row h-100">
+            <nav class="col-md-3 col-lg-2 d-md-block jroute-admin-sidebar pt-4">
+                <div class="position-sticky">
+                    <h6 class="sidebar-heading px-3 mt-2 mb-3 text-muted fw-bold" style="font-size: 0.85rem;">管理者メニュー
+                    </h6>
+                    <ul class="nav flex-column jroute-admin-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" id="nav-dashboard" th:href="@{/admin/}"><i
+                                    class="bi bi-speedometer2"></i> ダッシュボード</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="nav-place" th:href="@{/admin/place/list}"><i
+                                    class="bi bi-geo-alt"></i> 旅行先管理</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="nav-user" th:href="@{/admin/user/list}"><i class="bi bi-people"></i>
+                                会員管理</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="nav-review" th:href="@{/admin/review}"><i
+                                    class="bi bi-chat-left-text"></i>
+                                口コミ管理</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="nav-api" th:href="@{/admin/api-log}"><i class="bi bi-activity"></i>
+                                APIモニタリング</a>
+                        <li class="nav-item">
+                            <a class="nav-link" id="nav-notice" th:href="@{/admin/notice}"><i
+                                    class="bi bi-megaphone"></i>
+                                お知らせ管理</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4" layout:fragment="content">
+            </main>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('/admin/place')) {
+                document.getElementById('nav-place').classList.add('active');
+            } else if (currentPath.includes('/admin/review')) {
+                document.getElementById('nav-review').classList.add('active');
+            } else if (currentPath.includes('/admin/user')) {
+                document.getElementById('nav-user').classList.add('active');
+            } else if (currentPath.includes('/admin/api-log')) {
+                document.getElementById('nav-api').classList.add('active');
+            } else if (currentPath.includes('/admin/notice')) {
+                document.getElementById('nav-notice').classList.add('active');
+            } else {
+                document.getElementById('nav-dashboard').classList.add('active');
+            }
+        });
+    </script>
+</body>
+
+</html>
