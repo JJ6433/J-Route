@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: headFragment}"></head>
+<body class="d-flex flex-column min-vh-100 bg-white">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    <main class="container mt-5 mb-5 flex-grow-1" style="max-width: 900px;">
+        
+        <div class="mb-4">
+            <a th:href="@{/board/list}" class="text-decoration-none text-muted small fw-bold"><i class="bi bi-arrow-left me-1"></i> リストに戻る</a>
+        </div>
+
+        <h1 class="fw-bold mb-3 text-dark" th:text="${board.title}">タイトル</h1>
+        
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-4 mb-4">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-person-circle fs-2 me-2 text-secondary"></i>
+                <div>
+                    <div class="fw-bold text-dark" th:text="${board.authorNickname}">作成者</div>
+                    <div class="text-muted small" th:text="${#temporals.format(board.createdAt, 'yyyy.MM.dd HH:mm')}">日付</div>
+                </div>
+            </div>
+            <div class="text-muted small">
+                <span class="me-3"><i class="bi bi-eye me-1"></i> <span th:text="${board.viewCount}">0</span></span>
+                <span class="text-danger"><i class="bi bi-heart-fill me-1"></i> <span th:text="${board.likeCount}">0</span></span>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mb-4" sec:authorize="isAuthenticated()" th:if="${#authentication.name == board.authorNickname}">
+            <a th:href="@{/board/edit(id=${board.boardId})}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil me-1"></i> 修正</a>
+            <a th:href="@{/board/delete(id=${board.boardId})}" class="btn btn-outline-danger btn-sm" onclick="return confirm('本当に削除しますか？');"><i class="bi bi-trash me-1"></i> 削除</a>
+        </div>
+
+        <div class="mb-5 text-center" th:if="${not #strings.isEmpty(board.thumbnailUrl)}">
+            <img th:src="${board.thumbnailUrl}" class="img-fluid rounded shadow-sm" style="max-height: 600px; width: 100%; object-fit: cover;">
+        </div>
+
+        <div class="fs-5 lh-lg mb-5 text-dark" style="min-height: 200px;" th:utext="${board.content}">内容</div>
+
+        <div class="text-center border-top pt-5 mb-5">
+            <a th:href="@{/board/like(id=${board.boardId})}" class="btn px-5 py-2 fw-bold shadow-sm rounded-pill" th:classappend="${isLiked} ? 'btn-danger' : 'btn-outline-danger'">
+                <i class="bi" th:classappend="${isLiked} ? 'bi-heart-fill' : 'bi-heart'"></i> いいね <span th:text="${board.likeCount}">0</span>
+            </a>
+        </div>
+
+        <div class="mt-5 border-top pt-4">
+            <h4 class="fw-bold mb-4"><i class="bi bi-chat-dots me-2" style="color: #5BAE51;"></i> コメント</h4>
+            
+            <div class="mb-4">
+                <div th:each="c : ${comments}" class="pb-3 mb-3 border-bottom" 
+                     th:style="${c.depth > 0} ? 'margin-left: ' + (${c.depth} * 30) + 'px; background-color: #f8f9fa; padding: 15px; border-radius: 8px;' : ''">
+                    
+                    <div class="d-flex justify-content-between mb-1">
+                        <div>
+                            <i class="bi bi-arrow-return-right text-muted me-1" th:if="${c.depth > 0}"></i>
+                            <span class="fw-bold text-dark" th:text="${c.authorNickname}">ユーザー</span>
+                        </div>
+                        <div class="text-muted small">
+                            <span th:text="${#temporals.format(c.createdAt, 'yyyy.MM.dd HH:mm')}">時間</span>
+                            <a sec:authorize="isAuthenticated()" th:if="${#authentication.name == c.authorNickname}" th:href="@{/board/comment/delete(cId=${c.commentId}, bId=${board.boardId})}" class="text-danger ms-2 text-decoration-none" onclick="return confirm('コメントを削除しますか？');"><i class="bi bi-x-circle"></i></a>
+                        </div>
+                    </div>
+                    
+                    <p class="mb-1 text-dark" th:text="${c.content}" th:style="${c.depth > 0} ? 'margin-left: 20px;' : ''">内容</p>
+                    
+                    <button th:if="${c.depth < 5}" sec:authorize="isAuthenticated()" class="btn btn-sm text-muted p-0" 
+                            th:attr="onclick=|toggleReply('replyForm${c.commentId}')|" 
+                            th:style="${c.depth > 0} ? 'margin-left: 20px;' : ''">
+                        <i class="bi bi-chat-left-text me-1"></i> 返信
+                    </button>
+                    
+                    <div th:id="'replyForm' + ${c.commentId}" style="display: none;" class="mt-2" th:styleappend="${c.depth > 0} ? 'margin-left: 20px;' : ''">
+                        <form th:action="@{/board/comment/write}" method="post" class="d-flex gap-2">
+                            <input type="hidden" name="boardId" th:value="${board.boardId}">
+                            <input type="hidden" name="parentId" th:value="${c.commentId}">
+                            <input type="text" class="form-control form-control-sm" name="content" placeholder="返信を入力..." required>
+                            <button class="btn btn-sm text-white" style="background-color: #5BAE51;" type="submit">登録</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div sec:authorize="isAuthenticated()" class="card bg-light border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <form th:action="@{/board/comment/write}" method="post">
+                        <input type="hidden" name="boardId" th:value="${board.boardId}">
+                        <div class="input-group">
+                            <textarea class="form-control" name="content" rows="2" placeholder="コメントを入力してください" required></textarea>
+                            <button class="btn text-white fw-bold px-4" type="submit" style="background-color: #5BAE51;">登録</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <script>
+        // 返信フォーム
+        function toggleReply(formId) {
+            var form = document.getElementById(formId);
+            form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.CommentMapper">
+
+    <insert id="insertComment" parameterType="com.blog.dto.CommentDto">
+        INSERT INTO board_comments (board_id, content, author_nickname, parent_id) 
+        VALUES (#{boardId}, #{content}, #{authorNickname}, #{parentId})
+    </insert>
+
+    <select id="getCommentsByBoardId" resultType="com.blog.dto.CommentDto">
+        SELECT * FROM board_comments 
+        WHERE board_id = #{boardId} 
+        ORDER BY comment_id ASC
+    </select>
+
+    <select id="getCommentById" resultType="com.blog.dto.CommentDto">
+        SELECT * FROM board_comments WHERE comment_id = #{commentId}
+    </select>
+
+    <delete id="deleteComment">
+        DELETE FROM board_comments WHERE comment_id = #{commentId}
+    </delete>
+
+</mapper>
