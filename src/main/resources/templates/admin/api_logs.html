@@ -59,8 +59,7 @@
                                     <div class="text-truncate" style="max-width: 250px;" th:text="${log.errorMessage}"
                                         th:title="${log.errorMessage}">-</div>
                                 </td>
-                                <td class="pe-4" th:text="${#temporals.format(log.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
-                                    2026-02-23</td>
+                                <td class="pe-4" th:text="${log.createdAt}">
                             </tr>
                             <tr th:if="${#lists.isEmpty(logs)}">
                                 <td colspan="7" class="text-center text-muted py-5">

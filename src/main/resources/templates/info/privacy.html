@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    <main class="container py-5 flex-grow-1">
+        <h2 class="jroute-section-title mb-5"><i class="bi bi-shield-lock-fill me-2"></i>プライバシーポリシー</h2>
+
+        <div class="card jroute-card shadow-sm border-0 p-4 p-md-5">
+            <div class="mb-4">
+                <h4 class="fw-bold">個人情報処理方針</h4>
+                <p class="text-muted">J-Routeは、会員の個人情報を尊重し、関連する情報保護法を遵守しています。</p>
+            </div>
+            <hr class="my-4">
+            <div class="mb-4">
+                <h5 class="fw-bold">1. 収集する個人情報の項目</h5>
+                <p class="text-muted">当社は、会員登録、サービス提供などのために以下の個人情報を収集しています。<br>
+                    - 収集項目：氏名、メールアドレス、ニックネーム、接続ログなど</p>
+            </div>
+            <div class="mb-4">
+                <h5 class="fw-bold">2. 個人情報の収集および利用目的</h5>
+                <p class="text-muted">当社は、収集した個人情報を以下の目的のために活用します。<br>
+                    - サービス提供に関する契約の履行およびサービス提供に伴う料金精算<br>
+                    - 会員管理：会員制サービス利用に伴う本人確認、個人識別、不良会員の不正利用防止および非認可使用の防止</p>
+            </div>
+            <div class="mb-4">
+                <h5 class="fw-bold">3. 個人情報の保有および利用期間</h5>
+                <p class="text-muted">当社は、個人情報の収集および利用目的が達成された後は、当該情報を遅滞なく破棄します。</p>
+            </div>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+
+</html>

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
  * API 호출 로그 DTO
  */
 public class ApiLogDto {
-    private Long log_id;
+    private Long logId;
     private String apiName;
     private String endpoint;
     private String status;
@@ -15,12 +15,12 @@ public class ApiLogDto {
     private LocalDateTime createdAt;
 
     // Getters and Setters
-    public Long getLog_id() {
-        return log_id;
+    public Long getLogId() {
+        return logId;
     }
 
-    public void setLog_id(Long log_id) {
-        this.log_id = log_id;
+    public void setLogId(Long logId) {
+        this.logId = logId;
     }
 
     public String getApiName() {

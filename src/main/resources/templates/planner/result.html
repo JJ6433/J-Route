@@ -23,7 +23,28 @@
     #map-status .btn-group .btn {
         font-size: 0.75rem;
     }
+
+    /* Export Optimization */
+    .export-hidden {
+        display: none !important;
+    }
+
+    #export-container {
+        padding: 20px;
+        background: white;
+    }
+
+    .hover-bg-white:hover {
+        background-color: white !important;
+    }
+
+    .cursor-text {
+        cursor: text;
+    }
 </style>
+<!-- Libraries for Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <body class="d-flex flex-column min-vh-100">
     <header th:replace="~{fragments/header :: headerFragment}"></header>
@@ -36,31 +57,49 @@
                 <div class="col-lg-7">
                     <div class="card jroute-card mb-4 shadow-sm border-0">
                         <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-center w-100">
+                            <div class="d-flex justify-content-between align-items-start w-100">
                                 <h4 class="mb-0 fw-bold text-danger">
                                     <i class="bi bi-journal-text me-2"></i>AI 旅行プラン
                                     <span id="unsaved-badge" class="badge bg-warning text-dark ms-2 d-none"
                                         style="font-size: 0.7rem;">未保存の変更</span>
                                 </h4>
-                                <div class="d-flex align-items-center" th:if="${planner != null}">
+                                <div class="d-flex align-items-start gap-2" th:if="${planner != null}">
+                                    <!-- Export Dropdown -->
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                            id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-download me-1"></i> エクスポート
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow border-0"
+                                            aria-labelledby="exportDropdown">
+                                            <li><a class="dropdown-item py-2" href="#" onclick="exportPlan('pdf')"><i
+                                                        class="bi bi-file-earmark-pdf me-2 text-danger"></i>PDFで保存</a>
+                                            </li>
+                                            <li><a class="dropdown-item py-2" href="#" onclick="exportPlan('image')"><i
+                                                        class="bi bi-image me-2 text-primary"></i>画像として保存</a></li>
+                                        </ul>
+                                    </div>
+
                                     <!-- Share Button -->
-                                    <button type="button" class="btn btn-outline-danger btn-sm me-2"
-                                        data-bs-toggle="modal" data-bs-target="#shareModal" th:if="${isOwner ?: false}">
+                                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#shareModal" th:if="${isOwner ?: false}">
                                         <i class="bi bi-share me-1"></i> 共有
                                     </button>
                                     <!-- Collaborators Badge -->
-                                    <span class="badge bg-light text-dark border me-2"
+                                    <span class="badge bg-light text-dark border"
                                         th:if="${collaborators != null and not #lists.isEmpty(collaborators)}">
                                         <i class="bi bi-people-fill me-1"></i> <span
                                             th:text="${collaborators.size()}">0</span>
                                     </span>
-                                    <span class="text-muted small me-3" th:if="${canEdit == false}">
+                                    <span class="text-muted small" th:if="${canEdit == false}">
                                         <i class="bi bi-lock-fill me-1"></i> 読み取り専用
                                     </span>
-                                    <form th:action="@{/planner/delete}" method="post"
+                                    <form th:action="@{/planner/delete/{id}(id=${planner.plannerId})}" method="post"
                                         onsubmit="return confirm('このプランを削除しますか？');" th:if="${isOwner ?: false}">
                                         <input type="hidden" name="plannerId" th:value="${planner.plannerId}" />
-                                        <button type="submit" class="btn btn-link text-danger p-0 small">削除</button>
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                            <i class="bi bi-trash me-1"></i> 削除
+                                        </button>
                                     </form>
                                 </div>
                             </div>
@@ -74,16 +113,77 @@
                                     <span class="input-group-text bg-white border-end-0"><i
                                             class="bi bi-pencil-fill text-muted"></i></span>
                                     <input type="text" name="title" class="form-control border-start-0"
-                                        th:value="${title}" required placeholder="プランの名前を入力してください"
-                                        th:readonly="${canEdit == false}">
+                                        th:value="${title ?: (planner != null ? planner.title : region + ' 旅行')}"
+                                        required placeholder="プランの名前を入力してください" th:readonly="${canEdit == false}">
                                     <button type="submit" class="btn jroute-btn-primary px-4"
                                         th:text="${planner == null ? 'このプランを保存' : '変更を保存'}" th:if="${canEdit != false}">
                                     </button>
                                 </div>
                                 <input type="hidden" name="planData" id="planDataInput" th:value="${planData}">
                             </form>
+
+                            <!-- Trip Summary Section -->
+                            <div
+                                class="mt-4 p-3 bg-light rounded-3 border-0 d-flex flex-wrap gap-4 align-items-center shadow-xs">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-white p-2 rounded-circle shadow-sm me-2 text-danger">
+                                        <i class="bi bi-calendar-event fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="small text-muted">旅行日程 <i class="bi bi-pencil small ms-1"
+                                                style="opacity: 0.5;"></i></div>
+                                        <div class="fw-bold px-1 rounded hover-bg-white cursor-text" id="display-dates"
+                                            contenteditable="true" onblur="updatePlanData()"
+                                            th:text="${(startDate != null && endDate != null) ? startDate + ' ~ ' + endDate : '日程情報なし'}">
+                                            2026.03.01 ~ 03.05
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-white p-2 rounded-circle shadow-sm me-2 text-danger">
+                                        <i class="bi bi-people fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="small text-muted">人数 <i class="bi bi-pencil small ms-1"
+                                                style="opacity: 0.5;"></i></div>
+                                        <div class="fw-bold px-1 rounded hover-bg-white cursor-text" id="display-people"
+                                            contenteditable="true" onblur="updatePlanData()"
+                                            th:text="${(adults != null) ? '大人 ' + adults + ', 子供 ' + children : '人数情報なし'}">
+                                            大人 2, 子供 0
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-white p-2 rounded-circle shadow-sm me-2 text-danger">
+                                        <i class="bi bi-house-door fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="small text-muted">宿泊拠点 <i class="bi bi-pencil small ms-1"
+                                                style="opacity: 0.5;"></i></div>
+                                        <div class="fw-bold px-1 rounded hover-bg-white cursor-text"
+                                            id="display-accommodation" contenteditable="true" onblur="updatePlanData()"
+                                            th:text="${accommodation ?: '宿泊情報なし'}">ホテル名</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Weather Report Section (Populated JS) -->
+                    <div id="weather-section" class="mb-4" style="display: none;">
+                        <div class="card border-0 shadow-sm bg-primary text-white" style="border-radius: 15px;">
+                            <div class="card-body p-4">
+                                <h6 class="fw-bold mb-3"><i class="bi bi-cloud-sun me-2"></i>旅行先の天気情報</h6>
+                                <div id="weather-list" class="d-flex gap-3 overflow-auto pb-2"
+                                    style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.3) transparent;">
+                                    <!-- Weather items injected by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 予算管理レポート追加 -->
+                    <div id="budget-summary-container" class="mb-4"></div>
 
                     <!-- 日別タイムライン -->
                     <div id="timeline-container" class="mb-4"></div>
@@ -196,447 +296,530 @@
     </main>
     <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 
+    <!-- Add Item Modal -->
+    <div class="modal fade" id="addItemModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle me-2"></i>予定を追加</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="targetDayIndex">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">時間 (24時間形式)</label>
+                        <input type="text" class="form-control" id="newItemTime" placeholder="例: 09:30 または 14:00">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">場所名</label>
+                        <input type="text" class="form-control" id="newItemTitle" placeholder="例: 神戸ポートタワー">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">営業時間</label>
+                        <input type="text" class="form-control" id="newItemHours" placeholder="例: 09:00~18:00">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">移動手段</label>
+                        <input type="text" class="form-control" id="newItemTransport" placeholder="例: バス 10分">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">カード決済</label>
+                        <select class="form-select" id="newItemCard">
+                            <option value="Yes">カード可</option>
+                            <option value="No">現金推奨</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">予想費用 (円)</label>
+                        <input type="number" class="form-control" id="newItemExpense" placeholder="例: 1500">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">メモ</label>
+                        <textarea class="form-control" id="newItemMemo" rows="3" placeholder="簡単な説明などを入力"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-danger rounded-pill px-4"
+                        onclick="confirmAddItem()">追加する</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="plan-data-carrier" th:if="${planData}" th:attr="data-plan=${planData}" style="display:none;"></div>
 
     <script th:inline="javascript">
-        (function () {
-            var planDataRaw = /*[[${planData}]]*/ 'null';
-            if (!planDataRaw || planDataRaw === 'null') {
+        var planDataRaw = /*[[${planData}]]*/ 'null';
+        var plan = null;
+        var googleMap = null;
+        var markers = [];
+        var polylines = [];
+        var geoCache = {};
+        var currentMapCallId = 0;
+        var activeInfoWindow = null;
+        var contextCity = "";
+        var placesService = null;
+
+        if (planDataRaw && planDataRaw !== 'null') {
+            try {
+                plan = typeof planDataRaw === 'string' ? JSON.parse(planDataRaw) : planDataRaw;
+            } catch (e) {
+                console.error('JSON Parse Error:', e);
                 document.getElementById('timeline-fallback').style.display = 'block';
+            }
+        } else {
+            document.getElementById('timeline-fallback').style.display = 'block';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (plan && plan.days) {
+                autoFillSummary();
+                translationCleanup();
+                initShareLink();
+                initSaveForm();
+                if (!window.google) renderPlan(); // Map will call renderPlan if loaded, otherwise we call it here
+            }
+        });
+
+        function autoFillSummary() {
+            const dateEl = document.getElementById('display-dates');
+            const peopleEl = document.getElementById('display-people');
+            const hotelEl = document.getElementById('display-accommodation');
+            const needsInfo = (el) => el && (el.textContent.includes('なし') || el.textContent.includes('없음') || el.textContent.trim() === '' || el.textContent.includes('日程情報'));
+
+            if (plan.weather && plan.weather.length > 0 && needsInfo(dateEl)) {
+                dateEl.textContent = `${plan.weather[0].date} ~ ${plan.weather[plan.weather.length - 1].date}`;
+            }
+            if (plan.trip_info) {
+                var info = plan.trip_info;
+                if (needsInfo(dateEl)) dateEl.innerText = (info.start_date || '') + ' ~ ' + (info.end_date || '');
+                if (needsInfo(peopleEl)) peopleEl.innerText = '大人 ' + (info.adults || 0) + ', 子供 ' + (info.children || 0);
+                if (needsInfo(hotelEl)) hotelEl.innerText = info.accommodation || '情報なし';
+            }
+        }
+
+        function translationCleanup() {
+            if (plan.weather) {
+                plan.weather.forEach(w => {
+                    if (w.desc === '맑음') w.desc = '晴れ';
+                    if (w.desc === '흐림' || w.desc === '흐름') w.desc = '曇り';
+                    if (w.desc === '비') w.desc = '雨';
+                });
+            }
+        }
+
+        function initShareLink() {
+            var shareInput = document.getElementById('shareLink');
+            if (shareInput) {
+                var pId = shareInput.getAttribute('data-id');
+                shareInput.value = window.location.origin + window.location.pathname + '?id=' + pId;
+            }
+        }
+
+        function initSaveForm() {
+            var saveForm = document.getElementById('savePlanForm');
+            if (saveForm) {
+                saveForm.onsubmit = function (e) {
+                    e.preventDefault();
+                    var formData = new FormData(saveForm);
+                    fetch(saveForm.action, { method: 'POST', body: formData })
+                        .then(response => response.text())
+                        .then(data => {
+                            if (data === 'OK' || data.startsWith('OK')) { alert('保存しました！'); window.location.href = '/planner/list'; }
+                            else { alert('エラー: ' + data); }
+                        })
+                        .catch(err => { console.error('Save failed:', err); alert('保存中にエラーが発生しました。'); });
+                };
+            }
+        }
+
+        function renderPlan() {
+            var container = document.getElementById('timeline-container');
+            if (!container || !plan) return;
+            container.innerHTML = '';
+            var titleEl = document.querySelector('.jroute-section-title');
+            if (titleEl) contextCity = titleEl.textContent.replace('旅行', '').replace('의 여행', '').trim();
+
+            if (window.google && window.google.maps && window.google.maps.places) {
+                if (!placesService) placesService = new google.maps.places.PlacesService(document.createElement('div'));
+            }
+
+            if (plan.error) {
+                container.innerHTML = `<div class="alert alert-danger shadow-sm border-0 d-flex align-items-center" role="alert"><i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i><div><h5 class="alert-heading fw-bold mb-1">プラン生成エラー</h5><p class="mb-0">${escapeHtml(plan.error)}</p></div></div>`;
                 return;
             }
-            try {
-                var plan = typeof planDataRaw === 'string' ? JSON.parse(planDataRaw) : planDataRaw;
-                if (!plan || !plan.days) {
-                    console.warn('No days in plan:', plan);
-                    document.getElementById('timeline-fallback').style.display = 'block';
-                    return;
-                }
-                var container = document.getElementById('timeline-container');
-                var googleMap = null;
-                var markers = [];
-                var polylines = [];
-                var geoCache = {};
-                var timelineDayCards = [];
 
-                // --- Share Link Initialization ---
-                var shareInput = document.getElementById('shareLink');
-                if (shareInput) {
-                    var pId = shareInput.getAttribute('data-id');
-                    shareInput.value = window.location.origin + window.location.pathname + '?id=' + pId;
+            if (plan.weather && plan.weather.length > 0) {
+                const weatherSection = document.getElementById('weather-section');
+                const weatherList = document.getElementById('weather-list');
+                if (weatherSection && weatherList) {
+                    weatherSection.style.display = 'block';
+                    weatherList.innerHTML = '';
+                    plan.weather.forEach(w => {
+                        const iconClass = getWeatherIcon(w.desc);
+                        const item = document.createElement('div');
+                        item.className = 'bg-white bg-opacity-10 p-3 rounded text-center';
+                        item.style.minWidth = '110px';
+                        item.innerHTML = `<div class="small fw-light mb-1">${w.date}</div><i class="bi ${iconClass} fs-4 mb-2 d-block"></i><div class="fw-bold mb-1">${w.desc}</div><div class="small">${w.temp}</div>`;
+                        weatherList.appendChild(item);
+                    });
                 }
+            }
 
-                function renderPlan() {
-                    container.innerHTML = '';
-                    timelineDayCards = [];
-                    if (plan.error) {
-                        container.innerHTML = `
-                            <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center" role="alert">
-                                <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
-                                <div>
-                                    <h5 class="alert-heading fw-bold mb-1">プラン生成エラー</h5>
-                                    <p class="mb-0">${escapeHtml(plan.error)}</p>
-                                </div>
+            plan.days.forEach(function (dayObj, dayIndex) {
+                var dayNum = dayObj.day || (dayIndex + 1);
+                var items = dayObj.items || [];
+                var dayCard = document.createElement('div');
+                dayCard.className = 'card jroute-card mb-4 shadow-sm border-0 day-card';
+                dayCard.id = 'day-card-' + dayIndex;
+                dayCard.onclick = function () { updateMapMarkers(dayIndex); };
+
+                var dayTitle = document.createElement('div');
+                dayTitle.className = 'card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center cursor-pointer';
+                dayTitle.innerHTML = `<h5 class="mb-0 fw-bold text-danger"><i class="bi bi-geo-alt-fill me-2"></i>Day ${dayNum}</h5><span class="badge bg-light text-muted border small">地図フォーカス</span>`;
+                dayCard.appendChild(dayTitle);
+
+                var list = document.createElement('ul');
+                list.className = 'list-group list-group-flush';
+                items.forEach(function (item, itemIndex) {
+                    var li = document.createElement('li');
+                    li.id = `item-${dayIndex}-${itemIndex}`;
+                    li.className = 'list-group-item d-flex justify-content-between align-items-center py-4 position-relative timeline-item';
+                    li.onmouseenter = function () { highlightMarker(dayIndex, itemIndex, true); };
+                    li.onmouseleave = function () { highlightMarker(dayIndex, itemIndex, false); };
+                    li.onclick = function () { openInfoWindowFor(dayIndex, itemIndex); };
+
+                    var left = document.createElement('div');
+                    left.className = 'd-flex align-items-start flex-grow-1 me-3';
+                    left.innerHTML = `
+                        <span class="badge bg-light text-dark border me-3 mt-1" style="min-width: 4.5rem; font-size: 0.9rem;">${item.time || '--:--'}</span>
+                        <div>
+                            <h6 class="mb-1 fw-bold fs-5">${escapeHtml(item.title || '')}</h6>
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                ${item.hours ? `<span class="badge bg-light text-dark border-0 shadow-xs small" style="font-weight: 500;"><i class="bi bi-clock me-1 text-primary"></i>${escapeHtml(item.hours)}</span>` : ''}
+                                ${item.card === 'Yes' ? `<span class="badge bg-success-subtle text-success border-0 small"><i class="bi bi-credit-card me-1"></i>カード可</span>` : `<span class="badge bg-light text-muted border-0 small">現金推奨</span>`}
+                                ${item.transport ? `<span class="badge bg-primary-subtle text-primary border-0 small"><i class="bi bi-bus-front me-1"></i>${escapeHtml(item.transport)}</span>` : ''}
+                                ${item.expense ? `<span class="badge bg-warning-subtle text-warning-emphasis border-0 small"><i class="bi bi-currency-yen me-1"></i>${Number(item.expense).toLocaleString()}円</span>` : ''}
                             </div>
-                        `;
-                        return;
+                            ${item.memo ? '<p class="text-muted mb-0 small" style="line-height:1.5;">' + escapeHtml(item.memo) + '</p>' : ''}
+                        </div>`;
+                    li.appendChild(left);
+
+                    if (/*[[${canEdit != false}]]*/ true) {
+                        var deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'btn btn-outline-danger btn-sm rounded-circle position-absolute top-0 end-0 m-2 edit-btn';
+                        deleteBtn.innerHTML = '<i class="bi bi-x"></i>';
+                        deleteBtn.onclick = function (e) {
+                            e.stopPropagation();
+                            if (confirm('この項目を削除しますか？')) { plan.days[dayIndex].items.splice(itemIndex, 1); updatePlanData(); renderPlan(); }
+                        };
+                        li.appendChild(deleteBtn);
                     }
 
-                    plan.days.forEach(function (dayObj, dayIndex) {
-                        var dayNum = dayObj.day || 0;
-                        var items = dayObj.items || [];
+                    var imgContainer = document.createElement('div');
+                    imgContainer.className = 'ms-3 flex-shrink-0 shadow-sm';
+                    imgContainer.style = 'width: 140px; height: 100px; position: relative; border-radius: 8px; overflow: hidden; background: #f8f9fa; border: 1px solid #eee;';
+                    var img = document.createElement('img');
+                    // img.crossOrigin = 'anonymous'; // Removed to avoid potential CORS blocks on Google Photo URLs
+                    img.className = 'w-100 h-100';
+                    img.style = 'object-fit: cover; transition: opacity 0.3s ease; opacity: 0;';
+                    img.alt = item.title;
 
-                        var dayCard = document.createElement('div');
-                        dayCard.className = 'card jroute-card mb-4 shadow-sm border-0 day-card';
-                        dayCard.dataset.dayIndex = dayIndex;
-                        timelineDayCards.push(dayCard);
-
-                        var dayTitle = document.createElement('div');
-                        dayTitle.className = 'card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center cursor-pointer';
-                        dayTitle.style.cursor = 'pointer';
-                        dayTitle.innerHTML = `<h5 class="mb-0 fw-bold text-danger"><i class="bi bi-geo-alt-fill me-2"></i>Day ${dayNum}</h5>
-                                             <span class="badge bg-light text-muted border small">地図フォーカス</span>`;
-                        dayTitle.onclick = function () {
-                            updateMapMarkers(dayIndex);
-                        };
-                        dayCard.appendChild(dayTitle);
-
-                        var list = document.createElement('ul');
-                        list.className = 'list-group list-group-flush';
-
-                        items.forEach(function (item, itemIndex) {
-                            var li = document.createElement('li');
-                            li.className = 'list-group-item d-flex justify-content-between align-items-center py-4 position-relative timeline-item';
-                            li.dataset.itemIndex = itemIndex;
-                            li.dataset.dayIndex = dayIndex;
-
-                            // Highlight marker on hover
-                            li.onmouseenter = function () { highlightMarker(dayIndex, itemIndex, true); };
-                            li.onmouseleave = function () { highlightMarker(dayIndex, itemIndex, false); };
-
-                            var left = document.createElement('div');
-                            left.className = 'd-flex align-items-start flex-grow-1 me-3';
-
-                            var time = document.createElement('span');
-                            time.className = 'badge bg-light text-dark border me-3 mt-1';
-                            time.style.minWidth = '4.5rem';
-                            time.style.fontSize = '0.9rem';
-                            time.textContent = item.time || '--:--';
-
-                            var info = document.createElement('div');
-                            info.innerHTML = '<h6 class="mb-1 fw-bold fs-5">' + escapeHtml(item.title || '') + '</h6>' +
-                                (item.memo ? '<p class="text-muted mb-0">' + escapeHtml(item.memo) + '</p>' : '');
-
-                            left.appendChild(time);
-                            left.appendChild(info);
-                            li.appendChild(left);
-
-                            // --- Delete Button ---
-                            if (/*[[${canEdit != false}]]*/ true) {
-                                var deleteBtn = document.createElement('button');
-                                deleteBtn.className = 'btn btn-outline-danger btn-sm rounded-circle position-absolute top-0 end-0 m-2 edit-btn';
-                                deleteBtn.style.zIndex = '5';
-                                deleteBtn.innerHTML = '<i class="bi bi-x"></i>';
-                                deleteBtn.onclick = function (e) {
-                                    e.stopPropagation();
-                                    if (confirm('この項目を削除しますか？')) {
-                                        plan.days[dayIndex].items.splice(itemIndex, 1);
-                                        updatePlanData();
-                                        renderPlan();
-                                    }
-                                };
-                                li.appendChild(deleteBtn);
+                    function displayPhoto(photo) {
+                        var photoUrl = photo.getUrl({ maxWidth: 400, maxHeight: 300 });
+                        img.src = photoUrl; img.style.opacity = '1'; item.photoUrl = photoUrl;
+                    }
+                    async function fallbackImages() {
+                        try {
+                            // Stage 4: If no photo is found, use a Static Map centered on the location's coordinates
+                            var coords = await getCoords(item.title, contextCity);
+                            if (coords && window.google) {
+                                var lat = typeof coords.lat === 'function' ? coords.lat() : coords.lat;
+                                var lng = typeof coords.lng === 'function' ? coords.lng() : coords.lng;
+                                var apiKey = /*[[${apiKey}]]*/ '';
+                                img.src = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=400x300&markers=color:red%7C${lat},${lng}&key=${apiKey}`;
+                                img.onload = function () { img.style.opacity = '1'; };
+                                return;
                             }
+                        } catch (e) {
+                            console.error("Fallback image error:", e);
+                        }
+                        // Absolute final fallback if even coords fail
+                        img.src = "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=400&h=300";
+                        img.style.opacity = '1';
+                    }
 
-                            // --- Image Part with Google Places Photo ---
-                            var imgContainer = document.createElement('div');
-                            imgContainer.className = 'ms-3 flex-shrink-0 shadow-sm';
-                            imgContainer.style = 'width: 140px; height: 100px; position: relative; border-radius: 8px; overflow: hidden; background: #f8f9fa; border: 1px solid #eee;';
+                    if (placesService) {
+                        var queryTitle = (contextCity && !item.title.includes(contextCity)) ? contextCity + " " + item.title : item.title;
+                        var queryKeyword = item.keyword ? ((contextCity && !item.keyword.includes(contextCity)) ? contextCity + " " + item.keyword : item.keyword) : null;
 
-                            var img = document.createElement('img');
-                            img.className = 'w-100 h-100';
-                            img.style = 'object-fit: cover; transition: opacity 0.3s ease; opacity: 0;';
-                            img.alt = item.title;
+                        // Stage 1: Try searching by English keyword (usually better meta-data on Google)
+                        if (queryKeyword) {
+                            placesService.findPlaceFromQuery({ query: queryKeyword, fields: ['photos', 'name'] }, function (results, status) {
+                                if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0].photos) {
+                                    displayPhoto(results[0].photos[0]);
+                                } else {
+                                    tryTitleSearch();
+                                }
+                            });
+                        } else {
+                            tryTitleSearch();
+                        }
 
-                            function loadPhoto() {
-                                if (window.google && window.google.maps && window.google.maps.places) {
-                                    var service = new google.maps.places.PlacesService(document.createElement('div'));
-                                    var request = { query: item.title, fields: ['photos', 'name'] };
-                                    service.findPlaceFromQuery(request, function (results, status) {
-                                        if (status === google.maps.places.PlacesServiceStatus.OK && results[0].photos) {
-                                            var photoUrl = results[0].photos[0].getUrl({ maxWidth: 300, maxHeight: 200 });
-                                            img.src = photoUrl;
-                                            img.style.opacity = '1';
+                        function tryTitleSearch() {
+                            // Stage 2: Try searching by the actual title
+                            placesService.findPlaceFromQuery({ query: queryTitle, fields: ['photos', 'name'] }, function (results, status) {
+                                if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0].photos) {
+                                    displayPhoto(results[0].photos[0]);
+                                } else {
+                                    // Stage 3: Broad TextSearch if direct pinpoint fails
+                                    placesService.textSearch({ query: queryTitle }, function (results2, status2) {
+                                        if (status2 === google.maps.places.PlacesServiceStatus.OK && results2 && results2[0].photos) {
+                                            displayPhoto(results2[0].photos[0]);
                                         } else {
                                             fallbackImages();
                                         }
                                     });
-                                } else {
-                                    fallbackImages();
                                 }
-                            }
-
-                            function fallbackImages() {
-                                var keywords = (item.keyword || item.title || 'Japan').toLowerCase().replace(/\s+/g, ',');
-                                var sources = [
-                                    'https://images.unsplash.com/photo-1528164344705-47542687990d?auto=format&fit=crop&w=300&h=200',
-                                    'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=300&h=200',
-                                    'https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=300&h=200'
-                                ];
-                                function tryLoad(idx) {
-                                    if (idx >= sources.length) return;
-                                    var temp = new Image();
-                                    temp.onload = function () { img.src = sources[idx]; img.style.opacity = '1'; };
-                                    temp.onerror = function () { tryLoad(idx + 1); };
-                                    temp.src = sources[idx];
-                                }
-                                tryLoad(0);
-                            }
-
-                            loadPhoto();
-                            imgContainer.appendChild(img);
-                            li.appendChild(imgContainer);
-                            list.appendChild(li);
-                        });
-
-                        dayCard.appendChild(list);
-
-                        // --- Add Item Button ---
-                        var dayFooter = document.createElement('div');
-                        dayFooter.className = 'card-footer bg-light border-0 py-3 text-center';
-                        var addBtn = document.createElement('button');
-                        addBtn.className = 'btn btn-outline-danger btn-sm rounded-pill px-4';
-                        addBtn.innerHTML = '<i class="bi bi-plus-lg me-1"></i>予定を追加';
-                        addBtn.onclick = function () { window.showAddItemModal(dayIndex); };
-                        dayFooter.appendChild(addBtn);
-                        dayCard.appendChild(dayFooter);
-
-                        container.appendChild(dayCard);
-                    });
-
-                    // --- Update Map ---
-                    if (window.google && window.google.maps) {
-                        updateMapMarkers();
-                        updateMapFilterUI();
-                    }
-                }
-
-                function updateMapFilterUI() {
-                    var statusEl = document.getElementById('map-status');
-                    if (!statusEl) return;
-
-                    var html = '<div class="btn-group btn-group-sm ms-2" role="group">';
-                    html += '<button type="button" class="btn btn-outline-secondary py-0" onclick="window.updateMapMarkers()">すべて</button>';
-                    plan.days.forEach((d, i) => {
-                        html += `<button type="button" class="btn btn-outline-danger py-0" onclick="window.updateMapMarkers(${i})">Day ${d.day}</button>`;
-                    });
-                    html += '</div>';
-                    statusEl.innerHTML = html;
-                }
-
-                window.showAddItemModal = function (dayIndex) {
-                    document.getElementById('targetDayIndex').value = dayIndex;
-                    document.getElementById('newItemTime').value = '';
-                    document.getElementById('newItemTitle').value = '';
-                    document.getElementById('newItemMemo').value = '';
-                    var modal = new bootstrap.Modal(document.getElementById('addItemModal'));
-                    modal.show();
-                };
-
-                window.confirmAddItem = function () {
-                    var dayIndex = parseInt(document.getElementById('targetDayIndex').value);
-                    var time = document.getElementById('newItemTime').value;
-                    var title = document.getElementById('newItemTitle').value;
-                    var memo = document.getElementById('newItemMemo').value;
-
-                    if (!time || !title) {
-                        alert('時間と場所を入力してください。');
-                        return;
-                    }
-
-                    var newItem = {
-                        time: time,
-                        title: title,
-                        memo: memo
-                    };
-
-                    plan.days[dayIndex].items.push(newItem);
-
-                    // Close modal
-                    var modalEl = document.getElementById('addItemModal');
-                    var modal = bootstrap.Modal.getInstance(modalEl);
-                    modal.hide();
-
-                    updatePlanData();
-                    renderPlan();
-                };
-
-                function updatePlanData() {
-                    // --- Time Sorting Logic ---
-                    plan.days.forEach(function (day) {
-                        if (day.items && day.items.length > 1) {
-                            day.items.sort(function (a, b) {
-                                return parseTime(a.time) - parseTime(b.time);
                             });
                         }
-                    });
+                    } else fallbackImages();
 
-                    var jsonStr = JSON.stringify(plan);
-                    var input = document.getElementById('planDataInput');
-                    if (input) input.value = jsonStr;
-                    var badge = document.getElementById('unsaved-badge');
-                    if (badge) badge.classList.remove('d-none');
-                }
+                    imgContainer.appendChild(img);
+                    li.appendChild(imgContainer);
+                    list.appendChild(li);
+                });
+                dayCard.appendChild(list);
+                var dayFooter = document.createElement('div');
+                dayFooter.className = 'card-footer bg-light border-0 py-3 text-center';
+                var addBtn = document.createElement('button');
+                addBtn.className = 'btn btn-outline-danger btn-sm rounded-pill px-4';
+                addBtn.innerHTML = '<i class="bi bi-plus-lg me-1"></i>予定を追加';
+                addBtn.onclick = function (e) { e.stopPropagation(); window.showAddItemModal(dayIndex); };
+                dayFooter.appendChild(addBtn);
+                dayCard.appendChild(dayFooter);
+                container.appendChild(dayCard);
+            });
 
-                function parseTime(timeStr) {
-                    if (!timeStr) return 9999;
-                    var s = timeStr.toLowerCase().replace(/\s+/g, '');
-
-                    // --- Extract numbers ---
-                    var match = s.match(/(\d+)(?::(\d+))?/);
-                    if (!match) {
-                        if (s.indexOf('午前') !== -1 || s.indexOf('morning') !== -1) return 800;
-                        if (s.indexOf('昼') !== -1 || s.indexOf('noon') !== -1) return 1200;
-                        if (s.indexOf('午後') !== -1 || s.indexOf('afternoon') !== -1) return 1400;
-                        if (s.indexOf('夜') !== -1 || s.indexOf('night') !== -1) return 2000;
-                        return 9999;
-                    }
-
-                    var hour = parseInt(match[1]);
-                    var min = match[2] ? parseInt(match[2]) : 0;
-
-                    // --- Handle AM/PM/午後/午前 ---
-                    if ((s.indexOf('pm') !== -1 || s.indexOf('午後') !== -1) && hour < 12) hour += 12;
-                    if ((s.indexOf('am') !== -1 || s.indexOf('午前') !== -1) && hour === 12) hour = 0;
-
-                    return hour * 100 + min;
-                }
-
-                // --- Google Maps Integration ---
-                window.initMapWrapper = function () {
-                    var mapEl = document.getElementById('planner-map');
-                    if (!mapEl) return;
-                    googleMap = new google.maps.Map(mapEl, {
-                        zoom: 12,
-                        center: { lat: 35.6812, lng: 139.7671 }, // Default Tokyo
-                        mapTypeControl: false,
-                        streetViewControl: false,
-                        styles: [
-                            {
-                                "featureType": "poi.business",
-                                "stylers": [{ "visibility": "off" }]
-                            },
-                            {
-                                "featureType": "transit",
-                                "elementType": "labels.icon",
-                                "stylers": [{ "visibility": "off" }]
-                            }
-                        ]
-                    });
-                    renderPlan();
-                };
-
-                async function updateMapMarkers(focusDayIndex) {
-                    if (!googleMap) return;
-
-                    // Clear existing
-                    markers.forEach(m => m.setMap(null));
-                    polylines.forEach(p => p.setMap(null));
-                    markers = [];
-                    polylines = [];
-
-                    var bounds = new google.maps.LatLngBounds();
-                    var hasAnyMarker = false;
-
-                    for (let dayIndex = 0; dayIndex < plan.days.length; dayIndex++) {
-                        // Skip if focusing on another day
-                        if (focusDayIndex !== undefined && focusDayIndex !== null && focusDayIndex !== dayIndex) {
-                            continue;
-                        }
-
-                        let items = plan.days[dayIndex].items;
-                        let dayPath = [];
-
-                        for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-                            let item = items[itemIndex];
-                            let coords = await getCoords(item.title);
-                            if (coords) {
-                                var marker = new google.maps.Marker({
-                                    position: coords,
-                                    map: googleMap,
-                                    label: {
-                                        text: (dayIndex + 1) + '-' + (itemIndex + 1),
-                                        color: "white",
-                                        fontSize: '10px',
-                                        fontWeight: 'bold'
-                                    },
-                                    title: item.title,
-                                    icon: {
-                                        path: google.maps.SymbolPath.CIRCLE,
-                                        fillColor: getDayColor(dayIndex),
-                                        fillOpacity: 1,
-                                        strokeWeight: 2,
-                                        strokeColor: 'white',
-                                        scale: 14
-                                    }
-                                });
-                                // Store indices for later highlighting
-                                marker.set('dayIndex', dayIndex);
-                                marker.set('itemIndex', itemIndex);
-
-                                markers.push(marker);
-                                dayPath.push(coords);
-                                bounds.extend(coords);
-                                hasAnyMarker = true;
-                            }
-                        }
-
-                        if (dayPath.length > 1) {
-                            var polyline = new google.maps.Polyline({
-                                path: dayPath,
-                                geodesic: true,
-                                strokeColor: getDayColor(dayIndex),
-                                strokeOpacity: 0.8,
-                                strokeWeight: 4,
-                                map: googleMap
-                            });
-                            polylines.push(polyline);
-                        }
-                    }
-
-                    if (hasAnyMarker) {
-                        googleMap.fitBounds(bounds);
-                        // zoom adjustment if too close
-                        setTimeout(() => {
-                            if (googleMap && googleMap.getZoom() > 15) googleMap.setZoom(15);
-                        }, 200);
-                    }
-                }
-                window.updateMapMarkers = updateMapMarkers;
-
-                function highlightMarker(dayIndex, itemIndex, isHighlight) {
-                    markers.forEach(m => {
-                        if (m.get('dayIndex') === dayIndex && m.get('itemIndex') === itemIndex) {
-                            if (isHighlight) {
-                                m.setAnimation(google.maps.Animation.BOUNCE);
-                                setTimeout(() => m.setAnimation(null), 1500);
-                            } else {
-                                m.setAnimation(null);
-                            }
-                        }
-                    });
-                }
-
-                async function getCoords(placeName) {
-                    if (geoCache[placeName]) return geoCache[placeName];
-
-                    return new Promise((resolve) => {
-                        var geocoder = new google.maps.Geocoder();
-                        geocoder.geocode({ address: placeName }, (results, status) => {
-                            if (status === 'OK') {
-                                var loc = results[0].geometry.location;
-                                geoCache[placeName] = loc;
-                                resolve(loc);
-                            } else {
-                                console.warn('Geocoding failed for:', placeName, status);
-                                resolve(null);
-                            }
-                        });
-                    });
-                }
-
-                function getDayColor(index) {
-                    var colors = ['#dc3545', '#0d6efd', '#198754', '#ffc107', '#6f42c1', '#fd7e14'];
-                    return colors[index % colors.length];
-                }
-
-                // Initial render will be called by initMapWrapper callback
-                if (window.google) {
-                    renderPlan();
-                } else {
-                    renderPlan();
-                }
-
-            } catch (e) {
-                console.error('Render Error:', e);
-                document.getElementById('plan-raw').textContent = planDataRaw;
-                document.getElementById('timeline-fallback').style.display = 'block';
+            renderBudgetSummary();
+            if (window.google && window.google.maps) {
+                updateMapMarkers();
+                updateMapFilterUI();
             }
-        })();
-
-        function escapeHtml(s) {
-            if (!s) return '';
-            var d = document.createElement('div');
-            d.textContent = s;
-            return d.innerHTML;
         }
 
-        function copyShareLink() {
-            var copyText = document.getElementById("shareLink");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999);
-            document.execCommand("copy");
-            alert("リンクをクリップボードにコピーしました！");
+        function renderBudgetSummary() {
+            const summaryContainer = document.getElementById('budget-summary-container');
+            if (!summaryContainer || !plan.days) return;
+            let totalBudget = 0;
+            const dayBudgets = [];
+            plan.days.forEach(day => {
+                let dayTotal = 0;
+                if (day.items) day.items.forEach(item => { if (item.expense) dayTotal += Number(item.expense); });
+                dayBudgets.push(dayTotal); totalBudget += dayTotal;
+            });
+            if (totalBudget === 0) { summaryContainer.innerHTML = ''; return; }
+            var html = `<div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 15px; background: linear-gradient(135deg, #fff 0%, #fff5f5 100%);"><div class="card-body p-4"><div class="d-flex justify-content-between align-items-center mb-4"><h5 class="mb-0 fw-bold text-dark"><i class="bi bi-wallet2 me-2 text-danger"></i>予想予算レポート</h5><span class="badge bg-danger rounded-pill px-3 py-2" style="font-size: 1.1rem;">合計: ${totalBudget.toLocaleString()}円</span></div><div class="row g-3">`;
+            dayBudgets.forEach(function (budget, index) {
+                html += `<div class="col-6 col-md-3"><div class="p-3 rounded bg-white border border-light shadow-xs text-center"><div class="small text-muted mb-1">Day ${index + 1}</div><div class="fw-bold text-danger">${budget.toLocaleString()}円</div></div></div>`;
+            });
+            html += `</div><div class="mt-4 p-3 bg-white rounded border border-danger border-opacity-10 small text-muted"><i class="bi bi-info-circle me-1"></i> AIが提案した予想費用です。実際の価格とは異なる場合があります。</div></div></div>`;
+            summaryContainer.innerHTML = html;
+        }
+
+        window.showAddItemModal = function (dayIndex) {
+            document.getElementById('targetDayIndex').value = dayIndex;
+            document.getElementById('newItemTime').value = '';
+            document.getElementById('newItemTitle').value = '';
+            document.getElementById('newItemMemo').value = '';
+            document.getElementById('newItemHours').value = '';
+            document.getElementById('newItemTransport').value = '';
+            document.getElementById('newItemCard').value = 'Yes';
+            document.getElementById('newItemExpense').value = '';
+            var modal = new bootstrap.Modal(document.getElementById('addItemModal'));
+            modal.show();
+        };
+
+        window.confirmAddItem = function () {
+            var dayIndex = parseInt(document.getElementById('targetDayIndex').value);
+            var newItem = {
+                time: document.getElementById('newItemTime').value,
+                title: document.getElementById('newItemTitle').value,
+                memo: document.getElementById('newItemMemo').value,
+                hours: document.getElementById('newItemHours').value,
+                transport: document.getElementById('newItemTransport').value,
+                card: document.getElementById('newItemCard').value,
+                expense: document.getElementById('newItemExpense').value ? Number(document.getElementById('newItemExpense').value) : null
+            };
+            if (!newItem.time || !newItem.title) { alert('時間と場所を入力してください。'); return; }
+            plan.days[dayIndex].items.push(newItem);
+            var modal = bootstrap.Modal.getInstance(document.getElementById('addItemModal'));
+            if (modal) modal.hide();
+            updatePlanData(); renderPlan();
+        };
+
+        function updatePlanData() {
+            // Sync summary info from UI to JSON
+            if (!plan.trip_info) plan.trip_info = {};
+            const peopleStr = document.getElementById('display-people').textContent;
+            const hotelStr = document.getElementById('display-accommodation').textContent;
+            const dateStr = document.getElementById('display-dates').textContent;
+
+            // Simple parsing for people count if possible, otherwise store as is
+            if (peopleStr.includes('大人') || peopleStr.includes('子供')) {
+                const adultsMatch = peopleStr.match(/大人\s*(\d+)/);
+                const kidsMatch = peopleStr.match(/子供\s*(\d+)/);
+                if (adultsMatch) plan.trip_info.adults = parseInt(adultsMatch[1]);
+                if (kidsMatch) plan.trip_info.children = parseInt(kidsMatch[1]);
+            }
+            plan.trip_info.accommodation = hotelStr.replace('宿泊情報なし', '').trim();
+
+            if (dateStr.includes('~')) {
+                const dates = dateStr.split('~').map(s => s.trim());
+                plan.trip_info.start_date = dates[0];
+                plan.trip_info.end_date = dates[1];
+            }
+
+            plan.days.forEach(day => { if (day.items) day.items.sort((a, b) => parseTime(a.time) - parseTime(b.time)); });
+            var jsonStr = JSON.stringify(plan);
+            if (document.getElementById('planDataInput')) document.getElementById('planDataInput').value = jsonStr;
+            if (document.getElementById('unsaved-badge')) document.getElementById('unsaved-badge').classList.remove('d-none');
+        }
+
+        function parseTime(timeStr) {
+            if (!timeStr) return 9999;
+            var s = timeStr.toLowerCase().replace(/\s+/g, '');
+            var match = s.match(/(\d+)(?::(\d+))?/);
+            if (!match) return 9999;
+            var hour = parseInt(match[1]);
+            var min = match[2] ? parseInt(match[2]) : 0;
+            if ((s.indexOf('pm') !== -1 || s.indexOf('午後') !== -1) && hour < 12) hour += 12;
+            if ((s.indexOf('am') !== -1 || s.indexOf('午前') !== -1) && hour === 12) hour = 0;
+            return hour * 100 + min;
+        }
+
+        window.initMapWrapper = function () {
+            var mapEl = document.getElementById('planner-map');
+            if (!mapEl) return;
+            googleMap = new google.maps.Map(mapEl, { zoom: 12, center: { lat: 35.6812, lng: 139.7671 }, mapTypeControl: false, streetViewControl: false });
+            activeInfoWindow = new google.maps.InfoWindow();
+            renderPlan();
+        };
+
+        async function updateMapMarkers(focusDayIndex) {
+            if (!googleMap || !plan) return;
+            var myCallId = ++currentMapCallId;
+            markers.forEach(m => m.setMap(null)); polylines.forEach(p => p.setMap(null));
+            markers = []; polylines = [];
+            var bounds = new google.maps.LatLngBounds();
+            var hasAnyMarker = false;
+
+            for (let dIdx = 0; dIdx < plan.days.length; dIdx++) {
+                if (focusDayIndex !== undefined && focusDayIndex !== null && focusDayIndex !== dIdx) continue;
+                let dayPath = [];
+                for (let iIdx = 0; iIdx < plan.days[dIdx].items.length; iIdx++) {
+                    let item = plan.days[dIdx].items[iIdx];
+                    let coords = await getCoords(item.title, contextCity);
+                    if (myCallId !== currentMapCallId) return;
+                    if (coords) {
+                        var marker = new google.maps.Marker({
+                            position: coords, map: googleMap,
+                            label: { text: (dIdx + 1) + '-' + (iIdx + 1), color: "white", fontSize: '10px' },
+                            icon: { path: google.maps.SymbolPath.CIRCLE, fillColor: getDayColor(dIdx), fillOpacity: 1, strokeWeight: 2, strokeColor: 'white', scale: 14 }
+                        });
+                        marker.set('dIdx', dIdx); marker.set('iIdx', iIdx);
+                        marker.addListener('click', function () {
+                            const d = this.get('dIdx'), i = this.get('iIdx'), item = plan.days[d].items[i];
+                            var content = `<div class="p-2" style="max-width:250px;"><h6 class="fw-bold">${escapeHtml(item.title)}</h6>${item.photoUrl ? `<img src="${item.photoUrl}" style="width:100%;height:100px;object-fit:cover;" class="rounded mb-2">` : ''}<div class="small">${escapeHtml(item.memo || '')}</div></div>`;
+                            activeInfoWindow.setContent(content); activeInfoWindow.open(googleMap, this);
+                            scrollToTimeline(d, i);
+                        });
+                        markers.push(marker); dayPath.push(coords); bounds.extend(coords); hasAnyMarker = true;
+                    }
+                }
+                if (dayPath.length > 1) polylines.push(new google.maps.Polyline({ path: dayPath, strokeColor: getDayColor(dIdx), strokeWeight: 4, map: googleMap }));
+            }
+            if (hasAnyMarker) { googleMap.fitBounds(bounds); setTimeout(() => { if (googleMap.getZoom() > 15) googleMap.setZoom(15); }, 200); }
+        }
+
+        function openInfoWindowFor(dIdx, iIdx) {
+            var m = markers.find(m => m.get('dIdx') === dIdx && m.get('iIdx') === iIdx);
+            if (m) google.maps.event.trigger(m, 'click');
+        }
+
+        function updateMapFilterUI() {
+            var el = document.getElementById('map-status'); if (!el) return;
+            var h = '<div class="btn-group btn-group-sm ms-2"><button class="btn btn-outline-secondary" onclick="window.updateMapMarkers()">すべて</button>';
+            plan.days.forEach((d, i) => { h += `<button class="btn btn-outline-danger" onclick="window.updateMapMarkers(${i})">Day ${d.day}</button>`; });
+            el.innerHTML = h + '</div>';
+        }
+
+        function scrollToTimeline(d, i) { var el = document.getElementById(`item-${d}-${i}`); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        function highlightMarker(d, i, h) { markers.forEach(m => { if (m.get('dIdx') === d && m.get('iIdx') === i) m.setAnimation(h ? google.maps.Animation.BOUNCE : null); }); }
+        async function getCoords(p, c) {
+            if (geoCache[p]) return geoCache[p];
+            return new Promise(res => {
+                const s = new google.maps.places.PlacesService(document.createElement('div'));
+                s.findPlaceFromQuery({ query: (c && !p.includes(c)) ? c + " " + p : p, fields: ['geometry'] }, (r, st) => {
+                    if (st === 'OK' && r[0].geometry) { geoCache[p] = r[0].geometry.location; res(r[0].geometry.location); }
+                    else runGeocoder(p, c, res);
+                });
+            });
+        }
+        function runGeocoder(p, c, res) {
+            const g = new google.maps.Geocoder();
+            g.geocode({ address: (c && !p.includes(c)) ? c + " " + p : p }, (r, st) => {
+                if (st === 'OK') { geoCache[p] = r[0].geometry.location; res(r[0].geometry.location); } else res(null);
+            });
+        }
+        function getDayColor(i) { return ['#dc3545', '#0d6efd', '#198754', '#ffc107', '#6f42c1'][i % 5]; }
+        window.updateMapMarkers = updateMapMarkers;
+
+        function escapeHtml(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function getWeatherIcon(d) {
+            if (d.includes('晴')) return 'bi-sun-fill'; if (d.includes('曇') || d.includes('雲')) return 'bi-cloud-fill';
+            if (d.includes('雨')) return 'bi-cloud-rain-fill'; return 'bi-thermometer-half';
+        }
+        function copyShareLink() { var c = document.getElementById("shareLink"); c.select(); document.execCommand("copy"); alert("コピーしました！"); }
+
+        async function exportPlan(format) {
+            const btn = document.getElementById('exportDropdown');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>処理中...';
+            btn.disabled = true;
+            try {
+                const container = document.querySelector('main.container');
+                const clone = container.cloneNode(true);
+                const hide = ['header', 'footer', '.dropdown', '.btn', '.alert', '#planner-map', '.sticky-top', '.modal', '.modal-backdrop', '#unsaved-badge', '#timeline-fallback'];
+                clone.querySelectorAll(hide.join(',')).forEach(el => el.style.setProperty('display', 'none', 'important'));
+                const ti = clone.querySelector('input[name="title"]');
+                if (ti) {
+                    const d = document.createElement('div'); d.className = 'h4 fw-bold mb-3'; d.textContent = ti.value;
+                    ti.parentNode.replaceChild(d, ti.parentNode.querySelector('.input-group') || ti);
+                }
+                clone.style.width = '850px'; clone.style.padding = '40px'; clone.style.background = '#fff';
+                clone.style.position = 'absolute'; clone.style.left = '-9999px';
+                document.body.appendChild(clone);
+
+                await new Promise(r => setTimeout(r, 1000));
+                const canvas = await html2canvas(clone, { scale: 2, useCORS: true, backgroundColor: '#fff', windowWidth: 850 });
+                const imgData = canvas.toDataURL('image/png');
+                const name = `J-Route_${new Date().toISOString().slice(0, 10)}`;
+
+                if (format === 'image') {
+                    const l = document.createElement('a'); l.href = imgData; l.download = name + '.png'; l.click();
+                } else {
+                    const { jsPDF } = window.jspdf;
+                    const w = 210, h = (canvas.height * w) / canvas.width;
+                    const pdf = new jsPDF('p', 'mm', [w, h]);
+                    pdf.addImage(imgData, 'PNG', 0, 0, w, h);
+                    pdf.save(name + '.pdf');
+                }
+                document.body.removeChild(clone);
+            } catch (err) { console.error(err); alert('失敗しました。'); }
+            finally { btn.innerHTML = originalText; btn.disabled = false; }
         }
     </script>
     <script th:if="${apiKey}"

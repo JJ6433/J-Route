@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    <main class="container py-5 flex-grow-1">
+        <h2 class="jroute-section-title mb-5"><i class="bi bi-file-text-fill me-2"></i>利用規約</h2>
+
+        <div class="card jroute-card shadow-sm border-0 p-4 p-md-5">
+            <div class="mb-4">
+                <h4 class="fw-bold">第 1 条 (目的)</h4>
+                <p class="text-muted">
+                    本規約は、J-Route（以下「当社」）が提供する日本旅行プランナーサービスおよび関連サービスの利用に関し、当社と会員との権利、義務、責任事項、その他必要な事項を規定することを目的とします。</p>
+            </div>
+            <div class="mb-4">
+                <h4 class="fw-bold">第 2 条 (用語の定義)</h4>
+                <p class="text-muted">1. 「サービス」とは、当社が提供するAI旅行日程の生成および管理サービスを意味します。<br>
+                    2. 「会員」とは、当社のサービスにアクセスし、本規約に従って利用契約を締結し、サービスを利用するお客様を意味します。</p>
+            </div>
+            <div class="mb-4">
+                <h4 class="fw-bold">第 3 条 (規約の掲示と改定)</h4>
+                <p class="text-muted">当社は、本規約の内容をお客様が容易に確認できるようサービスの初期画面に掲示します。当社は、関連法を遵守する範囲において、本規約を改定することができます。</p>
+            </div>
+            <div class="mb-4">
+                <h4 class="fw-bold">第 4 条 (利用契約の締結)</h4>
+                <p class="text-muted">利用契約は、会員になろうとする者が本規約の内容に同意した上で会員登録申請を行い、当社がこれを承諾することによって締結されます。</p>
+            </div>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+
+</html>

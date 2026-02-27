@@ -44,7 +44,7 @@
                                     <span th:if="${notice.active}" class="badge bg-success">公開中</span>
                                     <span th:if="${!notice.active}" class="badge bg-secondary">非公開</span>
                                 </td>
-                                <td th:text="${#temporals.format(notice.createdAt, 'yyyy-MM-dd HH:mm')}">2026-02-23</td>
+                                <td th:text="${notice.createdAt}">2026-02-23</td>
                                 <td class="pe-4 text-center">
                                     <a th:href="@{/admin/notice/edit/{id}(id=${notice.noticeId})}"
                                         class="btn btn-sm btn-outline-primary">

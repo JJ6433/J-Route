@@ -37,24 +37,10 @@ public class PlannerService {
 	/**
 	 * AI 코스 생성 (Google Gemini 연동)
 	 */
-	public String generatePlan(String region, String days, String style, String companion) {
-		// Mockデータの代わりにGemini API呼び出し
-		int dayCount = parseDayCount(days);
-		return geminiService.getPlan(region, dayCount, style, companion);
-	}
-
-	private int parseDayCount(String days) {
-		if (days == null || days.isEmpty())
-			return 2;
-		if (days.contains("1泊2日"))
-			return 2;
-		if (days.contains("2泊3日"))
-			return 3;
-		if (days.contains("3泊4日"))
-			return 4;
-		if (days.contains("4泊5日"))
-			return 5;
-		return 2;
+	public String generatePlan(String region, String startDate, String endDate, int adults, int children, String style,
+			String companion, String accommodationName, String accommodationAddress) {
+		return geminiService.getPlan(region, startDate, endDate, adults, children, style, companion, accommodationName,
+				accommodationAddress);
 	}
 
 	@Transactional
