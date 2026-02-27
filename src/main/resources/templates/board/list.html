@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: headFragment}"></head>
+<body class="d-flex flex-column min-vh-100">
+
+    <div style="position: relative; z-index: 1050;">
+        <header th:replace="~{fragments/header :: headerFragment}"></header>
+    </div>
+
+    <main class="container mt-4 mb-5 flex-grow-1">
+        
+        <div class="bg-light rounded-3 mb-4 p-4 text-center text-lg-start border shadow-sm">
+            <h2 class="fw-bold mb-2 text-dark">みんなの<span style="color: #5BAE51;">旅行記</span></h2>
+            <p class="mb-0 text-muted" style="font-size: 0.95rem;">J-Routeで見つけた素敵な日本の思い出をシェアしよう！</p>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4 bg-light">
+            <div class="card-body py-3">
+                <form action="/board/list" method="get" class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <select class="form-select" name="region">
+                            <option value="">すべての地域</option>
+                            <option value="東京" th:selected="${selectedRegion == '東京'}">東京</option>
+                            <option value="大阪" th:selected="${selectedRegion == '大阪'}">大阪</option>
+                            <option value="福岡" th:selected="${selectedRegion == '福岡'}">福岡</option>
+                            <option value="札幌" th:selected="${selectedRegion == '札幌'}">札幌</option>
+                            <option value="沖縄" th:selected="${selectedRegion == '沖縄'}">沖縄</option>
+                            <option value="名古屋" th:selected="${selectedRegion == '名古屋'}">名古屋</option>
+                            <option value="静岡" th:selected="${selectedRegion == '静岡'}">静岡</option>
+                            <option value="福島" th:selected="${selectedRegion == '福島'}">福島</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select" name="duration">
+                            <option value="">すべての日数</option>
+                            <option value="1泊2日" th:selected="${selectedDuration == '1泊2日'}">1泊2日</option>
+                            <option value="2泊3日" th:selected="${selectedDuration == '2泊3日'}">2泊3日</option>
+                            <option value="3泊4日" th:selected="${selectedDuration == '3泊4日'}">3泊4日</option>
+                            <option value="4泊5日" th:selected="${selectedDuration == '4泊5日'}">4泊5日</option>
+                            <option value="5泊6日" th:selected="${selectedDuration == '5泊6日'}">5泊6日</option>
+                            <option value="6泊以上" th:selected="${selectedDuration == '6泊以上'}">6泊以上</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn w-100 text-white fw-bold" style="background-color: #5BAE51;">検索</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="jroute-section-title mb-0 fw-bold"><i class="bi bi-images text-success me-2"></i> 最新の投稿</h2>
+            
+            <a sec:authorize="isAuthenticated()" th:href="@{/board/write}" class="btn fw-bold shadow-sm" style="background-color: #5BAE51; color: white; border: none;">
+                <i class="bi bi-pencil-square me-1"></i> 思い出を投稿
+            </a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="col" th:each="board : ${boardList}">
+                <a th:href="@{/board/detail(id=${board.boardId})}" class="text-decoration-none text-dark">
+                    <div class="card jroute-card h-100 shadow-sm border-0 position-relative">
+                        
+                        <div class="overflow-hidden rounded-top" style="height: 220px;">
+                            <img th:src="${not #strings.isEmpty(board.thumbnailUrl) ? board.thumbnailUrl : 'https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=400&h=250&q=80'}"
+                                class="w-100 h-100 object-fit-cover jroute-img-hover" alt="旅行写真">
+                        </div>
+                        
+                        <div class="card-body d-flex flex-column">
+                            
+                            <div class="mb-2">
+                                <span class="badge bg-success me-1" th:text="${board.region}" th:if="${board.region != null and board.region != ''}">地域</span>
+                                <span class="badge bg-secondary" th:text="${board.duration}" th:if="${board.duration != null and board.duration != ''}">日数</span>
+                            </div>
+
+                            <h5 class="card-title text-truncate fw-bold mb-2" th:text="${board.title}">タイトル</h5>
+                            
+                            <div class="mt-auto d-flex justify-content-between align-items-center border-top pt-3">
+                                <span class="small fw-bold text-secondary">
+                                    <i class="bi bi-person-circle me-1"></i> <span th:text="${board.authorNickname}">作成者</span>
+                                </span>
+                                <div class="d-flex gap-2">
+                                    <span class="badge bg-light text-dark border"><i class="bi bi-eye text-muted"></i> <span th:text="${board.viewCount}">0</span></span>
+                                    <span class="badge bg-light text-dark border"><i class="bi bi-heart-fill text-danger"></i> <span th:text="${board.likeCount}">0</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-12 text-center py-5" th:if="${#lists.isEmpty(boardList)}">
+                <i class="bi bi-camera text-muted mb-3 d-block" style="font-size: 3.5rem;"></i>
+                <h5 class="text-muted fw-bold">まだ旅行記がありません。</h5>
+                <p class="text-muted small">最初の思い出を投稿してみませんか？</p>
+            </div>
+        </div>
+
+        <nav aria-label="Page navigation" class="mt-5" th:if="${totalPages > 0}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                    <a class="page-link text-success" th:href="@{/board/list(page=${currentPage - 1}, region=${selectedRegion}, duration=${selectedDuration})}">&laquo;</a>
+                </li>
+                
+                <li class="page-item" th:each="pageNum : ${#numbers.sequence(1, totalPages)}" th:classappend="${pageNum == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/board/list(page=${pageNum}, region=${selectedRegion}, duration=${selectedDuration})}" th:text="${pageNum}" th:styleappend="${pageNum == currentPage} ? 'background-color: #5BAE51; border-color: #5BAE51; color: white;' : 'color: #5BAE51;'">1</a>
+                </li>
+
+                <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                    <a class="page-link text-success" th:href="@{/board/list(page=${currentPage + 1}, region=${selectedRegion}, duration=${selectedDuration})}">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+</html>
