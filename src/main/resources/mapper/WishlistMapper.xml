@@ -2,29 +2,46 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.blog.mapper.WishlistMapper">
 
-    <!-- 사용자 찜 목록 (여행지 정보 Join) -->
-    <select id="findByUserId" resultType="WishlistDto">
-        SELECT w.wishlist_id AS wishlistId, w.user_id AS userId, w.place_id AS placeId, w.created_at AS createdAt,
-               p.name AS placeName, p.region AS placeRegion, p.category AS placeCategory, p.image_url AS imageUrl
+    <select id="findByUserId" resultType="com.blog.dto.WishlistDto">
+        SELECT 
+            w.wishlist_id AS wishlistId, 
+            w.user_id AS userId, 
+            w.place_id AS placeId, 
+            w.category AS category,
+            w.api_id AS apiId,
+            w.created_at AS createdAt,
+            IFNULL(p.name, w.item_name) AS placeName, 
+            IFNULL(p.region, 'API/WEB') AS placeRegion, 
+            IFNULL(p.category, w.category) AS placeCategory, 
+            IFNULL(p.image_url, w.image_url) AS imageUrl
         FROM wishlists w
-        JOIN places p ON w.place_id = p.place_id
+        LEFT JOIN places p ON w.place_id = p.place_id
         WHERE w.user_id = #{userId}
         ORDER BY w.created_at DESC
     </select>
 
-    <!-- 찜 추가 -->
-    <insert id="insertWishlist" parameterType="WishlistDto">
-        INSERT INTO wishlists (user_id, place_id) VALUES (#{userId}, #{placeId})
+    <insert id="insertWishlist" parameterType="com.blog.dto.WishlistDto">
+        INSERT INTO wishlists (user_id, place_id, category, api_id, item_name, image_url) 
+        VALUES (#{userId}, #{placeId}, #{category}, #{apiId}, #{placeName}, #{imageUrl})
     </insert>
 
-    <!-- 찜 삭제 -->
     <delete id="deleteByUserAndPlace">
         DELETE FROM wishlists WHERE user_id = #{userId} AND place_id = #{placeId}
     </delete>
 
-    <!-- 이미 찜했는지 조회 -->
-    <select id="findByUserAndPlace" resultType="WishlistDto">
+    <select id="findByUserAndPlace" resultType="com.blog.dto.WishlistDto">
         SELECT wishlist_id AS wishlistId, user_id AS userId, place_id AS placeId, created_at AS createdAt
         FROM wishlists WHERE user_id = #{userId} AND place_id = #{placeId}
     </select>
+
+    <delete id="deleteByUserAndApi">
+        DELETE FROM wishlists 
+        WHERE user_id = #{userId} AND api_id = #{apiId} AND category = #{category}
+    </delete>
+
+    <select id="findByUserAndApi" resultType="com.blog.dto.WishlistDto">
+        SELECT * FROM wishlists 
+        WHERE user_id = #{userId} AND api_id = #{apiId} AND category = #{category}
+    </select>
+
 </mapper>
