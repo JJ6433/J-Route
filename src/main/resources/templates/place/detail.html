@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/head :: headFragment}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    <main class="container mt-4 mb-4 flex-grow-1">
+        <div class="container mb-5">
+            <p th:if="${message}" class="alert alert-success shadow-sm" th:text="${message}"></p>
+            <p th:if="${errorMessage}" class="alert alert-danger shadow-sm" th:text="${errorMessage}"></p>
+
+            <div th:if="${place}">
+                
+                <div class="row g-5 mt-2">
+                    
+                    <div class="col-lg-7">
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h1 class="mb-0 fw-bold" th:text="${place.name}"></h1>
+
+                            <div sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ADMIN')" class="d-flex gap-2">
+                                <a th:href="@{/admin/place/edit(id=${place.placeId})}"
+                                    class="btn btn-outline-success btn-sm fw-bold shadow-sm">
+                                    <i class="bi bi-pencil-square"></i> 編集
+                                </a>
+                                
+                                <form th:action="@{/admin/place/delete}" method="post" 
+                                      onsubmit="return confirm('本当にこの旅行先を削除しますか？\n削除すると復旧できません。');">
+                                    <input type="hidden" name="id" th:value="${place.placeId}" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm fw-bold shadow-sm">
+                                        <i class="bi bi-trash"></i> 削除
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <p class="mb-4">
+                            <span class="badge bg-secondary me-1 fs-6 px-3 py-2 shadow-sm" th:text="${place.region}"></span> 
+                            <span class="badge bg-white text-dark border fs-6 px-3 py-2 shadow-sm" th:text="${place.category}"></span>
+                        </p>
+                        
+                        <div class="mb-4">
+                            <img th:src="${place.imageUrl != null ? place.imageUrl : 'https://via.placeholder.com/800x500'}"
+                                class="img-fluid rounded shadow-sm w-100 object-fit-cover" 
+                                style="max-height: 400px;" alt="代表画像" />
+                        </div>
+
+                        <div class="p-4 bg-light rounded shadow-sm mb-5">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-info-circle-fill text-primary"></i> 概要</h5>
+                            <p class="mb-0" style="font-size: 1.05rem; line-height: 1.8; color: #444;" th:text="${place.description}"></p>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                            <h4 class="mb-0 fw-bold"><i class="bi bi-chat-dots-fill text-primary me-2"></i> レビュー</h4>
+                            
+                            <div class="jroute-star-rating px-3 py-1 bg-white rounded-pill shadow-sm border">
+                                <i class="bi bi-star-fill text-warning"></i> 
+                                <span class="fw-bold fs-5" th:text="${avgRating != null ? avgRating : '0.0'}"></span> 
+                                <span class="text-muted small ms-1">（<span th:text="${reviewCount != null ? reviewCount : '0'}"></span>件）</span>
+                            </div>
+                        </div>
+
+                        <form sec:authorize="isAuthenticated()" th:action="@{/review/add}" method="post"
+                            class="jroute-review-box mb-4 shadow-sm bg-white border">
+                            <input type="hidden" name="placeId" th:value="${place.placeId}" />
+                            <div class="mb-2">
+                                <label class="form-label fw-bold small text-muted">評価</label>
+                                <select name="rating" class="form-select form-select-sm w-auto border-secondary">
+                                    <option value="5">★5 (最高！)</option>
+                                    <option value="4">★4</option>
+                                    <option value="3">★3</option>
+                                    <option value="2">★2</option>
+                                    <option value="1">★1 (残念)</option>
+                                </select>
+                            </div>
+                            <textarea name="content" class="form-control mb-3" rows="3" required
+                                placeholder="この場所の感想をシェアしてください！"></textarea>
+                            <div class="text-end">
+                                <button type="submit" class="btn text-white px-4 fw-bold shadow-sm" style="background-color: #5BAE51; border: none;">投稿する</button>
+                            </div>
+                        </form>
+                        
+                        <div sec:authorize="!isAuthenticated()" class="alert alert-secondary text-center mb-4 shadow-sm border-0">
+                            <i class="bi bi-info-circle me-1"></i> レビューを投稿するには<a th:href="@{/user/login}" class="alert-link">ログイン</a>が必要です。
+                        </div>
+
+                        <div class="mt-3">
+                            <div class="jroute-review-box d-flex justify-content-between align-items-start mb-3 bg-white shadow-sm border"
+                                th:each="r : ${reviews}">
+                                <div>
+                                    <span class="jroute-star-rating mb-1 d-block fs-6">
+                                        <i class="bi bi-star-fill text-warning" th:each="i : ${#numbers.sequence(1, r.rating)}"></i>
+                                        <i class="bi bi-star text-muted" th:if="${r.rating < 5}" th:each="i : ${#numbers.sequence(r.rating + 1, 5)}"></i>
+                                    </span>
+                                    <span class="fw-bold me-2 text-dark" th:text="${r.userNickname}"></span>
+                                    <span class="text-muted small"
+                                        th:text="${#temporals.format(r.createdAt, 'yyyy/MM/dd HH:mm')}"></span>
+                                    <p class="mb-0 mt-2 text-dark" style="font-size: 0.95rem;" th:text="${r.content}"></p>
+                                </div>
+                                
+                                <div class="d-flex align-items-center">
+                                    <form th:if="${currentUserId != null and r.userId == currentUserId}"
+                                        th:action="@{/review/delete}" method="post" class="d-inline"
+                                        onsubmit="return confirm('レビューを削除しますか？\n(리뷰를 삭제하시겠습니까?)');">
+                                        <input type="hidden" name="reviewId" th:value="${r.reviewId}" />
+                                        <input type="hidden" name="placeId" th:value="${place.placeId}" />
+                                        <button type="submit" class="btn btn-link btn-sm text-danger p-0" title="削除">
+                                            <i class="bi bi-trash fs-5"></i>
+                                        </button>
+                                    </form>
+
+                                    <form sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ADMIN')" 
+                                          th:if="${currentUserId == null or r.userId != currentUserId}"
+                                        th:action="@{/review/delete}" method="post" class="d-inline"
+                                        onsubmit="return confirm('【管理者権限】このレビューを強制削除しますか？\n(【관리자 권한】 이 리뷰를 강제 삭제하시겠습니까?)');">
+                                        <input type="hidden" name="reviewId" th:value="${r.reviewId}" />
+                                        <input type="hidden" name="placeId" th:value="${place.placeId}" />
+                                        <button type="submit" class="btn btn-link btn-sm text-danger p-0" title="管理者として削除">
+                                            <i class="bi bi-trash-fill fs-5"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="text-center py-5 bg-light rounded shadow-sm" th:if="${#lists.isEmpty(reviews)}">
+                                <i class="bi bi-chat-left-text text-muted mb-3 d-block" style="font-size: 2.5rem;"></i>
+                                <p class="text-muted fw-medium mb-0">まだレビューはありません。<br>最初のレビューを書いてみましょう！</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="position-sticky" style="top: 2rem; z-index: 10;">
+                            <div class="card border-0 shadow-lg" style="border-radius: 15px;">
+                                <div class="card-body p-4">
+                                    
+                                    <h6 class="fw-bold mb-2"><i class="bi bi-geo-alt-fill text-danger"></i> 所在地</h6>
+                                    <p class="text-muted mb-4" th:text="${place.address}"></p>
+
+                                    <div id="map" class="border rounded mb-4 overflow-hidden"
+                                        style="height: 250px; background-color: #f8f9fa;">
+                                        <div id="map-inner" class="d-flex align-items-center justify-content-center h-100">
+                                            <div class="spinner-border text-danger" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="opening-hours-info" class="mb-4 d-none">
+                                        <div class="p-3 bg-light rounded border">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-clock-fill text-muted me-2 fs-5"></i>
+                                                <span id="business-status" class="fw-bold me-2"></span>
+                                                <span id="today-hours" class="small text-muted"></span>
+                                            </div>
+                                            <div class="text-end mt-2">
+                                                <button class="btn btn-sm btn-outline-secondary py-0" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#all-hours">
+                                                    詳細を見る <i class="bi bi-chevron-down"></i>
+                                                </button>
+                                            </div>
+                                            <div class="collapse mt-3" id="all-hours">
+                                                <ul id="hours-list" class="list-unstyled small mb-0 border-top pt-2 text-muted">
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <form sec:authorize="isAuthenticated()" th:action="@{/wishlist/toggle}" method="post" class="mt-2">
+                                        <input type="hidden" name="placeId" th:value="${place.placeId}" />
+                                        <input type="hidden" name="redirect" th:value="'/place/detail?id=' + ${place.placeId}" />
+                                        <button type="submit" class="btn w-100 py-3 fw-bold fs-6 shadow-sm"
+                                            th:classappend="${wished} ? 'btn-danger' : 'btn-outline-danger'">
+                                            <i class="bi bi-heart-fill me-1" th:if="${wished}"></i>
+                                            <i class="bi bi-heart me-1" th:unless="${wished}"></i> 
+                                            <span th:text="${wished} ? 'お気に入りから外す' : 'お気に入りに追加'"></span>
+                                        </button>
+                                    </form>
+                                    
+                                    <div sec:authorize="!isAuthenticated()" class="mt-2 text-center">
+                                        <a th:href="@{/user/login}" class="btn btn-outline-danger w-100 py-3 fw-bold shadow-sm">
+                                            <i class="bi bi-heart me-1"></i> ログインしてお気に入り登録
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p th:unless="${place}" class="text-center text-muted py-5">旅行先が見つかりません。</p>
+        </div>
+    </main>
+
+    <script th:inline="javascript">
+        function initMap() {
+            const placeName = /*[[${place.name}]]*/ '';
+            const placeAddress = /*[[${place.address}]]*/ '';
+            const mapElement = document.getElementById("map");
+            const mapInner = document.getElementById("map-inner");
+
+            const service = new google.maps.places.PlacesService(document.createElement('div'));
+
+            const request = {
+                query: placeName + " " + (placeAddress || ""),
+                fields: ['name', 'geometry', 'place_id', 'formatted_address', 'opening_hours'],
+            };
+
+            service.findPlaceFromQuery(request, (results, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK && results[0]) {
+                    const loc = results[0].geometry.location;
+                    mapInner.remove();
+
+                    const map = new google.maps.Map(mapElement, {
+                        zoom: 16,
+                        center: loc,
+                        mapTypeControl: false,
+                        streetViewControl: false,
+                        fullscreenControl: true
+                    });
+
+                    new google.maps.Marker({
+                        map: map,
+                        position: loc,
+                        title: results[0].name,
+                        animation: google.maps.Animation.DROP
+                    });
+
+                    if (results[0].place_id) {
+                        const detailsRequest = {
+                            placeId: results[0].place_id,
+                            fields: ['opening_hours', 'utc_offset_minutes', 'business_status']
+                        };
+                        service.getDetails(detailsRequest, (place, detailsStatus) => {
+                            const infoDiv = document.getElementById('opening-hours-info');
+                            const statusSpan = document.getElementById('business-status');
+                            const hoursList = document.getElementById('hours-list');
+                            const todayHoursSpan = document.getElementById('today-hours');
+
+                            if (detailsStatus === google.maps.places.PlacesServiceStatus.OK && place && place.opening_hours) {
+                                infoDiv.classList.remove('d-none');
+
+                                let isOpen = false;
+                                const now = new Date();
+
+                                if (typeof place.opening_hours.isOpen === 'function') {
+                                    isOpen = place.opening_hours.isOpen(now);
+                                } else if (place.opening_hours.open_now !== undefined) {
+                                    isOpen = place.opening_hours.open_now;
+                                }
+
+                                if (!isOpen && place.opening_hours.periods && place.opening_hours.periods.length === 1) {
+                                    const p = place.opening_hours.periods[0];
+                                    if (p.open && p.open.day === 0 && p.open.time === "0000" && !p.close) {
+                                        isOpen = true;
+                                    }
+                                }
+
+                                statusSpan.textContent = isOpen ? "営業中" : "営業時間外";
+                                statusSpan.className = isOpen ? "fw-bold me-2 text-success" : "fw-bold me-2 text-danger";
+
+                                if (place.opening_hours.weekday_text) {
+                                    hoursList.innerHTML = '';
+                                    place.opening_hours.weekday_text.forEach(text => {
+                                        const li = document.createElement('li');
+                                        li.className = "mb-1";
+                                        li.textContent = text;
+                                        hoursList.appendChild(li);
+                                    });
+
+                                    const dayNames = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+                                    const todayName = dayNames[now.getDay()];
+                                    const todayText = place.opening_hours.weekday_text.find(t => t.includes(todayName));
+                                    todayHoursSpan.textContent = todayText || "";
+                                }
+                            } else {
+                                infoDiv.classList.remove('d-none');
+                                statusSpan.textContent = "営業時間情報なし";
+                                statusSpan.className = "fw-bold me-2 text-muted";
+                                todayHoursSpan.textContent = "この場所の営業時間は登録されていません。";
+                                document.querySelector('[data-bs-target="#all-hours"]').classList.add('d-none');
+                            }
+                        });
+                    }
+                } else {
+                    mapElement.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100 text-muted bg-light">Google Mapsで場所を見つけられませんでした。</div>';
+                }
+            });
+        }
+    </script>
+    <script
+        th:src="'https://maps.googleapis.com/maps/api/js?key=' + ${apiKey} + '&libraries=places&language=ja&callback=initMap'"
+        async defer></script>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+
+</html>

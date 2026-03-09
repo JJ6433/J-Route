@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/admin}">
+
+<head>
+    <title>口コミ管理</title>
+</head>
+
+<body>
+    <main layout:fragment="content">
+        <div
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+            <h1 class="h3 fw-bold"><i class="bi bi-chat-left-text text-success"></i> レビュー管理</h1>
+        </div>
+
+        <!-- 検索フィルタ -->
+        <div class="card shadow-sm mb-4 border-0" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <form th:action="@{/admin/review}" method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">キーワード</label>
+                        <input type="text" name="keyword" th:value="${keyword}" class="form-control"
+                            placeholder="場所名、内容、ニックネーム">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-bold">評価</label>
+                        <select name="rating" class="form-select">
+                            <option value="">全て</option>
+                            <option value="5" th:selected="${rating == 5}">5点</option>
+                            <option value="4" th:selected="${rating == 4}">4点</option>
+                            <option value="3" th:selected="${rating == 3}">3点</option>
+                            <option value="2" th:selected="${rating == 2}">2点</option>
+                            <option value="1" th:selected="${rating == 1}">1点</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label small fw-bold">作成期間</label>
+                        <div class="input-group">
+                            <input type="date" name="startDate" th:value="${startDate}" class="form-control">
+                            <span class="input-group-text">~</span>
+                            <input type="date" name="endDate" th:value="${endDate}" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success w-100 fw-bold">
+                            <i class="bi bi-search me-1"></i> 検索
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div th:if="${message}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i><span th:text="${message}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="card shadow-sm" style="border-radius: 15px; border: none;">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">No.</th>
+                                <th>旅行先</th>
+                                <th>ニックネーム</th>
+                                <th>評価</th>
+                                <th>内容</th>
+                                <th>登録日</th>
+                                <th class="pe-4 text-center">管理</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="review, stat : ${reviews}">
+                                <td class="ps-4 text-muted" th:text="${stat.count}">1</td>
+                                <td class="fw-bold" th:text="${review.placeName}">場所名</td>
+                                <td th:text="${review.userNickname}">ニックネーム</td>
+                                <td>
+                                    <span class="text-warning">
+                                        <i class="bi bi-star-fill"
+                                            th:each="i : ${#numbers.sequence(1, review.rating)}"></i>
+                                    </span>
+                                    <span class="text-muted small" th:text="'(' + ${review.rating} + ')'"></span>
+                                </td>
+                                <td>
+                                    <div class="text-truncate" style="max-width: 300px;" th:text="${review.content}"
+                                        th:title="${review.content}">
+                                        コメント内容
+                                    </div>
+                                </td>
+                                <td th:text="${review.createdAt}">2026-02-23</td>
+                                <td class="pe-4 text-center">
+                                    <form th:action="@{/admin/review/delete/{id}(id=${review.reviewId})}" method="post"
+                                        class="d-inline" onsubmit="return confirm('本当にこの口コミを削除しますか？');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger fw-bold">
+                                            削除
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(reviews)}">
+                                <td colspan="7" class="text-center text-muted py-5">
+                                    <i class="bi bi-chat-left-x fs-1 d-block mb-2 opacity-50"></i>
+                                    登録された口コミがありません。
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/admin}">
+
+<head>
+    <title>APIモニタリング</title>
+</head>
+
+<body>
+    <main layout:fragment="content">
+        <div
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+            <h1 class="h3 fw-bold"><i class="bi bi-activity text-success"></i> APIモニタリング</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <form th:action="@{/admin/api-log/clear}" method="post" onsubmit="return confirm('すべてのログを削除しますか？');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i> ログをクリア
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div th:if="${message}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i><span th:text="${message}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="card shadow-sm" style="border-radius: 15px; border: none;">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">No.</th>
+                                <th>API名</th>
+                                <th>エンドポイント</th>
+                                <th>状態</th>
+                                <th>応答時間</th>
+                                <th>メッセージ</th>
+                                <th class="pe-4">呼び出し日時</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="log, stat : ${logs}">
+                                <td class="ps-4 text-muted" th:text="${stat.count}">1</td>
+                                <td class="fw-bold" th:text="${log.apiName}">Gemini</td>
+                                <td class="small text-muted" th:text="${log.endpoint}">/v1/generate</td>
+                                <td>
+                                    <span th:if="${log.status == 'SUCCESS'}"
+                                        class="badge bg-success-soft text-success border-success">SUCCESS</span>
+                                    <span th:if="${log.status == 'FAIL'}"
+                                        class="badge bg-danger-soft text-danger border-danger">FAIL</span>
+                                </td>
+                                <td>
+                                    <span th:class="${log.responseTime > 3000 ? 'text-danger fw-bold' : ''}"
+                                        th:text="${log.responseTime} + ' ms'">250ms</span>
+                                </td>
+                                <td>
+                                    <div class="text-truncate" style="max-width: 250px;" th:text="${log.errorMessage}"
+                                        th:title="${log.errorMessage}">-</div>
+                                </td>
+                                <td class="pe-4" th:text="${log.createdAt}">
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(logs)}">
+                                <td colspan="7" class="text-center text-muted py-5">
+                                    <i class="bi bi-clipboard-x fs-1 d-block mb-2 opacity-50"></i>
+                                    ログ記録がありません。
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .bg-success-soft {
+                background-color: #e8f5e9;
+            }
+
+            .bg-danger-soft {
+                background-color: #fce4ec;
+            }
+
+            .border-success {
+                border: 1px solid #c8e6c9;
+            }
+
+            .border-danger {
+                border: 1px solid #f8bbd0;
+            }
+        </style>
+    </main>
+</body>
+
+</html>

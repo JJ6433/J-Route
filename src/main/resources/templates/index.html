@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/head :: headFragment}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <div style="position: relative; z-index: 1050;">
+        <header th:replace="~{fragments/header :: headerFragment}"></header>
+    </div>
+
+    <div class="container mt-3">
+        <button class="btn btn-dark shadow-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#userSidebar"
+            aria-controls="userSidebar">
+            <i class="bi bi-list"></i> 旅行ガイド
+        </button>
+    </div>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="userSidebar" aria-labelledby="userSidebarLabel"
+        data-bs-backdrop="true">
+        <div class="offcanvas-header bg-light">
+            <h5 class="offcanvas-title fw-bold" id="userSidebarLabel">J-Route Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div class="accordion accordion-flush" id="sidebarAccordion">
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne" aria-expanded="true">
+                            <i class="bi bi-map me-2"></i> 旅の計画 (Plan)
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#sidebarAccordion">
+                        <div class="list-group list-group-flush">
+                            <a th:href="@{/trip/flights}" class="list-group-item list-group-item-action ps-5">✈️
+                                航空券予約</a>
+                            <a th:href="@{/trip/hotels}" class="list-group-item list-group-item-action ps-5">🏨
+                                宿泊先を探す</a>
+                            <a th:href="@{/trip/explore}"
+                                class="list-group-item list-group-item-action ps-5 d-flex justify-content-between">
+                                <span>📍 観光スポット</span>
+                                <span class="badge bg-info text-dark">AI</span>
+                            </a>
+                            <a th:href="@{/trip/gourmet}" class="list-group-item list-group-item-action ps-5">🍽️
+                                グルメ・カフェ</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseTwo">
+                            <i class="bi bi-info-circle me-2"></i> 旅行アシスタント
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
+                        <div class="list-group list-group-flush">
+                            <a th:href="@{/assistant/weather}" class="list-group-item list-group-item-action ps-5">☀️
+                                天気＆服装</a>
+                            <a th:href="@{/assistant/exchange}" class="list-group-item list-group-item-action ps-5">💴
+                                為替＆予算</a>
+                            <a th:href="@{/assistant/transport}" class="list-group-item list-group-item-action ps-5">🚌
+                                交通・パス</a>
+                            <a th:href="@{/assistant/facilities}" class="list-group-item list-group-item-action ps-5">🎒
+                                荷物預かり</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="p-3">
+                <div class="card border-0 bg-light">
+                    <div class="card-body">
+                        <p class="small mb-0 text-muted">📢 JRouteへようこそ！AIと一緒に最適な旅行を計画しましょう。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container mt-4 mb-5 flex-grow-1">
+        <div class="jroute-hero rounded-3 mb-5 text-center text-lg-start">
+            <div class="container py-5">
+                <h1 class="display-5 fw-bold mb-3">AIが考える<span class="text-new">新しい</span>日本旅行</h1>
+                <p class="lead mb-4">あなたにぴったりの旅行プランをご提案します！</p>
+                <a class="btn jroute-btn-primary btn-lg" th:href="@{/planner/form}">
+                    旅行プランを作成 <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- お知らせセクション -->
+        <section th:if="${not #lists.isEmpty(notices)}" class="mb-5">
+            <div class="card border-0 shadow-sm"
+                style="border-radius: 15px; background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-megaphone-fill text-success me-2"></i> お知らせ</h5>
+                    <div class="list-group list-group-flush border-0">
+                        <a th:each="notice : ${notices}" th:href="@{/notice/{id}(id=${notice.noticeId})}"
+                            class="list-group-item list-group-item-action bg-transparent border-0 px-0 py-2 d-flex align-items-center text-decoration-none">
+                            <span class="badge bg-success me-3">NEW</span>
+                            <span class="fw-bold text-dark" th:text="${notice.title}">お知らせタイトル</span>
+                            <span class="ms-auto small text-muted"
+                                th:text="${#temporals.format(notice.createdAt, 'MM-dd')}">02-24</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-5">
+            <h2 class="jroute-section-title"><i class="bi bi-star-fill"></i> 今人気のスポット TOP 3</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col" th:each="place : ${topPlaces}">
+                    <a th:href="@{/place/detail(id=${place.placeId})}" class="text-decoration-none text-dark">
+                        <div class="card jroute-card h-100 shadow-sm border-0 position-relative">
+                            <div class="overflow-hidden rounded-top">
+                                <img th:src="${not #strings.isEmpty(place.imageUrl) ? place.imageUrl : 'https://via.placeholder.com/400x250?text=No+Image'}"
+                                    class="card-img-top jroute-img-hover" alt="スポット">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title text-truncate fw-bold" th:text="${place.name}">スポット名</h5>
+                                <p class="card-text text-truncate small text-muted" th:text="${place.description}">説明
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="jroute-section-title mb-0"><i class="bi bi-geo-alt"></i> おすすめの旅行先</h2>
+                <a sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ADMIN')" th:href="@{/admin/place/edit}"
+                    class="btn btn-success fw-bold shadow-sm">
+                    <i class="bi bi-plus-lg"></i> 新規登録
+                </a>
+            </div>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col" th:each="place : ${recommendedPlaces}">
+                    <a th:href="@{/place/detail(id=${place.placeId})}" class="text-decoration-none text-dark">
+                        <div class="card jroute-card h-100 border-0 shadow-sm">
+                            <div class="overflow-hidden rounded-top">
+                                <img th:src="${place.imageUrl != null ? place.imageUrl : 'https://via.placeholder.com/400x250?text=No+Image'}"
+                                    class="card-img-top jroute-img-hover" alt="旅行先">
+                            </div>
+                            <div class="card-body">
+                                <span class="badge bg-secondary me-1 mb-2" th:text="${place.region}">地域</span>
+                                <h5 class="card-title text-truncate fw-bold" th:text="${place.name}">名前</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarElement = document.getElementById('userSidebar');
+
+            // 사이드바가 닫힐 때 실행되는 이벤트
+            sidebarElement.addEventListener('hidden.bs.offcanvas', function () {
+                // 혹시 남아있을지 모르는 모든 백드롭(어두운 배경) 요소를 강제로 제거
+                const backdrops = document.querySelectorAll('.offcanvas-backdrop');
+                backdrops.forEach(backdrop => backdrop.remove());
+
+                // 본문의 스크롤 고정 해제 (가끔 백드롭 제거 후 스크롤이 안 되는 버그 방지)
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            });
+        });
+    </script>
+</body>
+
+</html>

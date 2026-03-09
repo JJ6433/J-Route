@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: headFragment}">
+    <title>航空券検索結果 - J-Route</title>
+</head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <div style="position: relative; z-index: 1050;">
+        <header th:replace="~{fragments/header :: headerFragment}"></header>
+    </div>
+
+    <div class="container py-5 flex-grow-1">
+        <h2 class="mb-4 text-center fw-bold"><i class="bi bi-airplane-engines text-primary me-2"></i>航空券検索結果</h2>
+        
+        <div id="results-container" class="mx-auto" style="max-width: 900px;">
+            <div class="text-center py-5" id="loading">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-3">最安値の航空券を検索中...</p>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <script th:inline="javascript">
+    const rawData = [[${flights}]];
+    let response;
+    try { response = JSON.parse(rawData); } catch (e) { response = {}; }
+
+    const container = document.getElementById('results-container');
+    const loading = document.getElementById('loading');
+    
+    // 검색했던 파라미터 가져오기
+    const urlParams = new URLSearchParams(window.location.search);
+    const departDate = urlParams.get('departDate');
+    const returnDate = urlParams.get('returnDate');
+    const adults = urlParams.get('adults') || "1"; 
+    const isRoundTrip = returnDate && returnDate.trim() !== "";
+
+    function formatDateTime(dateStr) {
+        if (!dateStr) return "";
+        const d = new Date(dateStr);
+        return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+    }
+
+    // 데이터 렌더링 시작
+    if (response.status && response.data && response.data.flightOffers) {
+        loading.style.display = 'none';
+        container.innerHTML = '';
+        const offers = response.data.flightOffers;
+        let html = "";
+        
+        const isGroupedRoundTrip = offers.length > 0 && offers[0].segments && offers[0].segments.length > 1;
+
+        if (isGroupedRoundTrip) {
+            html += `<h4 class="fw-bold mb-4 text-center">往復航空券の検索結果</h4>`;
+            offers.forEach(offer => { html += createGroupedFlightCard(offer); });
+        } else {
+            const outboundFlights = offers.filter(o => o.segments[0].departureTime.startsWith(departDate));
+            const inboundFlights = isRoundTrip ? offers.filter(o => o.segments[0].departureTime.startsWith(returnDate)) : [];
+
+            if (outboundFlights.length > 0) {
+                html += `<h4 class="fw-bold mb-3"><span class="badge bg-primary me-2">往路</span> ${departDate} の航空券</h4>`;
+                outboundFlights.forEach(offer => html += createSingleFlightCard(offer, "往路"));
+            }
+            if (inboundFlights.length > 0) {
+                html += `<h4 class="fw-bold mt-5 mb-3"><span class="badge bg-success me-2">復路</span> ${returnDate} の航空券</h4>`;
+                inboundFlights.forEach(offer => html += createSingleFlightCard(offer, "復路"));
+            }
+        }
+
+        container.innerHTML = html || `<div class="alert alert-light border shadow-sm text-center py-5">該当する航空券が見つかりませんでした。</div>`;
+    } else {
+        loading.style.display = 'none';
+        container.innerHTML = `<div class="alert alert-light border shadow-sm text-center py-5">該当する航空券が見つかりませんでした。</div>`;
+    }
+
+    // --- 1. 통합 카드 생성 함수 (왕복용) ---
+    function createGroupedFlightCard(offer) {
+        const outSeg = offer.segments[0];
+        const inSeg = offer.segments[offer.segments.length - 1]; 
+        
+        const purePrice = Math.round(offer.priceBreakdown.total.units);
+        const currency = offer.priceBreakdown.total.currencyCode === 'JPY' ? '¥' : offer.priceBreakdown.total.currencyCode;
+        const priceStr = `${currency}${purePrice.toLocaleString()}`;
+        
+        const outData = { from: outSeg.departureAirport.code, to: outSeg.arrivalAirport.code, time: formatDateTime(outSeg.departureTime) };
+        const inData = { from: inSeg.departureAirport.code, to: inSeg.arrivalAirport.code, time: formatDateTime(inSeg.departureTime) };
+
+        // 💡 [수정] category=FLIGHT 파라미터 추가
+        const flightName = `${outData.from} ➔ ${inData.to} 往復航空券`; 
+        const checkoutUrl = `/checkout?itemName=${encodeURIComponent(flightName)}&price=${purePrice}&checkin=${departDate}&adults=${adults}&category=FLIGHT`;
+
+        return `
+            <div class="card border-0 shadow-sm mb-4 flight-card" style="border-radius: 20px;">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="badge bg-primary-subtle text-primary me-3" style="width: 55px; font-size: 0.75rem;">往路</div>
+                                <div class="fw-bold me-2">${outData.from}</div>
+                                <i class="bi bi-arrow-right text-muted me-2"></i>
+                                <div class="fw-bold me-3">${outData.to}</div>
+                                <div class="small text-muted">${outData.time}</div>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="badge bg-success-subtle text-success me-3" style="width: 55px; font-size: 0.75rem;">復路</div>
+                                <div class="fw-bold me-2">${inData.from}</div>
+                                <i class="bi bi-arrow-right text-muted me-2"></i>
+                                <div class="fw-bold me-3">${inData.to}</div>
+                                <div class="small text-muted">${inData.time}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end border-start-md mt-3 mt-md-0">
+                            <div class="h4 text-primary fw-bold mb-2">${priceStr}</div>
+                            <button onclick="location.href='${checkoutUrl}'" 
+                                    class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                                予約手続きへ <i class="bi bi-credit-card ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    // --- 2. 편도 카드 생성 함수 ---
+    function createSingleFlightCard(offer, label) {
+        const seg = offer.segments[0];
+        
+        const purePrice = Math.round(offer.priceBreakdown.total.units);
+        const currency = offer.priceBreakdown.total.currencyCode === 'JPY' ? '¥' : offer.priceBreakdown.total.currencyCode;
+        const priceStr = `${currency}${purePrice.toLocaleString()}`;
+        const badgeClass = label === "往路" ? "bg-primary-subtle text-primary" : "bg-success-subtle text-success";
+        
+        const flightData = { from: seg.departureAirport.code, to: seg.arrivalAirport.code, time: formatDateTime(seg.departureTime) };
+
+        // 💡 [수정] category=FLIGHT 파라미터 추가
+        const flightName = `${flightData.from} ➔ ${flightData.to} ${label} 航空券`; 
+        const targetDate = label === "往路" ? departDate : returnDate; 
+        const checkoutUrl = `/checkout?itemName=${encodeURIComponent(flightName)}&price=${purePrice}&checkin=${targetDate}&adults=${adults}&category=FLIGHT`;
+
+        return `
+            <div class="card border-0 shadow-sm mb-3 flight-card" style="border-radius: 15px;">
+                <div class="card-body p-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center">
+                                <div class="badge ${badgeClass} me-3" style="width: 50px;">${label}</div>
+                                <div class="fw-bold me-2">${flightData.from}</div>
+                                <i class="bi bi-arrow-right text-muted me-2"></i>
+                                <div class="fw-bold me-3">${flightData.to}</div>
+                                <div class="small text-muted">${flightData.time}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <span class="h5 text-primary fw-bold me-3">${priceStr}</span>
+                            <button onclick="location.href='${checkoutUrl}'" 
+                                    class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm">
+                                予約手続きへ <i class="bi bi-credit-card ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    }
+</script>
+
+    <style>
+        .flight-card { transition: all 0.3s ease; border: 1px solid rgba(0,0,0,0.05); }
+        .flight-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; border-color: #003580; }
+        .btn-primary { background-color: #003580; border: none; }
+        .btn-primary:hover { background-color: #00224f; }
+        .bg-primary-subtle { background-color: #e7f0ff !important; }
+        .bg-success-subtle { background-color: #e6f9f0 !important; }
+        @media (min-width: 768px) {
+            .border-start-md { border-left: 1px solid #eee; padding-left: 20px; }
+        }
+    </style>
+</body>
+</html>

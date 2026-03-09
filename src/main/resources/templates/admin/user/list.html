@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/admin}">
+
+<head>
+    <title>会員管理</title>
+</head>
+
+<body>
+    <main layout:fragment="content">
+        <div
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+            <h1 class="h3 fw-bold"><i class="bi bi-people text-success"></i> 会員管理</h1>
+        </div>
+
+        <!-- 検索フィルタ -->
+        <div class="card shadow-sm mb-4 border-0" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <form th:action="@{/admin/user/list}" method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">キーワード</label>
+                        <input type="text" name="keyword" th:value="${keyword}" class="form-control"
+                            placeholder="IDまたはニックネーム">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-bold">権限</label>
+                        <select name="role" class="form-select">
+                            <option value="">全て</option>
+                            <option value="USER" th:selected="${role == 'USER'}">一般</option>
+                            <option value="ADMIN" th:selected="${role == 'ADMIN'}">管理者</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label small fw-bold">登録期間</label>
+                        <div class="input-group">
+                            <input type="date" name="startDate" th:value="${startDate}" class="form-control">
+                            <span class="input-group-text">~</span>
+                            <input type="date" name="endDate" th:value="${endDate}" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success w-100 fw-bold">
+                            <i class="bi bi-search me-1"></i> 検索
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div th:if="${message}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i><span th:text="${message}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="card shadow-sm" style="border-radius: 15px; border: none;">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">No.</th>
+                                <th>ログインID</th>
+                                <th>ニックネーム</th>
+                                <th>権限</th>
+                                <th>登録日</th>
+                                <th class="pe-4 text-center">管理</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user, stat : ${users}">
+                                <td class="ps-4 text-muted" th:text="${stat.count}">1</td>
+                                <td class="fw-bold text-dark" th:text="${user.username}">user123</td>
+                                <td th:text="${user.nickname}">ニックネーム</td>
+                                <td>
+                                    <span th:if="${user.role == 'ADMIN'}" class="badge bg-danger">管理者</span>
+                                    <span th:if="${user.role != 'ADMIN'}" class="badge bg-secondary">一般</span>
+                                </td>
+                                <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}">2026-02-23</td>
+                                <td class="pe-4 text-center">
+                                    <form th:action="@{/admin/user/delete}" method="post" class="d-inline"
+                                        onsubmit="return confirm('本当にこの会員を強制退会させますか？');">
+                                        <input type="hidden" name="userId" th:value="${user.userId}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger fw-bold"
+                                            th:disabled="${user.role == 'ADMIN'}">
+                                            強制退会
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(users)}">
+                                <td colspan="6" class="text-center text-muted py-5">
+                                    <i class="bi bi-person-x fs-1 d-block mb-2 opacity-50"></i>
+                                    登録された会員がありません。
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

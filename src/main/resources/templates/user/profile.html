@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    <main class="container mt-5 mb-5 flex-grow-1">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="d-flex align-items-center mb-4">
+                    <a th:href="@{/mypage}" class="btn btn-light rounded-circle me-3"><i
+                            class="bi bi-arrow-left"></i></a>
+                    <h2 class="fw-bold mb-0">プロフィール設定</h2>
+                </div>
+
+                <!-- Alert Messages -->
+                <div th:if="${message}"
+                    class="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4"
+                    role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i> <span th:text="${message}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${errorMessage}"
+                    class="alert alert-danger alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4"
+                    role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${errorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <!-- Basic Information -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                    <div class="card-header bg-white border-0 pt-4 px-4">
+                        <h5 class="fw-bold mb-0">基本情報</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form th:action="@{/mypage/profile/update}" method="post">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">ユーザーID</label>
+                                <input type="text" class="form-control bg-light border-0 py-2"
+                                    th:value="${user.username}" readonly>
+                                <div class="form-text small">IDの変更はできません。</div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">ニックネーム</label>
+                                <input type="text" name="nickname" class="form-control py-2 border-primary-subtle"
+                                    th:value="${user.nickname}" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary px-4 rounded-pill">保存する</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Change Password -->
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header bg-white border-0 pt-4 px-4">
+                        <h5 class="fw-bold mb-0">パスワード変更</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form th:action="@{/mypage/profile/password}" method="post">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">現在のパスワード</label>
+                                <input type="password" name="currentPassword" class="form-control py-2" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">新しいパスワード</label>
+                                <input type="password" name="newPassword" class="form-control py-2" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">新しいパスワード（確認）</label>
+                                <input type="password" name="confirmPassword" class="form-control py-2" required>
+                            </div>
+                            <button type="submit" class="btn btn-outline-danger px-4 rounded-pill">パスワードを変更</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+
+</html>

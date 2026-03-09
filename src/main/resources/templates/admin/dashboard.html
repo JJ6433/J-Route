@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:replace="~{fragments/head :: headFragment}"></th:block>
+    <title>管理者ダッシュボード</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100" style="background-color: var(--bg-color, #F7F9FB);">
+
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+
+    <div class="container-fluid flex-grow-1">
+        <div class="row h-100">
+            <nav th:replace="~{fragments/admin_sidebar :: sidebarFragment}"></nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                    <h1 class="h3 fw-bold"><i class="bi bi-speedometer2 text-success"></i> ダッシュボード</h1>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                            <div class="card-header bg-white py-3 border-0">
+                                <h6 class="mb-0 fw-bold"><i class="bi bi-person-plus text-success me-2"></i> 新規会員登録推移
+                                    (最近7日)</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="userChart" height="150"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                            <div class="card-header bg-white py-3 border-0">
+                                <h6 class="mb-0 fw-bold"><i class="bi bi-cpu text-success me-2"></i> Gemini API 呼び出し通計
+                                    (최근7일)</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="apiChart" height="150"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-5">
+                    <div class="col-md-6 mb-3">
+                        <div class="card text-dark bg-white shadow-sm h-100"
+                            style="border-radius: 15px; border: 1px solid #eee;">
+                            <div class="card-body p-4">
+                                <h6 class="card-title mb-1 text-muted">総会員数</h6>
+                                <h2 class="display-5 fw-bold mb-0 text-success"
+                                    th:text="${userCount != null ? userCount : '0'} + ' 名'">0 名</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card text-dark bg-white shadow-sm h-100"
+                            style="border-radius: 15px; border: 1px solid #eee;">
+                            <div class="card-body p-4">
+                                <h6 class="card-title mb-1 text-muted">登録旅行先数</h6>
+                                <h2 class="display-5 fw-bold mb-0 text-success"
+                                    th:text="${placeCount != null ? placeCount : '0'} + ' 件'">0 件</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm" style="border-radius: 15px; border: none;">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h5 class="mb-0 fw-bold">人気旅行先 TOP 5</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">名前</th>
+                                        <th>地域</th>
+                                        <th>カテゴリ</th>
+                                        <th>平均評価</th>
+                                        <th class="pe-4">レビュー数</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="place : ${topPlaces}">
+                                        <td class="ps-4 fw-bold text-dark" th:text="${place?.name}">名前</td>
+                                        <td><span class="badge bg-secondary" th:text="${place?.region}">地域</span></td>
+                                        <td><span class="badge bg-light text-dark border"
+                                                th:text="${place?.category}">カテゴリ</span></td>
+                                        <td th:text="${place?.avgRating != null ? place.avgRating : '-'}">評価</td>
+                                        <td class="pe-4"
+                                            th:text="${place?.reviewCount != null ? place.reviewCount : '0'}">レビュー数</td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(topPlaces)}">
+                                        <td colspan="5" class="text-center text-muted py-4">登録された旅行先がありません。</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener('DOMContentLoaded', function () {
+            // User stats data
+            const userStats = /*[[${userStats}]]*/[];
+            const userLabels = userStats.map(s => s.date);
+            const userData = userStats.map(s => s.count);
+
+            new Chart(document.getElementById('userChart'), {
+                type: 'line',
+                data: {
+                    labels: userLabels,
+                    datasets: [{
+                        label: '新規登録',
+                        data: userData,
+                        borderColor: '#198754',
+                        backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+
+            // API stats data
+            const apiStats = /*[[${apiStats}]]*/[];
+            const apiLabels = apiStats.map(s => s.date);
+            const apiSuccessData = apiStats.map(s => s.success);
+            const apiFailureData = apiStats.map(s => s.failure);
+
+            new Chart(document.getElementById('apiChart'), {
+                type: 'bar',
+                data: {
+                    labels: apiLabels,
+                    datasets: [
+                        {
+                            label: '成功',
+                            data: apiSuccessData,
+                            backgroundColor: '#198754'
+                        },
+                        {
+                            label: '失敗',
+                            data: apiFailureData,
+                            backgroundColor: '#dc3545'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true }
+                    }
+                }
+            });
+        });
+        /*]]>*/
+    </script>
+</body>
+
+</html>

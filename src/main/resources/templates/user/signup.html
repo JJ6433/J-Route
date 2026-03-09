@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: headFragment}"></head>
+<body class="d-flex flex-column min-vh-100">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    <main class="container mt-4 mb-4 flex-grow-1">
+        <div class="container mb-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <h2 class="jroute-section-title"><i class="bi bi-person-plus"></i> 会員登録</h2>
+                    <p th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></p>
+                    <div class="card jroute-card">
+                        <div class="card-body p-4">
+                            <form th:action="@{/user/signup}" th:object="${userDto}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label">ユーザーID</label>
+                                    <input type="text" class="form-control" th:field="*{username}" required maxlength="50"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">パスワード</label>
+                                    <input type="password" class="form-control" th:field="*{password}" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">ニックネーム</label>
+                                    <input type="text" class="form-control" th:field="*{nickname}" required maxlength="50"/>
+                                </div>
+                                <button type="submit" class="btn jroute-btn-primary me-2">登録する</button>
+                                <a th:href="@{/user/login}" class="btn btn-outline-view">ログイン</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+</html>
