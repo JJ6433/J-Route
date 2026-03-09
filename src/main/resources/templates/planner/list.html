@@ -1,24 +1,128 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{fragments/head :: headFragment}"></head>
+<style>
+    .planner-card {
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .planner-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
+        border-color: #ffc107;
+    }
+
+    .planner-icon {
+        width: 50px;
+        height: 50px;
+        background-color: #fff5f5;
+        color: #dc3545;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .planner-date {
+        font-size: 0.8rem;
+        color: #adb5bd;
+    }
+</style>
+
 <body class="d-flex flex-column min-vh-100">
     <header th:replace="~{fragments/header :: headerFragment}"></header>
     <main class="container mt-4 mb-4 flex-grow-1">
         <div class="container mb-5">
-            <h2 class="jroute-section-title"><i class="bi bi-journal-bookmark"></i> マイプラン一覧</h2>
-            <p th:if="${message}" class="alert alert-success" th:text="${message}"></p>
-            <div class="card jroute-card">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between align-items-center" th:each="p : ${planners}">
-                        <a th:href="@{/planner/detail(id=${p.plannerId})}" th:text="${p.title}">タイトル</a>
-                        <span class="text-muted small" th:text="${#temporals.format(p.createdAt, 'yyyy/MM/dd')}"></span>
-                    </li>
-                    <li class="list-group-item text-muted text-center" th:if="${#lists.isEmpty(planners)}">保存したプランはありません。</li>
-                </ul>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="jroute-section-title mb-0"><i class="bi bi-journal-bookmark-fill text-danger"></i> マイプラン一覧
+                </h2>
+                <a th:href="@{/planner/form}" class="btn jroute-btn-primary shadow-sm rounded-pill px-4">
+                    <i class="bi bi-plus-lg me-1"></i> 新規作成
+                </a>
             </div>
-            <a th:href="@{/planner/form}" class="btn jroute-btn-primary mt-3">新しいプランを作成</a>
+
+            <p th:if="${message}" class="alert alert-success shadow-sm border-0" th:text="${message}"></p>
+
+            <!-- My Plans Section -->
+            <h4 class="mb-3 fw-bold" th:if="${not #lists.isEmpty(myPlans)}">私のプラン</h4>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5" th:if="${not #lists.isEmpty(myPlans)}">
+                <div class="col" th:each="p : ${myPlans}">
+                    <div class="card h-100 planner-card border-0 shadow-sm"
+                        th:onclick="|location.href='@{/planner/view/{id}(id=${p.plannerId})}'|">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="planner-icon">
+                                    <i class="bi bi-map"></i>
+                                </div>
+                                <span class="planner-date"
+                                    th:text="${#temporals.format(p.createdAt, 'yyyy/MM/dd HH:mm')}">2024/02/25</span>
+                            </div>
+
+                            <h5 class="card-title fw-bold mb-3 text-dark" th:text="${p.title}">プランタイトル</h5>
+
+                            <div class="mt-auto pt-3 border-top d-flex justify-content-between">
+                                <span class="btn btn-light btn-sm rounded-pill px-3 fw-bold text-danger">
+                                    <i class="bi bi-eye me-1"></i> 表示
+                                </span>
+                                <form th:action="@{/planner/delete/{id}(id=${p.plannerId})}" method="post"
+                                    onclick="event.stopPropagation(); return confirm('このプランを削除しますか？');">
+                                    <button type="submit"
+                                        class="btn btn-outline-secondary btn-sm rounded-pill border-0 px-2">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collaborative Plans Section -->
+            <h4 class="mb-3 fw-bold" th:if="${not #lists.isEmpty(collabPlans)}">共有されたプラン</h4>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5" th:if="${not #lists.isEmpty(collabPlans)}">
+                <div class="col" th:each="p : ${collabPlans}">
+                    <div class="card h-100 planner-card border-0 shadow-sm"
+                        th:onclick="|location.href='@{/planner/view/{id}(id=${p.plannerId})}'|">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="planner-icon" style="background-color: #e7f5ff; color: #007bff;">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <span class="planner-date"
+                                    th:text="${#temporals.format(p.createdAt, 'yyyy/MM/dd HH:mm')}">2024/02/25</span>
+                            </div>
+
+                            <h5 class="card-title fw-bold mb-3 text-dark" th:text="${p.title}">プランタイトル</h5>
+
+                            <div class="mt-auto pt-3 border-top d-flex justify-content-between">
+                                <span class="btn btn-light btn-sm rounded-pill px-3 fw-bold text-primary">
+                                    <i class="bi bi-eye me-1"></i> 表示
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="bg-light rounded-4 py-5 px-3 text-center"
+                th:if="${#lists.isEmpty(myPlans) and #lists.isEmpty(collabPlans)}">
+                <div class="display-1 text-muted mb-4"><i class="bi bi-folder2-open"></i></div>
+                <h4 class="fw-bold">保存したプランがありません</h4>
+                <p class="text-muted">AIと一緒にあなただけの特別な日本旅行を計画してみましょう！</p>
+                <a th:href="@{/planner/form}" class="btn jroute-btn-primary mt-2 shadow-sm">
+                    最初のプランを作成する
+                </a>
+            </div>
         </div>
     </main>
     <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 </body>
+
 </html>

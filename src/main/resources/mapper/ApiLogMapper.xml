@@ -1,41 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.blog.mapper.ApiLogMapper">
-
-    <insert id="insertLog" parameterType="ApiLogDto" useGeneratedKeys="true" keyProperty="log_id">
-        INSERT INTO api_logs (api_name, endpoint, status, response_time, error_message)
-        VALUES (#{apiName}, #{endpoint}, #{status}, #{responseTime}, #{errorMessage})
-    </insert>
-
-    <select id="findAll" resultType="ApiLogDto">
-        SELECT log_id, api_name AS apiName, endpoint, status, response_time AS responseTime, 
-               error_message AS errorMessage, created_at AS createdAt
-        FROM api_logs
-        ORDER BY created_at DESC
-    </select>
-
-    <select id="findLatest" resultType="ApiLogDto">
-        SELECT log_id, api_name AS apiName, endpoint, status, response_time AS responseTime, 
-               error_message AS errorMessage, created_at AS createdAt
-        FROM api_logs
-        ORDER BY created_at DESC
-        LIMIT #{limit}
-    </select>
-
-    <delete id="deleteAll">
-        DELETE FROM api_logs
-    </delete>
-
-    <!-- 최근 7일간 API 호출 통계 -->
-    <select id="getDailyStats" resultType="map">
-        SELECT DATE_FORMAT(created_at, '%Y-%m-%d') as date, 
-               COUNT(*) as total,
-               SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) as success,
-               SUM(CASE WHEN status = 'FAILURE' THEN 1 ELSE 0 END) as failure
-        FROM api_logs
-        WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
-        GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d')
-        ORDER BY date ASC
-    </select>
-
+    <!-- Migrated to annotations in ApiLogMapper.java -->
 </mapper>

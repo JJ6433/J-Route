@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    <main class="container py-5 flex-grow-1">
+        <h2 class="jroute-section-title mb-5"><i class="bi bi-people-fill me-2"></i>チーム紹介</h2>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-6 mb-4">
+                <div class="card jroute-card h-100 shadow-sm border-0">
+                    <div class="card-body p-4 text-center">
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                            style="width: 80px; height: 80px;">
+                            <i class="bi bi-geo-alt-fill text-danger fs-1"></i>
+                        </div>
+                        <h4 class="fw-bold"> 我々のビジョン </h4>
+                        <p class="text-muted">
+                            J-RouteはAI技術を通じて、誰もが簡単に自分だけの特別な日本旅行を計画できるようサポートします。複雑な日程作成から解放され、旅の楽しさだけに集中してください。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card jroute-card h-100 shadow-sm border-0">
+                    <div class="card-body p-4 text-center">
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                            style="width: 80px; height: 80px;">
+                            <i class="bi bi-lightning-fill text-warning fs-1"></i>
+                        </div>
+                        <h4 class="fw-bold"> 革新的な技術 </h4>
+                        <p class="text-muted">最新のGemini
+                            AIモデルを活用し、ユーザーの好みや日程に最適化されたコースをリアルタイムで生成。Googleマップとの連携により、動線まで完璧に案内します。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert bg-jroute-light border-0 p-5 rounded-4 text-center">
+            <h3 class="fw-bold mb-3">旅の新しい基準、J-Route</h3>
+            <p class="lead mb-0">私たちは単なるプランナーを超え、あなたの旅のパートナーになりたいと考えています。</p>
+        </div>
+    </main>
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+
+</html>

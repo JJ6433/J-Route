@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    <main class="container py-5 flex-grow-1">
+        <h2 class="jroute-section-title mb-5"><i class="bi bi-envelope-paper-fill me-2"></i>お問い合わせ</h2>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card jroute-card shadow-sm border-0 overflow-hidden">
+                    <div class="row g-0">
+                        <div class="col-md-5 bg-danger text-white p-5 d-flex flex-column justify-content-center">
+                            <h3 class="fw-bold mb-4">Contact Info</h3>
+                            <div class="mb-4">
+                                <p class="small opacity-75 mb-1"><i class="bi bi-geo-alt me-2"></i>Address</p>
+                                <p class="mb-0">South Korea, Seoul</p>
+                            </div>
+                            <div class="mb-4">
+                                <p class="small opacity-75 mb-1"><i class="bi bi-envelope me-2"></i>Email</p>
+                                <p class="mb-0">support@jroute.com</p>
+                            </div>
+                            <div>
+                                <p class="small opacity-75 mb-1"><i class="bi bi-clock me-2"></i>Working Hours</p>
+                                <p class="mb-0">Mon - Fri: 09:00 - 18:00</p>
+                            </div>
+                        </div>
+                        <div class="col-md-7 p-5">
+                            <form id="contactForm">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">お名前</label>
+                                    <input type="text" class="form-control bg-light border-0 py-3"
+                                        placeholder="Your Name" required
+                                        oninvalid="this.setCustomValidity('名前を入力してください。')"
+                                        oninput="this.setCustomValidity('')">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">メールアドレス</label>
+                                    <input type="email" class="form-control bg-light border-0 py-3"
+                                        placeholder="Email Address" required
+                                        oninvalid="if(this.validity.valueMissing){this.setCustomValidity('メールアドレスを入力してください。')}else{this.setCustomValidity('有効なメールアドレスを入力してください。')}"
+                                        oninput="this.setCustomValidity('')">
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold">お問い合わせ内容</label>
+                                    <textarea class="form-control bg-light border-0 py-3" rows="5" placeholder="Message"
+                                        required oninvalid="this.setCustomValidity('お問い合わせ内容を入力してください。')"
+                                        oninput="this.setCustomValidity('')"></textarea>
+                                </div>
+                                <button type="button" class="btn jroute-btn-primary w-100 py-3 shadow"
+                                    onclick="handleSubmit()">
+                                    送信する
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function handleSubmit() {
+            const form = document.getElementById('contactForm');
+            // Basic validation check
+            if (form.checkValidity()) {
+                alert('お問い合わせを受け付けました。');
+                form.reset();
+            } else {
+                form.reportValidity();
+            }
+        }
+    </script>
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+
+</html>

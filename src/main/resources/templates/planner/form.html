@@ -3,107 +3,547 @@
 
 <head th:replace="~{fragments/head :: headFragment}"></head>
 
+<!-- Add custom styles for the Wizard -->
+<style>
+    .step-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .step-header::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #eee;
+        z-index: 1;
+    }
+
+    .step-node {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid #eee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        z-index: 2;
+        transition: all 0.3s;
+    }
+
+    .step-node.active {
+        background: #ff4d4f;
+        border-color: #ff4d4f;
+        color: white;
+    }
+
+    .step-node.completed {
+        background: #52c41a;
+        border-color: #52c41a;
+        color: white;
+    }
+
+    .wizard-step {
+        display: none;
+    }
+
+    .wizard-step.active {
+        display: block;
+        animation: fadeIn 0.5s;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .city-card {
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+        overflow: hidden;
+    }
+
+    .city-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .city-card.selected {
+        border-color: #ff4d4f;
+        background-color: rgba(255, 77, 79, 0.05);
+    }
+
+    .city-card img {
+        height: 120px;
+        object-fit: cover;
+    }
+
+    #hotel-map {
+        height: 400px;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+
+    .hotel-info-card {
+        border: 2px solid #eee;
+        padding: 1rem;
+        border-radius: 12px;
+        display: none;
+        margin-top: 1rem;
+    }
+
+    .hotel-info-card.active {
+        display: block;
+        border-color: #ff4d4f;
+    }
+</style>
+
 <body class="d-flex flex-column min-vh-100">
     <header th:replace="~{fragments/header :: headerFragment}"></header>
     <main class="container mt-4 mb-4 flex-grow-1">
         <div class="container mb-5">
-            <h2 class="jroute-section-title"><i class="bi bi-magic"></i> AI旅行プランナー</h2>
-            <p class="lead text-muted">簡単な情報を入力するだけで、理想の旅行コースを自動作成！</p>
-            <div class="row justify-content-center">
-                <div class="col-md-6">
-                    <div class="card jroute-card">
-                        <div class="card-body p-4">
-                            <form id="planner-form" th:action="@{/planner/generate}" method="post">
-                                <div class="mb-3">
-                                    <label class="form-label">エリア</label>
-                                    <input type="text" name="region" class="form-control" list="region-options"
-                                        placeholder="例: 札幌, 名古屋, 沖縄" required>
-                                    <datalist id="region-options">
-                                        <option value="東京">
-                                        <option value="大阪">
-                                        <option value="福岡">
-                                        <option value="京都">
-                                        <option value="北海道">
-                                        <option value="名古屋">
-                                        <option value="沖縄">
-                                        <option value="広島">
-                                        <option value="仙台">
-                                    </datalist>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">旅行日数</label>
-                                    <select name="days" class="form-select" required>
-                                        <option value="1泊2日">1泊2日</option>
-                                        <option value="2泊3日">2泊3日</option>
-                                        <option value="3泊4日">3泊4日</option>
-                                        <option value="4泊5日">4泊5日</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">同行者</label>
-                                    <select name="companion" class="form-select">
-                                        <option value="">選択</option>
-                                        <option value="一人旅">一人旅</option>
-                                        <option value="カップル">カップル</option>
-                                        <option value="友達">友達</option>
-                                        <option value="両親">両親</option>
-                                        <option value="子供同伴">子供同伴</option>
-                                        <option value="団体">団体</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">旅行スタイル</label>
-                                    <select name="style" class="form-select">
-                                        <option value="">選択</option>
-                                        <option value="グルメ">グルメ重視</option>
-                                        <option value="観光">観光重視</option>
-                                        <option value="癒し">癒し・リラックス</option>
-                                        <option value="ショッピング">ショッピング</option>
-                                    </select>
-                                </div>
-                                <button type="submit" id="submit-btn" class="btn jroute-btn-primary w-100">
-                                    <span id="btn-text">プラン生成 <i class="bi bi-chevron-right"></i></span>
-                                    <span id="btn-spinner" class="spinner-border spinner-border-sm d-none" role="status"
-                                        aria-hidden="true"></span>
-                                </button>
-                            </form>
+            <h2 class="jroute-section-title text-center mb-4"><i class="bi bi-magic"></i> AI旅行プランナー</h2>
 
-                            <!-- Loading Overlay -->
-                            <div id="loading-overlay" class="position-fixed top-0 start-0 w-100 h-100 d-none"
-                                style="background: rgba(255,255,255,0.8); z-index: 9999;">
-                                <div class="d-flex flex-column align-items-center justify-content-center h-100">
-                                    <div class="spinner-grow text-danger mb-3" style="width: 3rem; height: 3rem;"
-                                        role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                    <h4 class="fw-bold">AIが最適な旅程を生成中です...</h4>
-                                    <p class="text-muted">少々お待ちください。</p>
-                                </div>
-                            </div>
-
-                            <script>
-                                document.getElementById('planner-form').addEventListener('submit', function (e) {
-                                    const btn = document.getElementById('submit-btn');
-                                    const btnText = document.getElementById('btn-text');
-                                    const btnSpinner = document.getElementById('btn-spinner');
-                                    const overlay = document.getElementById('loading-overlay');
-
-                                    // Disable button and show spinner
-                                    btn.disabled = true;
-                                    btnText.classList.add('d-none');
-                                    btnSpinner.classList.remove('d-none');
-
-                                    // Show full-screen overlay
-                                    overlay.classList.remove('d-none');
-                                });
-                            </script>
-                        </div>
+            <!-- Wizard Headers -->
+            <div class="row justify-content-center mb-5">
+                <div class="col-md-8">
+                    <div class="step-header">
+                        <div class="step-node active" id="node-1">1</div>
+                        <div class="step-node" id="node-2">2</div>
+                        <div class="step-node" id="node-3">3</div>
+                        <div class="step-node" id="node-4">4</div>
+                    </div>
+                    <div class="d-flex justify-content-between px-2 text-muted small">
+                        <span>都市を選択</span>
+                        <span>宿を選択</span>
+                        <span>詳細設定</span>
+                        <span>生成中</span>
                     </div>
                 </div>
             </div>
+
+            <form id="planner-form" th:action="@{/planner/generate}" method="post">
+                <!-- Step 1: City Selection -->
+                <div class="wizard-step active" id="step-1">
+                    <h4 class="text-center mb-4">どちらへご旅行ですか？</h4>
+                    <div class="row g-3">
+                        <div class="col-6 col-md-3">
+                            <div class="card city-card" onclick="selectCity('東京', this)">
+                                <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=500&q=80"
+                                    class="card-img-top" alt="東京" style="height: 150px; object-fit: cover;">
+                                <div class="card-body p-2 text-center">
+                                    <h6 class="mb-0">東京</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card city-card" onclick="selectCity('大阪', this)">
+                                <img src="https://images.unsplash.com/photo-1590559899731-a382839e5549?w=500&q=80"
+                                    class="card-img-top" alt="大阪" style="height: 150px; object-fit: cover;">
+                                <div class="card-body p-2 text-center">
+                                    <h6 class="mb-0">大阪</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card city-card" onclick="selectCity('福岡', this)">
+                                <img src="https://images.unsplash.com/photo-1578469645742-46cae010e5d4?w=500&q=80"
+                                    class="card-img-top" alt="福岡" style="height: 150px; object-fit: cover;">
+                                <div class="card-body p-2 text-center">
+                                    <h6 class="mb-0">福岡</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card city-card" onclick="selectCity('札幌', this)">
+                                <img src="/images/sapporo_city.png" class="card-img-top" alt="札幌"
+                                    style="height: 150px; object-fit: cover;">
+                                <div class="card-body p-2 text-center">
+                                    <h6 class="mb-0">札幌</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card city-card" onclick="selectCity('沖縄', this)">
+                                <img src="/images/okinawa_city.png" class="card-img-top" alt="沖縄"
+                                    style="height: 150px; object-fit: cover;">
+                                <div class="card-body p-2 text-center">
+                                    <h6 class="mb-0">沖縄</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card city-card" onclick="selectCity('名古屋', this)">
+                                <img src="/images/nagoya_city.png" class="card-img-top" alt="名古屋"
+                                    style="height: 150px; object-fit: cover;">
+                                <div class="card-body p-2 text-center">
+                                    <h6 class="mb-0">名古屋</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card city-card" onclick="selectCity('静岡', this)">
+                                <img src="/images/shizuoka_city.png" class="card-img-top" alt="静岡"
+                                    style="height: 150px; object-fit: cover;">
+                                <div class="card-body p-2 text-center">
+                                    <h6 class="mb-0">静岡</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="card city-card" onclick="selectCity('広島', this)">
+                                <img src="/images/hiroshima_city.png" class="card-img-top" alt="広島"
+                                    style="height: 150px; object-fit: cover;">
+                                <div class="card-body p-2 text-center">
+                                    <h6 class="mb-0">広島</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="region" id="region-input" required>
+                    <div class="text-center mt-5">
+                        <button type="button" class="btn jroute-btn-primary px-5" onclick="nextStep(2)">次へ <i
+                                class="bi bi-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Hotel Selection (List View) -->
+                <div class="wizard-step" id="step-2">
+                    <h4 class="text-center mb-4">ご滞在予定のエリア・宿を選択してください</h4>
+
+                    <!-- Dynamic Hotel Grid -->
+                    <div id="hotel-grid" class="row g-3 mb-4">
+                        <!-- Hotels injected by JS -->
+                    </div>
+
+                    <div id="selected-hotel-info" class="hotel-info-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 fw-bold" id="display-hotel-name">숙소명</h6>
+                                <p class="mb-0 text-muted small" id="display-hotel-address">주소</p>
+                            </div>
+                            <span class="badge bg-success">選択済み</span>
+                        </div>
+                    </div>
+
+                    <!-- Fallback / Custom Hotel Input (Optional) -->
+                    <div class="mt-4 p-3 bg-light rounded text-center">
+                        <p class="text-muted small mb-2">リストにご希望の宿がない場合は直接入力してください。</p>
+                        <div class="input-group input-group-sm w-75 mx-auto">
+                            <input type="text" class="form-control" id="custom-hotel-name"
+                                placeholder="ホテル名 (例: 帝国ホテル)">
+                            <button class="btn btn-outline-danger" type="button" onclick="setCustomHotel()">適用</button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="accommodationName" id="hotel-name-input">
+                    <input type="hidden" name="accommodationAddress" id="hotel-address-input">
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-outline-secondary px-4" onclick="prevStep(1)">戻る</button>
+                        <button type="button" class="btn jroute-btn-primary px-5" onclick="nextStep(3)">次へ <i
+                                class="bi bi-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Details -->
+                <div class="wizard-step" id="step-3">
+                    <h4 class="text-center mb-4">最後に、旅行の詳細を教えてください</h4>
+                    <div class="row g-4 justify-content-center">
+                        <div class="col-md-6">
+                            <div class="card jroute-card p-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">旅行期間</label>
+                                    <div class="input-group">
+                                        <input type="date" name="startDate" class="form-control" required
+                                            id="startDate">
+                                        <span class="input-group-text">~</span>
+                                        <input type="date" name="endDate" class="form-control" required id="endDate">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">大人</label>
+                                            <input type="number" name="adults" class="form-control" value="2" min="1">
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">子供</label>
+                                            <input type="number" name="children" class="form-control" value="0" min="0">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">旅行のテーマ</label>
+                                    <select name="style" class="form-select">
+                                        <option value="観光">観光メイン</option>
+                                        <option value="グルメ">グルメ満喫</option>
+                                        <option value="リラックス">温泉・リラックス</option>
+                                        <option value="ショッピング">ショッピングと都会</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">同行者</label>
+                                    <select name="companion" class="form-select">
+                                        <option value="カップル">カップル</option>
+                                        <option value="友達">友達</option>
+                                        <option value="家族">家族</option>
+                                        <option value="一人旅">一人旅</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn jroute-btn-primary w-100 py-3 fw-bold">
+                                    AI旅行プランナーを起動する <i class="bi bi-lightning-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-link text-decoration-none text-muted"
+                            onclick="prevStep(2)">前のステップへ</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </main>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="position-fixed top-0 start-0 w-100 h-100 d-none"
+        style="background: rgba(255,255,255,0.9); z-index: 9999;">
+        <div class="d-flex flex-column align-items-center justify-content-center h-100">
+            <div class="spinner-grow text-danger mb-4" style="width: 4rem; height: 4rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h3 class="fw-bold mb-2 text-dark">AIが旅行プランを作成しています...</h3>
+            <p class="text-muted">選択した宿を拠点として、天気と動線を分析中です。</p>
+        </div>
+    </div>
+
     <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <script th:inline="javascript">
+        let currentStep = 1;
+        let selectedRegion = '';
+
+        // Hardcoded representative hotels per region
+        const regionHotels = {
+            '東京': [
+                { name: '新宿ワシントンホテル', address: '東京都新宿区西新宿3-2-9', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
+                { name: '品川プリンスホテル', address: '東京都港区高輪4-10-30', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
+                { name: 'ホテルメトロポリタンエドモント', address: '東京都千代田区飯田橋3-10-8', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
+                { name: 'アパホテル＆リゾート〈両国駅タワー〉', address: '東京都墨田区横網1-11-10', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
+                { name: 'ホテルグレイスリー新宿', address: '東京都新宿区歌舞伎町1-19-1', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
+                { name: '東武ホテルレバント東京', address: '東京都墨田区錦糸1-2-2', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
+                { name: 'グランドニッコー東京 台場', address: '東京都港区台場2-6-1', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
+                { name: '京王プラザホテル', address: '東京都新宿区西新宿2-2-1', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
+            ],
+            '大阪': [
+                { name: 'ホテルグランヴィア大阪', address: '大阪府大阪市北区梅田3-1-1', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
+                { name: 'スイスホテル南海大阪', address: '大阪府大阪市中央区難波5-1-60', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
+                { name: 'リーガロイヤルホテル', address: '大阪府大阪市北区中之島5-3-68', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
+                { name: 'アートホテル大阪ベイタワー', address: '大阪府大阪市港区弁天1-2-1', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
+                { name: 'ホテル京阪 淀屋橋', address: '大阪府大阪市中央区北浜2-4-6', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
+                { name: 'コンラッド大阪', address: '大阪府大阪市北区中之島3-2-4', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
+                { name: 'インターコンチネンタルホテル大阪', address: '大阪府大阪市北区大深町3-60', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
+                { name: 'ホテルモントレ グラスミア大阪', address: '大阪府大阪市浪速区湊町1-2-3', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
+            ],
+            '福岡': [
+                { name: 'グランドハイアット福岡', address: '福岡県福岡市博多区住吉1-2-82', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
+                { name: '都ホテル 博多', address: '福岡県福岡市博多区博多駅東2-1-1', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
+                { name: 'ホテル日航福岡', address: '福岡県福岡市博多区博多駅前2-18-25', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
+                { name: '西鉄グランドホテル', address: '福岡県福岡市中央区大名2-6-60', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
+                { name: 'ANAクラウンプラザホテル福岡', address: '福岡県福岡市博多区博多駅前3-3-3', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
+                { name: 'ソラリア西鉄ホテル福岡', address: '福岡県福岡市中央区天神2-2-43', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
+                { name: 'ホテルオークラ福岡', address: '福岡県福岡市博多区下川端町3-2', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
+                { name: 'キャナルシティ・福岡ワシントンホテル', address: '福岡県福岡市博多区住吉1-2-20', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
+            ],
+            '札幌': [
+                { name: '札幌グランドホテル', address: '北海道札幌市中央区北1条西4丁目', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
+                { name: '京王プラザホテル札幌', address: '北海道札幌市中央区北5条西7-2-1', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
+                { name: 'センチュリーロイヤルホテル', address: '北海道札幌市中央区北5条西5丁目', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
+                { name: 'ホテルモントレ札幌', address: '北海道札幌市中央区北4条西1丁目3', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
+                { name: 'JRタワーホテル日航札幌', address: '北海道札幌市中央区北5条西2丁目5番地', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
+                { name: 'ANAクラウンプラザホテル札幌', address: '北海道札幌市中央区北3条西1丁目2-9', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
+                { name: 'クロスホテル札幌', address: '北海道札幌市中央区北2条西2-23', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
+                { name: 'ニューオータニイン札幌', address: '北海道札幌市中央区北2条西1丁目1-1', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
+            ],
+            '沖縄': [
+                { name: '沖縄かりゆしビーチリゾート', address: '沖縄県国頭郡恩納村名嘉真ヤーシ原2591-1', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
+                { name: 'ホテルモントレ沖縄', address: '沖縄県国頭郡恩納村冨着 1550番地1', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
+                { name: 'ルネッサンス リゾート オキナワ', address: '沖縄県国頭郡恩納村山田3425-2', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
+                { name: 'カフー リゾート フチャク', address: '沖縄県国頭郡恩納村字冨着志利福地原246-1', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
+                { name: 'ザ・ブセナテラス', address: '沖縄県名護市喜瀬1808', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
+                { name: 'ハレクラニ沖縄', address: '沖縄県国頭郡恩納村名嘉真1967-1', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
+                { name: '琉球温泉 瀬長島ホテル', address: '沖縄県豊見城市瀬長174-5', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
+                { name: 'ANAインターコンチネンタル万座', address: '沖縄県国頭郡恩納村字瀬良垣2260', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
+            ],
+            '名古屋': [
+                { name: '名古屋マリオットアソシアホテル', address: '愛知県名古屋市中村区名駅1-1-4', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
+                { name: '名古屋観光ホテル', address: '愛知県名古屋市中区錦1-19-30', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
+                { name: 'ヒルトン名古屋', address: '愛知県名古屋市中区栄1-3-3', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
+                { name: 'ANAクラウンプラザホテルグランコート', address: '愛知県名古屋市中区金山町1-1-1', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
+                { name: '名古屋プリンスホテル', address: '愛知県名古屋市中村区平池町4-60-12', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
+                { name: 'ストリングスホテル 名古屋', address: '愛知県名古屋市中村区平池町4-60-7', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
+                { name: '名鉄グランドホテル', address: '愛知県名古屋市中村区名駅1-2-4', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
+                { name: '三井ガーデンホテル名古屋', address: '愛知県名古屋市中村区名駅4-11-27', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
+            ],
+            '静岡': [
+                { name: 'ホテルアソシア静岡', address: '静岡県静岡市葵区黒金町56', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
+                { name: '日本平ホテル', address: '静岡県静岡市清水区馬走1500-2', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
+                { name: '静鉄ホテルプレジオ', address: '静岡県静岡市葵区御幸町11-6', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
+                { name: 'ホテルオーレ', address: '静岡県藤枝市前島1-3-1', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
+                { name: '中島屋グランドホテル', address: '静岡県静岡市葵区紺屋町3-10', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
+                { name: 'ホテルグランヒルズ静岡', address: '静岡県静岡市駿河区南町18-1', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
+                { name: '藤枝パークインホテル', address: '静岡県藤枝市駅前2-12-16', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
+                { name: 'スマイルホテル静岡', address: '静岡県静岡市葵区伝馬町23-5', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
+            ],
+            '広島': [
+                { name: 'リーガロイヤルホテル広島', address: '広島県広島市中区基町6-78', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
+                { name: 'ホテルグランヴィア広島', address: '広島県広島市南区松原町1-5', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
+                { name: 'シェラトングランドホテル広島', address: '広島県広島市東区若草町12-1', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
+                { name: 'ANAクラウンプラザホテル広島', address: '広島県広島市中区中町7-20', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
+                { name: 'グランドプリンスホテル広島', address: '広島県広島市南区元宇品町23-1', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
+                { name: 'ひろしま国際ホテル', address: '広島県広島市中区立町3-13', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
+                { name: 'ホテルインターゲート広島', address: '広島県広島市中区鉄砲町5-16', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
+                { name: 'オリエンタルホテル広島', address: '広島県広島市中区田中町6-10', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
+            ],
+            'デフォルト': [
+                { name: '駅前ホテル', address: '中心部の駅前', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' }
+            ]
+        };
+
+        function selectCity(city, element) {
+            selectedRegion = city;
+            document.getElementById('region-input').value = city;
+
+            // Highlight card
+            document.querySelectorAll('.city-card').forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        function nextStep(step) {
+            if (step === 2 && !selectedRegion) {
+                alert('先に都市を選択してください！');
+                return;
+            }
+
+            // Transition Step
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`step-${step}`).classList.add('active');
+
+            // Update Nodes
+            document.querySelectorAll('.step-node').forEach((node, idx) => {
+                if (idx + 1 < step) node.className = 'step-node completed';
+                else if (idx + 1 === step) node.className = 'step-node active';
+                else node.className = 'step-node';
+            });
+
+            if (step === 2) {
+                renderHotelGrid();
+            }
+
+            currentStep = step;
+            window.scrollTo(0, 0);
+        }
+
+        function prevStep(step) {
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`step-${step}`).classList.add('active');
+
+            document.querySelectorAll('.step-node').forEach((node, idx) => {
+                if (idx + 1 < step) node.className = 'step-node completed';
+                else if (idx + 1 === step) node.className = 'step-node active';
+                else node.className = 'step-node';
+            });
+
+            currentStep = step;
+            window.scrollTo(0, 0);
+        }
+
+        function renderHotelGrid() {
+            const grid = document.getElementById('hotel-grid');
+            grid.innerHTML = '';
+
+            const hotels = regionHotels[selectedRegion] || regionHotels['デフォルト'];
+
+            hotels.forEach(hotel => {
+                const col = document.createElement('div');
+                col.className = 'col-6 col-md-3';
+                col.innerHTML = `
+                    <div class="card city-card" onclick="selectHotel('${hotel.name}', '${hotel.address}', this)">
+                        <img src="${hotel.img}" class="card-img-top" alt="${hotel.name}" style="height: 100px;">
+                        <div class="card-body p-2 text-center">
+                            <h6 class="mb-1" style="font-size: 0.9rem;">${hotel.name}</h6>
+                            <small class="text-muted d-block text-truncate">${hotel.address}</small>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(col);
+            });
+        }
+
+        function selectHotel(name, address, element) {
+            document.getElementById('hotel-name-input').value = name;
+            document.getElementById('hotel-address-input').value = address;
+
+            document.getElementById('display-hotel-name').innerText = name;
+            document.getElementById('display-hotel-address').innerText = address;
+            document.getElementById('selected-hotel-info').classList.add('active');
+
+            // Highlight selected
+            if (element) {
+                document.querySelectorAll('#hotel-grid .city-card').forEach(card => card.classList.remove('selected'));
+                element.classList.add('selected');
+            }
+        }
+
+        function setCustomHotel() {
+            const name = document.getElementById('custom-hotel-name').value;
+            if (!name) return;
+            selectHotel(name, 'カスタム入力', null);
+            document.querySelectorAll('#hotel-grid .city-card').forEach(card => card.classList.remove('selected'));
+        }
+
+        document.getElementById('planner-form').addEventListener('submit', function (e) {
+            // Validation
+            const hotelName = document.getElementById('hotel-name-input').value;
+            if (!hotelName) {
+                e.preventDefault();
+                alert('リストから宿を選択するか、直接入力してください！');
+                return;
+            }
+
+            document.getElementById('loading-overlay').classList.remove('d-none');
+            // Change last node to active
+            document.getElementById('node-4').className = 'step-node active';
+            document.getElementById('node-3').className = 'step-node completed';
+        });
+
+        // Set default dates
+        const today = new Date();
+        const nextWeek = new Date(today);
+        nextWeek.setDate(today.getDate() + 7);
+        const dayAfter = new Date(nextWeek);
+        dayAfter.setDate(nextWeek.getDate() + 2);
+
+        document.getElementById('startDate').valueAsDate = nextWeek;
+        document.getElementById('endDate').valueAsDate = dayAfter;
+    </script>
 </body>
 
 </html>
