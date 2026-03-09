@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: headFragment}">
+    <title>決済 - J-Route</title>
+</head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+    <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <div style="position: relative; z-index: 1050;">
+        <header th:replace="~{fragments/header :: headerFragment}"></header>
+    </div>
+
+    <main class="container py-5 flex-grow-1" style="max-width: 800px;">
+        <h3 class="fw-bold mb-4"><i class="bi bi-wallet2 text-primary me-2"></i>予約・決済の確認</h3>
+
+        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <h5 class="fw-bold border-bottom pb-3 mb-4">選択した宿泊先 </h5>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small">宿泊施設名</div>
+                    <div class="col-sm-8 fw-bold fs-5" th:text="${itemName}">ホテル名</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small">チェックイン</div>
+                    <div class="col-sm-8" th:text="${checkin}">2026-04-01</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small">宿泊人数</div>
+                    <div class="col-sm-8" th:text="${adults} + ' 名'">2 名</div>
+                </div>
+                <div class="row mb-4 align-items-center bg-light p-3 rounded-3">
+                    <div class="col-sm-4 fw-bold">合計お支払い金額</div>
+                    <div class="col-sm-8 text-danger fw-bold fs-3" th:text="'¥' + ${#numbers.formatInteger(price, 3, 'COMMA')}">¥0</div>
+                </div>
+
+                <hr class="my-4">
+
+                <h5 class="fw-bold mb-4">予約者情報 </h5>
+                <div class="mb-3">
+                    <label class="form-label text-muted small">お名前 </label>
+                    <input type="text" class="form-control" id="buyerName" value="テストユーザー" placeholder="例: 洪吉童">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-muted small">メールアドレス </label>
+                    <input type="email" class="form-control" id="buyerEmail" value="test@test.com" placeholder="test@example.com">
+                </div>
+
+                <div class="text-center mt-5">
+                    <button onclick="requestPay()" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold py-3 shadow-sm" style="background-color: #003580;">
+                        安全に決済する  <i class="bi bi-lock-fill ms-1"></i>
+                    </button>
+                    <p class="small text-muted mt-3">※ これはポートフォリオ用のテスト決済です。実際に課金されることはありません。</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <script th:inline="javascript">
+        // 포트원(아임포트) 초기화 (공용 테스트 가맹점 식별코드 사용)
+        var IMP = window.IMP;
+        IMP.init("imp14397622"); 
+
+        function requestPay() {
+            // 타임리프 변수들을 자바스크립트로 가져옴
+            const itemName = [[${itemName}]];
+            const amount = [[${price}]]; 
+            const buyerName = document.getElementById('buyerName').value;
+            const buyerEmail = document.getElementById('buyerEmail').value;
+            
+            // 고유한 주문 번호 생성 (예: ORD-20260305-1234567)
+            const orderUid = "ORD-" + new Date().toISOString().slice(0, 10).replace(/-/g, '') + "-" + new Date().getTime();
+
+            // 1단계: 포트원 결제창 호출
+            IMP.request_pay({
+                pg: "html5_inicis",        // KG이니시스 테스트 모드
+                pay_method: "card",        // 신용카드 결제
+                merchant_uid: orderUid,    // 가맹점 주문번호 (유니크해야 함)
+                name: itemName,            // 결제창에 뜰 상품명
+                amount: 100,               // ★ 테스트 결제이므로 무조건 100원 결제되게 세팅 (실제론 amount 변수 사용)
+                buyer_email: buyerEmail,
+                buyer_name: buyerName,
+                buyer_tel: "010-1234-5678" // 연락처 (테스트용)
+            }, function (rsp) { // callback
+                if (rsp.success) {
+                    // 결제 성공 시 서버(Controller)로 예약 정보 전송
+                    fetch('/api/payment/complete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            orderId: rsp.merchant_uid,
+                            itemName: itemName,
+                            category: [[${category}]], // 서버에서 받은 카테고리 값
+                            amount: amount // 실제 예약 금액
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            // SweetAlert2를 사용한 팝업창 (일본어 UI)
+                            Swal.fire({
+                                title: '決済完了',
+                                text: '決済が正常に完了しました！',
+                                icon: 'success',
+                                confirmButtonText: '確認',
+                                confirmButtonColor: '#003580', // J-Route 테마 색상(남색)으로 맞춤
+                                allowOutsideClick: false // 창 바깥을 눌러도 안 닫히게 강제
+                            }).then((result) => {
+                                // 사용자가 '確認(확인)' 버튼을 누르면 그때 메인 페이지로 이동
+                                if (result.isConfirmed) {
+                                    window.location.href = "/"; 
+                                }
+                            });
+                            
+                        } else {
+                            // DB 저장 실패 시 에러 팝업
+                            Swal.fire({
+                                title: 'エラー',
+                                text: 'データの保存に失敗しました: ' + data.message,
+                                icon: 'error',
+                                confirmButtonText: '確認',
+                                confirmButtonColor: '#d33'
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        // 통신 에러 시 팝업
+                        Swal.fire({
+                            title: '通信エラー',
+                            text: 'サーバー通信中にエラーが発生しました。',
+                            icon: 'error',
+                            confirmButtonText: '確認',
+                            confirmButtonColor: '#d33'
+                        });
+                    });
+                } else {
+                    Swal.fire({
+                        title: '決済失敗',
+                        text: '決済に失敗しました: ' + rsp.error_msg,
+                        icon: 'error',
+                        confirmButtonText: '確認',
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            }); 
+        } 
+    </script>
+</body>
+</html>

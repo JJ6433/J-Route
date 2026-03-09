@@ -1,8 +1,10 @@
 package com.blog.controller;
 
+import com.blog.dto.ReservationDto; 
 import com.blog.dto.ReviewDto;
 import com.blog.dto.UserDto;
 import com.blog.dto.WishlistDto;
+import com.blog.service.ReservationService; 
 import com.blog.service.ReviewService;
 import com.blog.service.UserService;
 import com.blog.service.WishlistService;
@@ -25,11 +27,14 @@ public class MypageController {
     private final UserService userService;
     private final WishlistService wishlistService;
     private final ReviewService reviewService;
+    private final ReservationService reservationService; 
 
-    public MypageController(UserService userService, WishlistService wishlistService, ReviewService reviewService) {
+    public MypageController(UserService userService, WishlistService wishlistService, 
+                            ReviewService reviewService, ReservationService reservationService) {
         this.userService = userService;
         this.wishlistService = wishlistService;
         this.reviewService = reviewService;
+        this.reservationService = reservationService;
     }
 
     private UserDto getAuthenticatedUser(UserDetails userDetails) {
@@ -48,10 +53,18 @@ public class MypageController {
         List<ReviewDto> reviews = reviewService.getReviewsByUserId(user.getUserId());
         int reviewCount = reviewService.getReviewCountByUserId(user.getUserId());
 
+        // 💡 핵심 변경: getUsername() -> getUserId() 로 원상복구! (숫자 PK로 조회)
+        int reservationCount = reservationService.getReservationCount(user.getUserId());
+        List<ReservationDto> recentReservations = reservationService.getRecentReservations(user.getUserId());
+
         model.addAttribute("user", user);
         model.addAttribute("wishCount", wishlists.size());
         model.addAttribute("reviewCount", reviewCount);
         model.addAttribute("recentReviews", reviews.size() > 3 ? reviews.subList(0, 3) : reviews);
+        
+        model.addAttribute("reservationCount", reservationCount);
+        model.addAttribute("recentReservations", recentReservations);
+
         return "user/mypage";
     }
 
@@ -124,5 +137,19 @@ public class MypageController {
             ra.addFlashAttribute("errorMessage", e.getMessage());
         }
         return "redirect:/mypage/profile";
+    }
+    
+    // 예약 내역 전체 보기 페이지
+    @GetMapping("/reservations")
+    public String reservations(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        UserDto user = getAuthenticatedUser(userDetails);
+        if (user == null)
+            return "redirect:/login";
+
+        //  핵심 변경: getUsername() -> getUserId() 로 원상복구! (숫자 PK로 조회)
+        List<ReservationDto> reservations = reservationService.getAllReservations(user.getUserId());
+        model.addAttribute("reservations", reservations);
+        
+        return "user/reservations"; 
     }
 }
