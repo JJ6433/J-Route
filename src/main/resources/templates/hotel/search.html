@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/head :: headFragment}">
+    <title>宿泊先検索 - J-Route</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+    <div style="position: relative; z-index: 1050;">
+        <header th:replace="~{fragments/header :: headerFragment}"></header>
+    </div>
+
+    <main class="container mt-5 flex-grow-1">
+        <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
+            <h3 class="fw-bold mb-4">
+                <i class="bi bi-building text-primary me-2"></i>宿泊先を探す
+            </h3>
+            <hr>
+
+            <form action="/hotel-search-page" method="get">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-dark">目的地</label>
+                        <select name="destId" class="form-select form-select-lg" required>
+                            <option value="" disabled selected>都市を選択</option>
+                            <optgroup label="主要都市">
+                                <option value="-246227">東京 (Tokyo)</option>
+                                <option value="-240905">大阪 (Osaka)</option>
+                                <option value="-235402">京都 (Kyoto)</option>
+                                <option value="-227649">福岡 (Fukuoka)</option>
+                                <option value="-242307">札幌 (Sapporo)</option>
+                                <option value="-237896">那覇 (Naha/Okinawa)</option>
+                            </optgroup>
+                        </select>
+                        <input type="hidden" name="destType" value="city">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-dark">チェックイン</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" name="checkinDate" id="checkinDate" class="form-control form-control-lg custom-date-input" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-dark">チェックアウト</label>
+                        <div class="date-input-wrapper">
+                            <input type="date" name="checkoutDate" id="checkoutDate" class="form-control form-control-lg custom-date-input" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-dark">宿泊人数</label>
+                        <select name="adults" class="form-select form-select-lg">
+                            <option value="1">1 名</option>
+                            <option value="2" selected>2 名</option>
+                            <option value="3">3 名</option>
+                            <option value="4">4 名</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 text-end mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm fw-bold">
+                            宿泊先を検索 <i class="bi bi-search ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="mt-5 p-4 bg-light-subtle rounded-3 border-0">
+                <h6 class="fw-bold mb-3 text-secondary"><i class="bi bi-info-circle me-2"></i>ご利用案内</h6>
+                <p class="small text-muted mb-0">チェックアウト日は、チェックイン日の翌日以降をご指定ください。</p>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <script>
+        const checkinInput = document.getElementById('checkinDate');
+        const checkoutInput = document.getElementById('checkoutDate');
+
+        // 1. 체크인은 오늘부터 가능
+        const today = new Date().toISOString().split('T')[0];
+        checkinInput.min = today;
+
+        // 2. 체크인이 변경되면 체크아웃 최소 날짜를 체크인 '다음 날'로 고정
+        checkinInput.addEventListener('change', function() {
+            if (this.value) {
+                const checkinDate = new Date(this.value);
+                checkinDate.setDate(checkinDate.getDate() + 1); // 다음 날 계산
+                
+                const nextDay = checkinDate.toISOString().split('T')[0];
+                checkoutInput.min = nextDay;
+
+                // 이미 선택된 체크아웃 날짜가 체크인 날짜와 같거나 이전이면 자동 초기화
+                if (checkoutInput.value && checkoutInput.value <= this.value) {
+                    checkoutInput.value = nextDay;
+                }
+            }
+        });
+    </script>
+
+    <style>
+        .date-input-wrapper { position: relative; }
+        .custom-date-input::before {
+            content: "年-月-日";
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            pointer-events: none;
+        }
+        .custom-date-input:focus::before,
+        .custom-date-input:valid::before { display: none; }
+        .custom-date-input::-webkit-datetime-edit-year-field,
+        .custom-date-input::-webkit-datetime-edit-month-field,
+        .custom-date-input::-webkit-datetime-edit-day-field,
+        .custom-date-input::-webkit-datetime-edit-text { color: transparent; }
+        .custom-date-input:focus::-webkit-datetime-edit-year-field,
+        .custom-date-input:focus::-webkit-datetime-edit-month-field,
+        .custom-date-input:focus::-webkit-datetime-edit-day-field,
+        .custom-date-input:focus::-webkit-datetime-edit-text,
+        .custom-date-input:valid::-webkit-datetime-edit-year-field,
+        .custom-date-input:valid::-webkit-datetime-edit-month-field,
+        .custom-date-input:valid::-webkit-datetime-edit-day-field,
+        .custom-date-input:valid::-webkit-datetime-edit-text { color: black; }
+    </style>
+</body>
+</html>

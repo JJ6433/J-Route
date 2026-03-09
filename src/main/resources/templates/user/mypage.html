@@ -28,30 +28,37 @@
 
                     <div class="card-body p-4 bg-light">
                         <div class="row g-4 text-center">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <a th:href="@{/mypage/reservations}" class="text-decoration-none">
+                                    <div class="p-4 bg-white rounded-4 shadow-sm h-100 transition-hover">
+                                        <div class="display-5 text-warning mb-2"><i class="bi bi-ticket-detailed-fill"></i></div>
+                                        <div class="h3 fw-bold mb-0" th:text="${reservationCount}">0</div>
+                                        <div class="text-muted small">予約履歴 </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-3">
                                 <a th:href="@{/mypage/wishlist}" class="text-decoration-none">
                                     <div class="p-4 bg-white rounded-4 shadow-sm h-100 transition-hover">
-                                        <div class="display-5 text-primary mb-2"><i class="bi bi-heart-fill"></i></div>
+                                        <div class="display-5 text-danger mb-2"><i class="bi bi-heart-fill"></i></div>
                                         <div class="h3 fw-bold mb-0" th:text="${wishCount}">0</div>
                                         <div class="text-muted small">ブックマーク</div>
                                     </div>
                                 </a>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <a th:href="@{/mypage/reviews}" class="text-decoration-none">
                                     <div class="p-4 bg-white rounded-4 shadow-sm h-100 transition-hover">
-                                        <div class="display-5 text-success mb-2"><i
-                                                class="bi bi-chat-left-text-fill"></i></div>
+                                        <div class="display-5 text-success mb-2"><i class="bi bi-chat-left-text-fill"></i></div>
                                         <div class="h3 fw-bold mb-0" th:text="${reviewCount}">0</div>
                                         <div class="text-muted small">作成したレビュー</div>
                                     </div>
                                 </a>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <a th:href="@{/mypage/profile}" class="text-decoration-none">
                                     <div class="p-4 bg-white rounded-4 shadow-sm h-100 transition-hover">
-                                        <div class="display-5 text-info mb-2"><i class="bi bi-person-fill-gear"></i>
-                                        </div>
+                                        <div class="display-5 text-info mb-2"><i class="bi bi-person-fill-gear"></i></div>
                                         <div class="h4 fw-bold mb-0 mt-2">設定</div>
                                         <div class="text-muted small">プロフィール管理</div>
                                     </div>
@@ -59,25 +66,58 @@
                             </div>
                         </div>
 
-                        <div class="mt-5 p-4 bg-white rounded-4 shadow-sm">
-                            <h4 class="fw-bold mb-4 border-bottom pb-2">最近のレビュー</h4>
-                            <div th:if="${!#lists.isEmpty(recentReviews)}">
-                                <div th:each="review : ${recentReviews}"
-                                    class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-light">
-                                    <div>
-                                        <span class="fw-bold d-block text-truncate" style="max-width: 200px;"
-                                            th:text="${review.placeName}">場所名</span>
-                                        <small class="text-muted" th:text="${review.content}">内容...</small>
+                        <div class="row mt-5 g-4">
+                            <div class="col-md-6">
+                                <div class="p-4 bg-white rounded-4 shadow-sm h-100">
+                                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-4">
+                                        <h5 class="fw-bold mb-0"><i class="bi bi-bag-check me-2 text-primary"></i>最近の予約</h5>
+                                        <a th:href="@{/mypage/reservations}" class="text-decoration-none small">すべて見る <i class="bi bi-chevron-right"></i></a>
                                     </div>
-                                    <div class="text-warning small">
-                                        <i class="bi bi-star-fill"></i> <span th:text="${review.rating}">5</span>
+                                    
+                                    <div th:if="${!#lists.isEmpty(recentReservations)}">
+                                        <div th:each="res : ${recentReservations}" class="mb-3 pb-3 border-bottom border-light">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span th:if="${res.category == 'FLIGHT'}" class="badge bg-info text-dark"><i class="bi bi-airplane-fill me-1"></i>航空券</span>
+                                                <span th:if="${res.category == 'HOTEL'}" class="badge bg-primary"><i class="bi bi-building-fill me-1"></i>宿泊</span>
+                                                <small class="text-muted" th:text="${#dates.format(res.createdAt, 'yyyy/MM/dd')}">2026/03/05</small>
+                                            </div>
+                                            <div class="fw-bold text-truncate" style="max-width: 100%;" th:text="${res.itemName}">商品名</div>
+                                            <div class="text-danger fw-bold mt-1" th:text="'¥' + ${#numbers.formatInteger(res.amount, 3, 'COMMA')}">¥0</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center py-4 text-muted" th:if="${#lists.isEmpty(recentReservations)}">
+                                        <i class="bi bi-inbox fs-1 text-light mb-2"></i>
+                                        <p class="mb-0 small">最近の予約履歴がありません。</p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="text-center py-3 text-muted" th:if="${#lists.isEmpty(recentReviews)}">
-                                <p class="mb-0 small">まだ作成したレビューがありません。</p>
+
+                            <div class="col-md-6">
+                                <div class="p-4 bg-white rounded-4 shadow-sm h-100">
+                                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-4">
+                                        <h5 class="fw-bold mb-0"><i class="bi bi-chat-square-quote me-2 text-success"></i>最近のレビュー</h5>
+                                        <a th:href="@{/mypage/reviews}" class="text-decoration-none small">すべて見る <i class="bi bi-chevron-right"></i></a>
+                                    </div>
+
+                                    <div th:if="${!#lists.isEmpty(recentReviews)}">
+                                        <div th:each="review : ${recentReviews}" class="mb-3 pb-3 border-bottom border-light">
+                                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                                <span class="fw-bold d-block text-truncate" style="max-width: 200px;" th:text="${review.placeName}">場所名</span>
+                                                <div class="text-warning small text-nowrap">
+                                                    <i class="bi bi-star-fill"></i> <span th:text="${review.rating}">5</span>
+                                                </div>
+                                            </div>
+                                            <small class="text-muted d-block text-truncate" th:text="${review.content}">内容...</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-center py-4 text-muted" th:if="${#lists.isEmpty(recentReviews)}">
+                                        <i class="bi bi-pencil-square fs-1 text-light mb-2"></i>
+                                        <p class="mb-0 small">まだ作成したレビューがありません。</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
