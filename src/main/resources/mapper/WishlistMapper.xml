@@ -30,8 +30,17 @@
     </delete>
 
     <select id="findByUserAndPlace" resultType="com.blog.dto.WishlistDto">
-        SELECT wishlist_id AS wishlistId, user_id AS userId, place_id AS placeId, created_at AS createdAt
-        FROM wishlists WHERE user_id = #{userId} AND place_id = #{placeId}
+        SELECT 
+            wishlist_id AS wishlistId, 
+            user_id AS userId, 
+            place_id AS placeId, 
+            category,
+            api_id AS apiId,
+            item_name AS placeName,
+            image_url AS imageUrl,
+            created_at AS createdAt
+        FROM wishlists 
+        WHERE user_id = #{userId} AND place_id = #{placeId}
     </select>
 
     <delete id="deleteByUserAndApi">

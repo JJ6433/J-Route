@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}"></head>
+
+<body class="bg-light">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav th:replace="~{fragments/admin_sidebar :: sidebarFragment}"></nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                    <div>
+                        <h1 class="h2 fw-bold text-dark"><i class="bi bi-ticket-detailed me-2 text-primary"></i>予約履歴管理</h1>
+                        <p class="text-muted small mb-0">プラットフォーム全体の全ての予約および決済内訳を確認できます。</p>
+                    </div>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                            <i class="bi bi-printer me-1"></i> 印刷
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Reservation Table Card -->
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header bg-white py-3">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="mb-0 fw-bold">全予約リスト</h5>
+                            </div>
+                            <div class="col-auto">
+                                <span class="badge bg-primary rounded-pill px-3" th:text="${#lists.size(reservations)} + ' 件 조회됨'">0 件</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light text-muted small text-uppercase">
+                                    <tr>
+                                        <th class="ps-4 border-0">予約情報</th>
+                                        <th class="border-0">予約者 (ニックネーム)</th>
+                                        <th class="border-0">商品名</th>
+                                        <th class="border-0">価格</th>
+                                        <th class="border-0 text-center">ステータス</th>
+                                        <th class="border-0 pe-4 text-end">日付</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="border-top-0">
+                                    <tr th:each="res : ${reservations}">
+                                        <td class="ps-4 py-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-pill p-2 bg-light me-3">
+                                                    <i th:if="${res.category == 'FLIGHT'}" class="bi bi-airplane-fill text-info"></i>
+                                                    <i th:if="${res.category == 'HOTEL'}" class="bi bi-building-fill text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold text-dark small" th:text="${res.orderId}">ORD-000</div>
+                                                    <div class="text-muted" style="font-size: 0.75rem;" th:text="${res.category == 'FLIGHT' ? '航空券' : 'ホテル/宿泊'}">分類</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                                    <i class="bi bi-person text-secondary"></i>
+                                                </div>
+                                                <span class="fw-medium text-dark" th:text="${res.nickname != null ? res.nickname : '不明なユーザー'}">닉네임</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-dark fw-bold text-truncate" style="max-width: 250px;" th:text="${res.itemName}">상품명</div>
+                                        </td>
+                                        <td>
+                                            <span class="text-danger fw-bold" th:text="'¥' + ${#numbers.formatInteger(res.amount, 3, 'COMMA')}">¥0</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span th:if="${res.status == 'PAID'}" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">決済完了</span>
+                                            <span th:if="${res.status == 'PENDING'}" class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1">待機中</span>
+                                            <span th:if="${res.status == 'CANCELLED'}" class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1">キャンセル</span>
+                                        </td>
+                                        <td class="pe-4 text-end text-muted small">
+                                            <div th:text="${#dates.format(res.createdAt, 'yyyy/MM/dd')}">2026/03/09</div>
+                                            <div th:text="${#dates.format(res.createdAt, 'HH:mm')}">12:00</div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(reservations)}">
+                                        <td colspan="6" class="text-center py-5 text-muted">
+                                            <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
+                                            予約データが存在しません。
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <style>
+        .table thead th {
+            font-weight: 600;
+            color: #666;
+            background-color: #f8f9fa;
+        }
+        .table tbody tr {
+            transition: all 0.2s;
+        }
+        .table tbody tr:hover {
+            background-color: #fcfcfc;
+        }
+        .bg-success-subtle { background-color: #e8f5e9 !important; }
+        .bg-warning-subtle { background-color: #fff9c4 !important; }
+        .bg-danger-subtle { background-color: #ffebee !important; }
+    </style>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+
+</html>

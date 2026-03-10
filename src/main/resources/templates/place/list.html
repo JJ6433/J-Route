@@ -51,27 +51,29 @@
                                         class="card-img-top" alt="旅行先" />
                                 </a>
                                 <div class="card-body">
-                                    <span class="badge me-1"
-                                          th:classappend="${place.region == '東京' ? 'bg-primary' :
-                                                          place.region == '大阪' ? 'bg-warning text-dark' :
-                                                          place.region == '福岡' ? 'bg-danger' :
-                                                          place.region == '札幌' ? 'bg-info text-dark' :
-                                                          place.region == '沖縄' ? 'bg-success' :
-                                                          place.region == '名古屋' ? 'bg-dark' :
-                                                          place.region == '静岡' ? 'text-white' :
-                                                          place.region == '広島' ? 'text-white' : 'bg-secondary'}"
-                                          th:style="${place.region == '静岡' ? 'background-color: #fd7e14;' :
-                                                    place.region == '広島' ? 'background-color: #6f42c1;' : ''}"
-                                          th:text="${place.region}"></span>
-                                    <span class="badge bg-light text-dark" th:text="${place.category}"></span>
+                                    <div class="mb-2 d-flex align-items-center flex-wrap">
+                                        <span class="badge me-1"
+                                              th:classappend="${place.region == '東京' ? 'bg-primary' :
+                                                              place.region == '大阪' ? 'bg-warning text-dark' :
+                                                              place.region == '福岡' ? 'bg-danger' :
+                                                              place.region == '札幌' ? 'bg-info text-dark' :
+                                                              place.region == '沖縄' ? 'bg-success' :
+                                                              place.region == '名古屋' ? 'bg-dark' :
+                                                              place.region == '静岡' ? 'text-white' :
+                                                              place.region == '広島' ? 'text-white' : 'bg-secondary'}"
+                                              th:style="${place.region == '静岡' ? 'background-color: #fd7e14;' :
+                                                        place.region == '広島' ? 'background-color: #6f42c1;' : ''}"
+                                              th:text="${place.region}"></span>
+                                        <span class="badge bg-light text-dark me-2" th:text="${place.category}"></span>
+                                        
+                                        <span th:if="${place.avgRating != null}" class="small text-warning fw-bold mb-0">
+                                            <i class="bi bi-star-fill"></i> <span th:text="${place.avgRating}"></span>
+                                        </span>
+                                    </div>
                                     
                                     <a th:href="@{/place/detail(id=${place.placeId})}" class="text-decoration-none text-dark">
-                                        <h5 class="card-title mt-2 mb-2" th:text="${place.name}"></h5>
+                                        <h5 class="card-title mb-0" th:text="${place.name}"></h5>
                                     </a>
-                                    
-                                    <p th:if="${place.avgRating != null}" class="small jroute-star-rating mb-0"><i
-                                            class="bi bi-star-fill"></i> <span th:text="${place.avgRating}"></span>
-                                        （<span th:text="${place.reviewCount}"></span>件のレビュー）</p>
                                 </div>
                             </div>
                         </div>
