@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: headFragment}"></head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    
+    <main class="container mt-5 mb-5 flex-grow-1" style="max-width: 1000px;">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <h3 class="fw-bold mb-4 text-dark">
+                    <i class="bi bi-shield-lock-fill text-danger me-2"></i> 掲示板管理
+                </h3>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle border-top">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                <th scope="col" style="width: 8%;">ID</th>
+                                <th scope="col" style="width: 10%;">地域</th>
+                                <th scope="col" style="width: 32%;">タイトル</th>
+                                <th scope="col" style="width: 15%;">作成者</th>
+                                <th scope="col" style="width: 15%;">作成日</th>
+                                <th scope="col" style="width: 10%;">照会/いいね</th>
+                                <th scope="col" style="width: 10%; text-align: center;">管理</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="board : ${boardList}">
+                                <td th:text="${board.boardId}" class="fw-bold text-muted">1</td>
+                                <td>
+                                    <span class="badge bg-success" th:text="${board.region}" th:if="${board.region != null and board.region != ''}">地域</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/board/detail(id=${board.boardId})}" target="_blank" class="text-decoration-none text-dark fw-bold text-truncate d-inline-block" style="max-width: 250px;" th:text="${board.title}">タイトル</a>
+                                </td>
+                                <td th:text="${board.authorNickname}">作成者</td>
+                                <td th:text="${#temporals.format(board.createdAt, 'MM-dd HH:mm')}" class="text-muted small">日時</td>
+                                <td class="small text-muted">
+                                    <i class="bi bi-eye"></i> <span th:text="${board.viewCount}">0</span> / 
+                                    <i class="bi bi-heart-fill text-danger"></i> <span th:text="${board.likeCount}">0</span>
+                                </td>
+                                <td class="text-center">
+                                    <a th:href="@{/admin/board/delete(id=${board.boardId})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('【警告】管理者の権限でこの投稿を完全に削除しますか？');">
+                                        削除
+                                    </a>
+                                </td>
+                            </tr>
+                            
+                            <tr th:if="${#lists.isEmpty(boardList)}">
+                                <td colspan="7" class="text-center py-5 text-muted">投稿がありません。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <nav aria-label="Page navigation" class="mt-4" th:if="${totalPages > 0}">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                            <a class="page-link text-secondary" th:href="@{/admin/board/list(page=${currentPage - 1})}">&laquo;</a>
+                        </li>
+                        <li class="page-item" th:each="pageNum : ${#numbers.sequence(1, totalPages)}" th:classappend="${pageNum == currentPage} ? 'active'">
+                            <a class="page-link bg-secondary border-secondary text-white fw-bold" th:if="${pageNum == currentPage}" th:text="${pageNum}">1</a>
+                            <a class="page-link text-secondary" th:if="${pageNum != currentPage}" th:href="@{/admin/board/list(page=${pageNum})}" th:text="${pageNum}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                            <a class="page-link text-secondary" th:href="@{/admin/board/list(page=${currentPage + 1})}">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+                
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+</html>
