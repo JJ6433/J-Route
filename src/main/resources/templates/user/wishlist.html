@@ -8,11 +8,7 @@
     <main class="container mt-5 mb-5 flex-grow-1" style="max-width: 1000px;">
         <div class="d-flex align-items-center mb-4">
             <a th:href="@{/mypage}" class="btn btn-outline-secondary rounded-circle me-3" style="width: 40px; height: 40px; padding: 7px;"><i class="bi bi-arrow-left"></i></a>
-<<<<<<< HEAD
-            <h2 class="fw-bold mb-0"><i class="bi bi-heart-fill text-danger me-2"></i>ブックマーク </h2>
-=======
             <h2 class="fw-bold mb-0"><i class="bi bi-heart-fill text-danger me-2"></i>ブックマーク</h2>
->>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
         </div>
 
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
@@ -20,61 +16,114 @@
                 
                 <ul class="nav nav-tabs nav-fill bg-white border-bottom-0 pt-3 px-3" id="wishlistTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-<<<<<<< HEAD
-                        <button class="nav-link active fw-bold py-3" id="hotel-tab" data-bs-toggle="tab" data-bs-target="#hotel" type="button" role="tab"><i class="bi bi-building me-1"></i> 宿泊 </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold py-3" id="flight-tab" data-bs-toggle="tab" data-bs-target="#flight" type="button" role="tab"><i class="bi bi-airplane me-1"></i> 航空券 </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold py-3" id="place-tab" data-bs-toggle="tab" data-bs-target="#place" type="button" role="tab"><i class="bi bi-geo-alt me-1"></i> 旅行先 </button>
-=======
                         <button class="nav-link active fw-bold py-3" id="hotel-tab" data-bs-toggle="tab" data-bs-target="#hotel" type="button" role="tab"><i class="bi bi-building me-1"></i> 宿泊</button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link fw-bold py-3" id="flight-tab" data-bs-toggle="tab" data-bs-target="#flight" type="button" role="tab"><i class="bi bi-airplane me-1"></i> 航空券</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold py-3" id="ai-tab" data-bs-toggle="tab" data-bs-target="#ai" type="button" role="tab"><i class="bi bi-robot me-1"></i> AIプラン</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
                         <button class="nav-link fw-bold py-3" id="place-tab" data-bs-toggle="tab" data-bs-target="#place" type="button" role="tab"><i class="bi bi-geo-alt me-1"></i> 旅行先</button>
->>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
                     </li>
                 </ul>
 
                 <div class="tab-content p-4 p-md-5 bg-white" id="wishlistTabsContent">
                     
+                    <!-- 宿泊 (HOTEL) -->
                     <div class="tab-pane fade show active" id="hotel" role="tabpanel">
-                        <div class="text-center py-5">
+                        <div class="d-flex justify-content-between align-items-center mb-4" th:if="${!#lists.isEmpty(wishlists.?[category == 'HOTEL'])}">
+                            <h5 class="fw-bold mb-0 text-dark">保存した宿泊先</h5>
+                            <a href="/trip/hotels" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                <i class="bi bi-search me-1"></i> 宿泊先を探す
+                            </a>
+                        </div>
+
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" 
+                             th:if="${!#lists.isEmpty(wishlists.?[category == 'HOTEL'])}">
+                            <div class="col" th:each="wish : ${wishlists}" th:if="${wish.category == 'HOTEL'}">
+                                <div class="card h-100 border border-light shadow-sm rounded-4 overflow-hidden position-relative transition-hover">
+                                    <img th:src="${wish.imageUrl != null ? wish.imageUrl : 'https://via.placeholder.com/400x250?text=No+Image'}"
+                                        class="card-img-top" th:alt="${wish.placeName}" style="height: 180px; object-fit: cover;">
+                                    <div class="card-body">
+                                        <div class="mb-2 text-primary small fw-bold">
+                                            <i class="bi bi-building me-1"></i> HOTEL
+                                        </div>
+                                        <h5 class="card-title fw-bold text-truncate" th:text="${wish.placeName}">場所名</h5>
+                                        <p class="small text-muted mb-0">
+                                            <i class="bi bi-clock me-1"></i> <span th:text="${#temporals.format(wish.createdAt, 'yyyy/MM/dd')}">2023/10/01</span> に保存
+                                        </p>
+                                    </div>
+                                    <div class="card-footer bg-white border-0 pb-3 p-3 pt-0">
+                                        <form th:action="@{/wishlist/toggle}" method="post" style="display:inline;">
+                                            <input type="hidden" name="placeId" th:value="${wish.placeId}">
+                                            <input type="hidden" name="redirect" value="/wishlist/list">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm w-100 rounded-pill">
+                                                削除 <i class="bi bi-trash small"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center py-5" th:if="${#lists.isEmpty(wishlists.?[category == 'HOTEL'])}">
                             <div class="display-1 text-muted opacity-25 mb-3"><i class="bi bi-building-slash"></i></div>
                             <h5 class="fw-bold text-secondary">保存された宿泊先がありません。</h5>
-                            <a href="/search/hotel" class="btn btn-primary rounded-pill px-4 mt-3 shadow-sm">宿泊先を探す</a>
+                            <a href="/trip/hotels" class="btn btn-primary rounded-pill px-4 mt-3 shadow-sm">宿泊先を探す</a>
                         </div>
                     </div>
 
+                    <!-- 航空券 (FLIGHT) -->
                     <div class="tab-pane fade" id="flight" role="tabpanel">
-                        <div class="text-center py-5">
+                        <div class="d-flex justify-content-between align-items-center mb-4" th:if="${!#lists.isEmpty(wishlists.?[category == 'FLIGHT'])}">
+                            <h5 class="fw-bold mb-0 text-dark">保存した航空券</h5>
+                            <a href="/trip/flights" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                <i class="bi bi-search me-1"></i> 航空券を探す
+                            </a>
+                        </div>
+
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" 
+                             th:if="${!#lists.isEmpty(wishlists.?[category == 'FLIGHT'])}">
+                            <div class="col" th:each="wish : ${wishlists}" th:if="${wish.category == 'FLIGHT'}">
+                                <div class="card h-100 border border-light shadow-sm rounded-4 overflow-hidden position-relative transition-hover">
+                                    <div class="card-body p-4">
+                                        <div class="mb-2 text-info small fw-bold">
+                                            <i class="bi bi-airplane me-1"></i> FLIGHT
+                                        </div>
+                                        <h5 class="card-title fw-bold text-truncate" th:text="${wish.placeName}">場所名</h5>
+                                        <p class="small text-muted mb-0">
+                                            <i class="bi bi-clock me-1"></i> <span th:text="${#temporals.format(wish.createdAt, 'yyyy/MM/dd')}">2023/10/01</span> に保存
+                                        </p>
+                                    </div>
+                                    <div class="card-footer bg-white border-0 pb-3 p-3 pt-0">
+                                        <form th:action="@{/wishlist/toggle}" method="post">
+                                            <input type="hidden" name="placeId" th:value="${wish.placeId}">
+                                            <input type="hidden" name="redirect" value="/wishlist/list">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm w-100 rounded-pill">
+                                                削除 <i class="bi bi-trash small"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center py-5" th:if="${#lists.isEmpty(wishlists.?[category == 'FLIGHT'])}">
                             <div class="display-1 text-muted opacity-25 mb-3"><i class="bi bi-airplane-engines"></i></div>
                             <h5 class="fw-bold text-secondary">保存された航空券がありません。</h5>
-                            <a href="/search/flight" class="btn btn-primary rounded-pill px-4 mt-3 shadow-sm">航空券を探す</a>
+                            <a href="/trip/flights" class="btn btn-primary rounded-pill px-4 mt-3 shadow-sm">航空券を探す</a>
                         </div>
                     </div>
 
-<<<<<<< HEAD
-=======
-                    <div class="tab-pane fade" id="ai" role="tabpanel">
-                        <div class="text-center py-5">
-                            <div class="display-1 text-muted opacity-25 mb-3"><i class="bi bi-journal-x"></i></div>
-                            <h5 class="fw-bold text-secondary">保存されたAIプランがありません。</h5>
-                            <a href="/ai-planner" class="btn btn-primary rounded-pill px-4 mt-3 shadow-sm">AIにプランを作ってもらう</a>
-                        </div>
-                    </div>
-
->>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
+                    <!-- 旅行先 (PLACE) -->
                     <div class="tab-pane fade" id="place" role="tabpanel">
-                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" th:if="${!#lists.isEmpty(wishlists)}">
-                            <div class="col" th:each="wish : ${wishlists}">
+                        <div class="d-flex justify-content-between align-items-center mb-4" th:if="${!#lists.isEmpty(wishlists.?[category == 'PLACE'])}">
+                            <h5 class="fw-bold mb-0 text-dark">保存した旅行先</h5>
+                            <a th:href="@{/}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                <i class="bi bi-search me-1"></i> 旅行先を探す
+                            </a>
+                        </div>
+
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" 
+                             th:if="${!#lists.isEmpty(wishlists.?[category == 'PLACE'])}">
+                            <div class="col" th:each="wish : ${wishlists}" th:if="${wish.category == 'PLACE'}">
                                 <div class="card h-100 border border-light shadow-sm rounded-4 overflow-hidden position-relative transition-hover">
                                     <img th:src="${wish.imageUrl != null ? wish.imageUrl : 'https://via.placeholder.com/400x250?text=No+Image'}"
                                         class="card-img-top" th:alt="${wish.placeName}" style="height: 180px; object-fit: cover;">
@@ -89,19 +138,28 @@
                                         </p>
                                     </div>
                                     <div class="card-footer bg-white border-0 pb-3 p-3 pt-0">
-                                        <a th:href="@{/place/detail(id=${wish.placeId})}" class="btn btn-outline-primary btn-sm w-100 rounded-pill">
-                                            詳しく見る <i class="bi bi-chevron-right small"></i>
-                                        </a>
+                                        <div class="d-grid gap-2">
+                                            <a th:href="@{/place/detail(id=${wish.placeId})}" class="btn btn-outline-primary btn-sm rounded-pill">
+                                                詳しく見る <i class="bi bi-chevron-right small"></i>
+                                            </a>
+                                            <form th:action="@{/wishlist/toggle}" method="post">
+                                                <input type="hidden" name="placeId" th:value="${wish.placeId}">
+                                                <input type="hidden" name="redirect" value="/wishlist/list">
+                                                <button type="submit" class="btn btn-link text-danger btn-sm w-100 text-decoration-none">
+                                                    削除 <i class="bi bi-trash small"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="text-center py-5" th:if="${#lists.isEmpty(wishlists)}">
+                        <div class="text-center py-5" th:if="${#lists.isEmpty(wishlists.?[category == 'PLACE'])}">
                             <div class="display-1 text-muted opacity-25 mb-3"><i class="bi bi-heart"></i></div>
                             <h5 class="text-muted fw-bold">ブックマークした旅行先がありません。</h5>
                             <p class="text-muted mb-4">気になる旅行先を見つけて保存してみましょう！</p>
-                            <a th:href="@{/place/list}" class="btn btn-primary rounded-pill px-4 shadow-sm">旅行先を探す</a>
+                            <a th:href="@{/}" class="btn btn-primary rounded-pill px-4 shadow-sm">旅行先を探す</a>
                         </div>
                     </div>
                     
