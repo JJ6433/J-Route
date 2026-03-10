@@ -66,6 +66,7 @@
     <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 
     <script th:inline="javascript">
+<<<<<<< HEAD
         const rawData = [[${hotels}]];
         let response;
         try { response = JSON.parse(rawData); } catch (e) { response = {}; }
@@ -115,6 +116,65 @@
             document.getElementById('priceLabel').innerText = '¥' + parseInt(value).toLocaleString();
         }
         
+=======
+	    const rawData = [[${hotels}]];
+	    let response;
+	    try { response = JSON.parse(rawData); } catch (e) { response = {}; }
+	
+	    console.log("🏨 API 원본 데이터:", rawData); // 텍스트 원본 확인용
+	    console.log("🏨 파싱된 데이터:", response);
+	
+	    // 전역 변수로 원본 데이터 보관
+	    let allHotels = []; 
+	
+	    const loading = document.getElementById('loading');
+	    const mainContent = document.getElementById('main-content');
+	    const container = document.getElementById('results-container');
+	    const countLabel = document.getElementById('result-count');
+	    
+	    const urlParams = new URLSearchParams(window.location.search);
+        const checkinDate = urlParams.get('checkinDate');
+        const checkoutDate = urlParams.get('checkoutDate');
+        const adults = urlParams.get('adults');
+	    
+	    // --- (추가된 부분) 백엔드에서 명시적인 에러를 보냈을 경우 ---
+	    if (response.error) {
+	        loading.style.display = 'none';
+	        mainContent.classList.remove('d-none');
+	        mainContent.innerHTML = `
+	            <div class="alert alert-danger border shadow-sm text-center py-5 rounded-4 col-12">
+	                <i class="bi bi-x-octagon-fill text-danger mb-3" style="font-size: 3rem;"></i>
+	                <h5 class="fw-bold">API 呼び出しエラーが発生しました</h5>
+	                <p class="text-muted mt-2">${response.error}</p>
+	            </div>
+	        `;
+	        throw new Error("API 에러 발생으로 렌더링을 중단합니다."); // 여기서 멈춤
+	    }
+
+        // 데이터가 정상적으로 1개 이상 있을 때
+        if (response.status && response.data && response.data.hotels && response.data.hotels.length > 0) {
+            loading.style.display = 'none';
+            mainContent.classList.remove('d-none'); // UI 표시
+            
+            allHotels = response.data.hotels; // 원본 데이터 저장
+            renderHotels(allHotels); // 최초 렌더링
+        } else {
+            // 🐛 버그 수정: 데이터가 없을 때 부모 요소의 숨김(d-none)을 강제로 해제합니다.
+            loading.style.display = 'none';
+            mainContent.classList.remove('d-none'); 
+            
+            // 사이드바를 지우고 넓게 에러 메시지 표시
+            mainContent.innerHTML = `
+                <div class="alert alert-light border shadow-sm text-center py-5 rounded-4 col-12">
+                    <i class="bi bi-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
+                    <h5 class="fw-bold">検索結果がありません、またはAPIエラーです。</h5>
+                    <p class="text-muted mt-2">F12(開発者ツール)のコンソールタブを開いて、<br>APIがどのようなエラーを返したか確認してください。</p>
+                </div>
+            `;
+        }
+
+        // 🌟 필터링 함수
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
         function applyFilters() {
             const maxPrice = parseInt(document.getElementById('priceFilter').value);
             const minScore = parseFloat(document.querySelector('input[name="scoreFilter"]:checked').value);
@@ -122,6 +182,7 @@
             const filteredHotels = allHotels.filter(hotel => {
                 const prop = hotel.property;
                 if (!prop) return false;
+<<<<<<< HEAD
                 let price = prop.priceBreakdown?.grossPrice?.value || prop.priceBreakdown?.grossPrice || 0;
                 if (price > maxPrice) return false;
                 let score = prop.reviewScore || 0;
@@ -131,12 +192,35 @@
             renderHotels(filteredHotels);
         }
 
+=======
+
+                let price = 0;
+                if (prop.priceBreakdown && prop.priceBreakdown.grossPrice) {
+                    price = prop.priceBreakdown.grossPrice.value || prop.priceBreakdown.grossPrice;
+                }
+                if (price > maxPrice) return false;
+
+                let score = prop.reviewScore || 0;
+                if (score < minScore) return false;
+
+                return true; 
+            });
+
+            renderHotels(filteredHotels);
+        }
+
+        // 🌟 화면 렌더링 함수
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
         function renderHotels(hotelsToRender) {
             container.innerHTML = ''; 
             countLabel.innerHTML = `表示中: <b>${hotelsToRender.length}</b> 件`;
 
             if (hotelsToRender.length === 0) {
+<<<<<<< HEAD
                 container.innerHTML = `<div class="alert alert-warning text-center border-0 shadow-sm py-4">条件に合う宿泊先がありません。</div>`;
+=======
+                container.innerHTML = `<div class="alert alert-warning text-center border-0 shadow-sm py-4">条件に合う宿泊先がありません。条件を緩めてください。</div>`;
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
                 return;
             }
 
@@ -151,8 +235,17 @@
                 const score = prop.reviewScore ? prop.reviewScore.toFixed(1) : '-';
                 const reviewCount = prop.reviewCount ? prop.reviewCount.toLocaleString() : '0';
                 
+<<<<<<< HEAD
                 let badgeColor = prop.reviewScore >= 9.0 ? "bg-success" : (prop.reviewScore >= 8.0 ? "bg-primary" : "bg-warning text-dark");
 
+=======
+                let badgeColor = "bg-secondary";
+                if (prop.reviewScore >= 9.0) badgeColor = "bg-success";
+                else if (prop.reviewScore >= 8.0) badgeColor = "bg-primary";
+                else if (prop.reviewScore >= 7.0) badgeColor = "bg-warning text-dark";
+
+                // 💡 수정된 부분: 결제용 순수 숫자(purePrice)를 명확하게 분리해서 선언합니다.
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
                 let priceStr = "価格情報なし";
                 let purePrice = 0; 
                 if (prop.priceBreakdown && prop.priceBreakdown.grossPrice) {
@@ -163,6 +256,7 @@
                     }
                 }
 
+<<<<<<< HEAD
                 // API ID 추출
                 const apiId = hotel.hotel_id || hotel.id || prop.id || hotelName;
                 const checkoutUrl = `/checkout?itemName=${encodeURIComponent(hotelName)}&price=${purePrice}&checkin=${checkinDate}&adults=${adults}&category=HOTEL`;
@@ -181,6 +275,15 @@
                             <i class="bi bi-heart text-danger fs-5"></i>
                         </button>
 
+=======
+                // 💡 수정된 부분: 에러 없이 깔끔하게 /checkout 으로 파라미터를 넘깁니다.
+
+				// 기존 코드에 &category=HOTEL 추가
+				const checkoutUrl = `/checkout?itemName=${encodeURIComponent(hotelName)}&price=${purePrice}&checkin=${checkinDate}&adults=${adults}&category=HOTEL`;
+                
+				const cardHtml = `
+                    <div class="card border-0 shadow-sm mb-4 hotel-card overflow-hidden" style="border-radius: 15px;">
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
                         <div class="row g-0">
                             <div class="col-md-4">
                                 <div class="h-100" style="min-height: 200px; background-image: url('${photoUrl}'); background-size: cover; background-position: center;"></div>
@@ -188,10 +291,17 @@
                             <div class="col-md-8">
                                 <div class="card-body p-4 d-flex flex-column h-100 justify-content-between">
                                     <div>
+<<<<<<< HEAD
 	                                    <div class="d-flex align-items-start mb-2 pe-5">
 	                                    	<h5 class="card-title fw-bold mb-0 text-dark">${hotelName}</h5>
 	                                    	<span class="badge ${badgeColor} fs-6 ms-2 align-self-center">${score}</span>
 	                                	</div>
+=======
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h5 class="card-title fw-bold mb-0 text-dark">${hotelName}</h5>
+                                            <span class="badge ${badgeColor} fs-6 ms-2">${score}</span>
+                                        </div>
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
                                         <p class="text-muted small mb-3"><i class="bi bi-chat-square-text me-1"></i> クチコミ ${reviewCount} 件</p>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-end mt-3">
@@ -210,6 +320,7 @@
                 container.innerHTML += cardHtml;
             });
         }
+<<<<<<< HEAD
 
         // 🌟 찜하기(하트) 버튼 작동을 위한 Fetch API 함수
         async function toggleWishlist(button, event) {
@@ -262,6 +373,8 @@
                 alert("サーバーとの通信に失敗しました。(서버와 통신할 수 없습니다.)");
             }
         }
+=======
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
     </script>
 
     <style>
@@ -269,8 +382,12 @@
         .hotel-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; border-color: #003580; }
         .btn-primary { background-color: #003580; border: none; }
         .btn-primary:hover { background-color: #00224f; }
+<<<<<<< HEAD
         input[type=range] { accent-color: #003580; }
         .wishlist-btn:hover i { transform: scale(1.1); transition: transform 0.2s; }
+=======
+        input[type=range] { accent-color: #003580; } /* 슬라이더 색상 변경 */
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
     </style>
 </body>
 </html>
