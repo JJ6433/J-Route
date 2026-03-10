@@ -93,7 +93,7 @@
                                         コメント内容
                                     </div>
                                 </td>
-                                <td th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}">2026-02-23</td>
+                                <td th:text="${review.createdAt}">2026-02-23</td>
                                 <td class="pe-4 text-center">
                                     <form th:action="@{/admin/review/delete/{id}(id=${review.reviewId})}" method="post"
                                         class="d-inline" onsubmit="return confirm('本当にこの口コミを削除しますか？');">

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: headFragment}"></head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+
+    <main class="container mt-5 mb-5 flex-grow-1" style="max-width: 900px;">
+        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+            <div class="card-body p-5">
+                <h3 class="fw-bold mb-4 text-center"><i class="bi bi-pencil-square me-2" style="color: #5BAE51;"></i> 新しい旅行記</h3>
+                
+                <form th:action="@{/board/write}" method="post" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">タイトル</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">地域</label>
+                            <select class="form-select" name="region" required>
+                                <option value="">地域を選択してください</option>
+                                <option value="東京">東京</option>
+                                <option value="大阪">大阪</option>
+                                <option value="福岡">福岡</option>
+                                <option value="札幌">札幌</option>
+                                <option value="沖縄">沖縄</option>
+                                <option value="名古屋">名古屋</option>
+                                <option value="静岡">静岡</option>
+                                <option value="福島">福島</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">旅行日数</label>
+                            <select class="form-select" name="duration" required>
+                                <option value="">日数を選択してください</option>
+                                <option value="1泊2日">1泊2日</option>
+                                <option value="2泊3日">2泊3日</option>
+                                <option value="3泊4日">3泊4日</option>
+                                <option value="4泊5日">4泊5日</option>
+                                <option value="5泊6日">5泊6日</option>
+                                <option value="6泊以上">6泊以上</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">代表写真 (サムネイル)</label>
+                        <input type="file" class="form-control" name="imageFile" accept="image/*">
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="form-label fw-bold">旅行の内容</label>
+                        <textarea id="summernote" name="content" required></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a th:href="@{/board/list}" class="btn btn-light border fw-bold px-4">キャンセル</a>
+                        <button type="submit" class="btn text-white fw-bold px-4" style="background-color: #5BAE51;">登録する</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <script>
+        $(document).ready(function() {
+            $('#summernote').summernote({
+                height: 500,                 
+                lang: "ja-JP",               
+                callbacks: {
+                    onImageUpload: function(files) {
+                        for (let i = 0; i < files.length; i++) {
+                            uploadImage(files[i], this);
+                        }
+                    }
+                }
+            });
+        });
+
+        // Ajax 画像アップロード
+        function uploadImage(file, editor) {
+            var data = new FormData();
+            data.append("file", file);
+            $.ajax({
+                data: data, type: "POST", url: "/board/uploadImage",
+                cache: false, contentType: false, processData: false,
+                success: function(url) { $(editor).summernote('insertImage', url); },
+                error: function() { alert("画像のアップロードに失敗しました。"); }
+            });
+        }
+    </script>
+</body>
+</html>
