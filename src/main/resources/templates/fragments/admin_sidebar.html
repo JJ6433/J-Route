@@ -59,6 +59,10 @@
                     <a class="nav-link" id="nav-notice" th:href="@{/admin/notice}"><i class="bi bi-megaphone"></i>
                         お知らせ管理</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="nav-reservation" th:href="@{/admin/reservation}"><i class="bi bi-ticket-detailed"></i>
+                        予約履歴管理</a>
+                </li>
             </ul>
         </div>
 
@@ -75,6 +79,8 @@
                     document.getElementById('nav-api').classList.add('active');
                 } else if (currentPath.includes('/admin/notice')) {
                     document.getElementById('nav-notice').classList.add('active');
+                } else if (currentPath.includes('/admin/reservation')) {
+                    document.getElementById('nav-reservation').classList.add('active');
                 } else {
                     document.getElementById('nav-dashboard').classList.add('active');
                 }

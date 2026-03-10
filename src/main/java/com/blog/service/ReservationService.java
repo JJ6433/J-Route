@@ -36,4 +36,9 @@ public class ReservationService {
     public List<ReservationDto> getAllReservations(Long userId) {
         return reservationMapper.findAllReservationsByUserId(userId);
     }
+
+    // 관리자용: 모든 유저의 예약 목록 반환
+    public List<ReservationDto> getAllReservationsForAdmin() {
+        return reservationMapper.findAllWithUser();
+    }
 }
