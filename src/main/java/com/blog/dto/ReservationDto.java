@@ -13,4 +13,7 @@ public class ReservationDto {
     private int amount;        
     private String status;     
     private Timestamp createdAt;
+
+    // 관리자 화면용 추가 필드
+    private String nickname; // 예약자 닉네임
 }
