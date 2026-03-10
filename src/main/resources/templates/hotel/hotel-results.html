@@ -66,6 +66,57 @@
     <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 
     <script th:inline="javascript">
+<<<<<<< HEAD
+        const rawData = [[${hotels}]];
+        let response;
+        try { response = JSON.parse(rawData); } catch (e) { response = {}; }
+    
+        let allHotels = []; 
+    
+        const loading = document.getElementById('loading');
+        const mainContent = document.getElementById('main-content');
+        const container = document.getElementById('results-container');
+        const countLabel = document.getElementById('result-count');
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const checkinDate = urlParams.get('checkinDate');
+        const checkoutDate = urlParams.get('checkoutDate');
+        const adults = urlParams.get('adults');
+        
+        if (response.error) {
+            loading.style.display = 'none';
+            mainContent.classList.remove('d-none');
+            mainContent.innerHTML = `
+                <div class="alert alert-danger border shadow-sm text-center py-5 rounded-4 col-12">
+                    <i class="bi bi-x-octagon-fill text-danger mb-3" style="font-size: 3rem;"></i>
+                    <h5 class="fw-bold">API 呼び出しエラーが発生しました</h5>
+                    <p class="text-muted mt-2">${response.error}</p>
+                </div>
+            `;
+            throw new Error("API 에러 발생"); 
+        }
+
+        if (response.status && response.data && response.data.hotels && response.data.hotels.length > 0) {
+            loading.style.display = 'none';
+            mainContent.classList.remove('d-none'); 
+            allHotels = response.data.hotels; 
+            renderHotels(allHotels); 
+        } else {
+            loading.style.display = 'none';
+            mainContent.classList.remove('d-none'); 
+            mainContent.innerHTML = `
+                <div class="alert alert-light border shadow-sm text-center py-5 rounded-4 col-12">
+                    <i class="bi bi-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
+                    <h5 class="fw-bold">検索結果がありません</h5>
+                </div>
+            `;
+        }
+        
+        function updatePriceLabel(value) {
+            document.getElementById('priceLabel').innerText = '¥' + parseInt(value).toLocaleString();
+        }
+        
+=======
 	    const rawData = [[${hotels}]];
 	    let response;
 	    try { response = JSON.parse(rawData); } catch (e) { response = {}; }
@@ -123,6 +174,7 @@
         }
 
         // 🌟 필터링 함수
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
         function applyFilters() {
             const maxPrice = parseInt(document.getElementById('priceFilter').value);
             const minScore = parseFloat(document.querySelector('input[name="scoreFilter"]:checked').value);
@@ -130,6 +182,17 @@
             const filteredHotels = allHotels.filter(hotel => {
                 const prop = hotel.property;
                 if (!prop) return false;
+<<<<<<< HEAD
+                let price = prop.priceBreakdown?.grossPrice?.value || prop.priceBreakdown?.grossPrice || 0;
+                if (price > maxPrice) return false;
+                let score = prop.reviewScore || 0;
+                if (score < minScore) return false;
+                return true; 
+            });
+            renderHotels(filteredHotels);
+        }
+
+=======
 
                 let price = 0;
                 if (prop.priceBreakdown && prop.priceBreakdown.grossPrice) {
@@ -147,12 +210,17 @@
         }
 
         // 🌟 화면 렌더링 함수
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
         function renderHotels(hotelsToRender) {
             container.innerHTML = ''; 
             countLabel.innerHTML = `表示中: <b>${hotelsToRender.length}</b> 件`;
 
             if (hotelsToRender.length === 0) {
+<<<<<<< HEAD
+                container.innerHTML = `<div class="alert alert-warning text-center border-0 shadow-sm py-4">条件に合う宿泊先がありません。</div>`;
+=======
                 container.innerHTML = `<div class="alert alert-warning text-center border-0 shadow-sm py-4">条件に合う宿泊先がありません。条件を緩めてください。</div>`;
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
                 return;
             }
 
@@ -167,12 +235,17 @@
                 const score = prop.reviewScore ? prop.reviewScore.toFixed(1) : '-';
                 const reviewCount = prop.reviewCount ? prop.reviewCount.toLocaleString() : '0';
                 
+<<<<<<< HEAD
+                let badgeColor = prop.reviewScore >= 9.0 ? "bg-success" : (prop.reviewScore >= 8.0 ? "bg-primary" : "bg-warning text-dark");
+
+=======
                 let badgeColor = "bg-secondary";
                 if (prop.reviewScore >= 9.0) badgeColor = "bg-success";
                 else if (prop.reviewScore >= 8.0) badgeColor = "bg-primary";
                 else if (prop.reviewScore >= 7.0) badgeColor = "bg-warning text-dark";
 
                 // 💡 수정된 부분: 결제용 순수 숫자(purePrice)를 명확하게 분리해서 선언합니다.
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
                 let priceStr = "価格情報なし";
                 let purePrice = 0; 
                 if (prop.priceBreakdown && prop.priceBreakdown.grossPrice) {
@@ -183,6 +256,26 @@
                     }
                 }
 
+<<<<<<< HEAD
+                // API ID 추출
+                const apiId = hotel.hotel_id || hotel.id || prop.id || hotelName;
+                const checkoutUrl = `/checkout?itemName=${encodeURIComponent(hotelName)}&price=${purePrice}&checkin=${checkinDate}&adults=${adults}&category=HOTEL`;
+                
+                const cardHtml = `
+                    <div class="card border-0 shadow-sm mb-4 hotel-card overflow-hidden position-relative" style="border-radius: 15px;">
+                        
+                        <button type="button" 
+                                class="btn btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-3 wishlist-btn"
+                                style="z-index: 10; width: 40px; height: 40px; padding: 0;"
+                                data-api-id="${apiId}" 
+                                data-item-name="${hotelName}" 
+                                data-image-url="${photoUrl}"
+                                data-category="HOTEL"
+                                onclick="toggleWishlist(this, event)">
+                            <i class="bi bi-heart text-danger fs-5"></i>
+                        </button>
+
+=======
                 // 💡 수정된 부분: 에러 없이 깔끔하게 /checkout 으로 파라미터를 넘깁니다.
 
 				// 기존 코드에 &category=HOTEL 추가
@@ -190,6 +283,7 @@
                 
 				const cardHtml = `
                     <div class="card border-0 shadow-sm mb-4 hotel-card overflow-hidden" style="border-radius: 15px;">
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
                         <div class="row g-0">
                             <div class="col-md-4">
                                 <div class="h-100" style="min-height: 200px; background-image: url('${photoUrl}'); background-size: cover; background-position: center;"></div>
@@ -197,10 +291,17 @@
                             <div class="col-md-8">
                                 <div class="card-body p-4 d-flex flex-column h-100 justify-content-between">
                                     <div>
+<<<<<<< HEAD
+	                                    <div class="d-flex align-items-start mb-2 pe-5">
+	                                    	<h5 class="card-title fw-bold mb-0 text-dark">${hotelName}</h5>
+	                                    	<span class="badge ${badgeColor} fs-6 ms-2 align-self-center">${score}</span>
+	                                	</div>
+=======
                                         <div class="d-flex justify-content-between align-items-start mb-2">
                                             <h5 class="card-title fw-bold mb-0 text-dark">${hotelName}</h5>
                                             <span class="badge ${badgeColor} fs-6 ms-2">${score}</span>
                                         </div>
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
                                         <p class="text-muted small mb-3"><i class="bi bi-chat-square-text me-1"></i> クチコミ ${reviewCount} 件</p>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-end mt-3">
@@ -219,6 +320,61 @@
                 container.innerHTML += cardHtml;
             });
         }
+<<<<<<< HEAD
+
+        // 🌟 찜하기(하트) 버튼 작동을 위한 Fetch API 함수
+        async function toggleWishlist(button, event) {
+            event.preventDefault(); 
+            event.stopPropagation();
+
+            const apiId = button.getAttribute('data-api-id');
+            const itemName = button.getAttribute('data-item-name');
+            const imageUrl = button.getAttribute('data-image-url');
+            const category = button.getAttribute('data-category');
+            
+            const icon = button.querySelector('i');
+            const isWished = icon.classList.contains('bi-heart-fill');
+
+            const requestData = {
+                apiId: apiId,
+                itemName: itemName,
+                imageUrl: imageUrl,
+                category: category
+            };
+
+            try {
+                // 💡 곧 만들 REST API 전용 주소로 호출합니다!
+                const url = '/api/wishlist/toggle'; 
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    // 서버 응답에 따라 하트 색상 변경
+                    if (result.wished) {
+                        icon.classList.remove('bi-heart');
+                        icon.classList.add('bi-heart-fill');
+                    } else {
+                        icon.classList.remove('bi-heart-fill');
+                        icon.classList.add('bi-heart');
+                    }
+                } else if (response.status === 401 || response.status === 403) {
+                    alert("ログインが必要です。(로그인이 필요합니다.)");
+                    window.location.href = "/user/login";
+                } else {
+                    alert("処理中にエラーが発生しました。(처리 중 오류가 발생했습니다.)");
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert("サーバーとの通信に失敗しました。(서버와 통신할 수 없습니다.)");
+            }
+        }
+=======
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
     </script>
 
     <style>
@@ -226,7 +382,12 @@
         .hotel-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; border-color: #003580; }
         .btn-primary { background-color: #003580; border: none; }
         .btn-primary:hover { background-color: #00224f; }
+<<<<<<< HEAD
+        input[type=range] { accent-color: #003580; }
+        .wishlist-btn:hover i { transform: scale(1.1); transition: transform 0.2s; }
+=======
         input[type=range] { accent-color: #003580; } /* 슬라이더 색상 변경 */
+>>>>>>> 9f3f6668e8757726b70fa2f9d4cd81e15621140d
     </style>
 </body>
 </html>
