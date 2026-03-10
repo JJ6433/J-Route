@@ -19,13 +19,9 @@
                                     placeholder="場所名やキーワード..." th:value="${keyword}">
 
                                 <label class="form-label fw-bold">地域</label>
-                                <select name="region" class="form-select mb-3 fs-5 py-2">
-                                    <option value="">すべて</option>
-                                    <option value="東京" th:selected="${region == '東京'}">東京</option>
-                                    <option value="大阪" th:selected="${region == '大阪'}">大阪</option>
-                                    <option value="福岡" th:selected="${region == '福岡'}">福岡</option>
-                                    <option value="京都" th:selected="${region == '京都'}">京都</option>
-                                </select>
+                                <input type="text" name="region" class="form-control mb-3 fs-5 py-2"
+                                    placeholder="地域名を入力 (例: 東京)" th:value="${region}">
+
                                 <label class="form-label fw-bold">カテゴリ</label>
                                 <select name="category" class="form-select mb-3 fs-5 py-2">
                                     <option value="">すべて</option>
@@ -33,12 +29,14 @@
                                     <option value="グルメ" th:selected="${category == 'グルメ'}">グルメ</option>
                                     <option value="宿泊" th:selected="${category == '宿泊'}">宿泊</option>
                                 </select>
+
                                 <label class="form-label fw-bold">並び順</label>
                                 <select name="sort" class="form-select mb-4 fs-5 py-2">
                                     <option value="latest" th:selected="${sort == 'latest'}">新着順</option>
                                     <option value="popular" th:selected="${sort == 'popular'}">人気順</option>
                                     <option value="rating" th:selected="${sort == 'rating'}">評価順</option>
                                 </select>
+
                                 <button type="submit" class="btn jroute-btn-search w-100">検索</button>
                             </form>
                         </div>
@@ -48,21 +46,32 @@
                     <div class="row row-cols-1 row-cols-md-3 g-4">
                         <div class="col" th:each="place : ${places}">
                             <div class="card jroute-card h-100">
-                                <img th:src="${place.imageUrl != null ? place.imageUrl : 'https://via.placeholder.com/400x250?text=No+Image'}"
-                                    class="card-img-top" alt="旅行先" />
+                                <a th:href="@{/place/detail(id=${place.placeId})}">
+                                    <img th:src="${place.imageUrl != null ? place.imageUrl : 'https://via.placeholder.com/400x250?text=No+Image'}"
+                                        class="card-img-top" alt="旅行先" />
+                                </a>
                                 <div class="card-body">
-                                    <span class="badge bg-secondary me-1" th:text="${place.region}"></span>
+                                    <span class="badge me-1"
+                                          th:classappend="${place.region == '東京' ? 'bg-primary' :
+                                                          place.region == '大阪' ? 'bg-warning text-dark' :
+                                                          place.region == '福岡' ? 'bg-danger' :
+                                                          place.region == '札幌' ? 'bg-info text-dark' :
+                                                          place.region == '沖縄' ? 'bg-success' :
+                                                          place.region == '名古屋' ? 'bg-dark' :
+                                                          place.region == '静岡' ? 'text-white' :
+                                                          place.region == '広島' ? 'text-white' : 'bg-secondary'}"
+                                          th:style="${place.region == '静岡' ? 'background-color: #fd7e14;' :
+                                                    place.region == '広島' ? 'background-color: #6f42c1;' : ''}"
+                                          th:text="${place.region}"></span>
                                     <span class="badge bg-light text-dark" th:text="${place.category}"></span>
-                                    <h5 class="card-title mt-2" th:text="${place.name}"></h5>
-                                    <p class="card-text text-truncate small" th:text="${place.description}"></p>
+                                    
+                                    <a th:href="@{/place/detail(id=${place.placeId})}" class="text-decoration-none text-dark">
+                                        <h5 class="card-title mt-2 mb-2" th:text="${place.name}"></h5>
+                                    </a>
+                                    
                                     <p th:if="${place.avgRating != null}" class="small jroute-star-rating mb-0"><i
                                             class="bi bi-star-fill"></i> <span th:text="${place.avgRating}"></span>
                                         （<span th:text="${place.reviewCount}"></span>件のレビュー）</p>
-                                </div>
-                                <div class="card-footer bg-white border-0">
-                                    <a th:href="@{/place/detail(id=${place.placeId})}"
-                                        class="btn btn-outline-view btn-sm w-100">詳しく見る <i
-                                            class="bi bi-chevron-right"></i></a>
                                 </div>
                             </div>
                         </div>
