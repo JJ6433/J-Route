@@ -24,7 +24,7 @@
                         
                         <div class="mb-4">
                             <label class="fw-bold text-dark small mb-2">最大料金 (合計)</label>
-                            <input type="range" class="form-range" id="priceFilter" min="5000" max="100000" step="5000" value="100000" oninput="updatePriceLabel(this.value); applyFilters();">
+                            <input type="range" class="form-range" id="priceFilter" min="5000" step="5000" oninput="updatePriceLabel(this.value); applyFilters();">
                             <div class="d-flex justify-content-between text-muted small mt-1">
                                 <span>¥5,000</span>
                                 <span id="priceLabel" class="fw-bold text-primary">¥100,000</span>
@@ -70,9 +70,6 @@
         let response;
         try { response = JSON.parse(rawData); } catch (e) { response = {}; }
 
-        console.log("🏨 API raw data:", rawData);
-        console.log("🏨 Parsed data:", response);
-
         let allHotels = []; 
 
         const loading = document.getElementById('loading');
@@ -88,7 +85,7 @@
         if (response.error) {
             loading.style.display = 'none';
             mainContent.classList.remove('d-none');
-            mainContent.innerHTML = `
+            container.innerHTML = `
                 <div class="alert alert-danger border shadow-sm text-center py-5 rounded-4 col-12">
                     <i class="bi bi-x-octagon-fill text-danger mb-3" style="font-size: 3rem;"></i>
                     <h5 class="fw-bold">API 呼び出しエラーが発生しました</h5>
@@ -102,11 +99,27 @@
             loading.style.display = 'none';
             mainContent.classList.remove('d-none'); 
             allHotels = response.data.hotels; 
+            
+            // 💡 [알잘딱깔센 패치] 검색된 숙소 중 가장 비싼 가격을 찾아 슬라이더 최대값 자동 세팅
+            let highestPrice = 0;
+            allHotels.forEach(h => {
+                const p = h.property?.priceBreakdown?.grossPrice;
+                const val = p?.value || p || 0;
+                if (val > highestPrice) highestPrice = val;
+            });
+            
+            // 제일 비싼 가격을 기준으로 1만 엔 단위로 올림 (예: 275,899 -> 280,000)
+            const sliderMax = highestPrice > 0 ? Math.ceil(highestPrice / 10000) * 10000 : 100000;
+            const priceFilter = document.getElementById('priceFilter');
+            priceFilter.max = sliderMax;
+            priceFilter.value = sliderMax;
+            document.getElementById('priceLabel').innerText = '¥' + sliderMax.toLocaleString();
+
             renderHotels(allHotels); 
         } else {
             loading.style.display = 'none';
             mainContent.classList.remove('d-none'); 
-            mainContent.innerHTML = `
+            container.innerHTML = `
                 <div class="alert alert-light border shadow-sm text-center py-5 rounded-4 col-12">
                     <i class="bi bi-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
                     <h5 class="fw-bold">検索結果がありません</h5>
@@ -146,7 +159,7 @@
             countLabel.innerHTML = `表示中: <b>${hotelsToRender.length}</b> 件`;
 
             if (hotelsToRender.length === 0) {
-                container.innerHTML = `<div class="alert alert-warning text-center border-0 shadow-sm py-4">条件に合う宿泊先がありません。</div>`;
+                container.innerHTML = `<div class="alert alert-warning text-center border-0 shadow-sm py-4 col-12">条件に合う宿泊先がありません。</div>`;
                 return;
             }
 
@@ -179,13 +192,18 @@
                 const apiId = hotel.hotel_id || hotel.id || prop.id || hotelName;
                 const checkoutUrl = `/checkout?itemName=${encodeURIComponent(hotelName)}&price=${purePrice}&checkin=${checkinDate}&adults=${adults}&category=HOTEL`;
                 
+                const detailUrl = `/hotel/detail?id=${apiId}&name=${encodeURIComponent(hotelName)}&price=${purePrice}&photoUrl=${encodeURIComponent(photoUrl)}&checkinDate=${checkinDate}&checkoutDate=${checkoutDate}&adults=${adults}`;
+                const saveApiId = `/hotel/detail?id=${apiId}&price=${purePrice}&checkinDate=${checkinDate}&checkoutDate=${checkoutDate}&adults=${adults}`;
+
                 const cardHtml = `
-                    <div class="card border-0 shadow-sm mb-4 hotel-card overflow-hidden position-relative" style="border-radius: 15px;">
+                    <div class="card border-0 shadow-sm mb-4 hotel-card overflow-hidden position-relative" 
+                         style="border-radius: 15px; cursor: pointer;"
+                         onclick="location.href='${detailUrl}'">
                         
                         <button type="button" 
                                 class="btn btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-3 wishlist-btn"
                                 style="z-index: 10; width: 40px; height: 40px; padding: 0;"
-                                data-api-id="${apiId}" 
+                                data-api-id="${saveApiId}" 
                                 data-item-name="${hotelName}" 
                                 data-image-url="${photoUrl}"
                                 data-category="HOTEL"
@@ -211,7 +229,8 @@
                                             <p class="small text-muted mb-0">合計料金 (${adults}名)</p>
                                             <h4 class="text-danger fw-bold mb-0">${priceStr}</h4>
                                         </div>
-                                        <button onclick="location.href='${checkoutUrl}'" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                                        <button onclick="event.stopPropagation(); location.href='${checkoutUrl}'" 
+                                                class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm checkout-btn">
                                             予約手続きへ <i class="bi bi-credit-card ms-1"></i>
                                         </button>
                                     </div>
@@ -237,7 +256,7 @@
 
             const requestData = {
                 apiId: apiId,
-                itemName: itemName,
+                placeName: itemName, // 💡 [핵심 수정] itemName이 아니라 서버가 기다리는 placeName으로 정확히 전달!
                 imageUrl: imageUrl,
                 category: category
             };
@@ -280,6 +299,7 @@
         .btn-primary:hover { background-color: #00224f; }
         input[type=range] { accent-color: #003580; }
         .wishlist-btn:hover i { transform: scale(1.1); transition: transform 0.2s; }
+        .checkout-btn { position: relative; z-index: 5; }
     </style>
 </body>
 </html>

@@ -97,4 +97,27 @@ public class HotelController {
             }
         }
     }
+    
+    // 4. 숙소 상세 페이지 이동
+    @GetMapping("/hotel/detail")
+    public String showHotelDetail(
+            @RequestParam(value = "id", required = false) String id,
+            @RequestParam(value = "name", required = false, defaultValue = "選択した宿泊施設") String name,
+            @RequestParam(value = "price", required = false, defaultValue = "-") String price,
+            @RequestParam(value = "photoUrl", required = false, defaultValue = "https://placehold.co/900x400/e9ecef/6c757d?text=No+Image") String photoUrl,
+            @RequestParam(value = "checkinDate", required = false, defaultValue = "未定") String checkinDate,
+            @RequestParam(value = "checkoutDate", required = false, defaultValue = "未定") String checkoutDate,
+            @RequestParam(value = "adults", required = false, defaultValue = "2") String adults,
+            Model model) {
+
+        model.addAttribute("hotelId", id);
+        model.addAttribute("hotelName", name);
+        model.addAttribute("price", price);
+        model.addAttribute("photoUrl", photoUrl);
+        model.addAttribute("checkinDate", checkinDate);
+        model.addAttribute("checkoutDate", checkoutDate);
+        model.addAttribute("adults", adults);
+
+        return "hotel/hotel-detail"; // 도착지 HTML 이름
+    }
 }
