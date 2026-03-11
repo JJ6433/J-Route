@@ -92,7 +92,6 @@
             </div>
         </div>
 
-        <!-- お知らせセクション -->
         <section th:if="${not #lists.isEmpty(notices)}" class="mb-5">
             <div class="card border-0 shadow-sm"
                 style="border-radius: 15px; background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);">
@@ -122,9 +121,20 @@
                                     class="card-img-top jroute-img-hover" alt="スポット">
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title text-truncate fw-bold" th:text="${place.name}">スポット名</h5>
-                                <p class="card-text text-truncate small text-muted" th:text="${place.description}">説明
-                                </p>
+                                <span class="badge me-1 mb-2"
+                                      th:classappend="${place.region == '東京' ? 'bg-primary' :
+                                                      place.region == '大阪' ? 'bg-warning text-dark' :
+                                                      place.region == '福岡' ? 'bg-danger' :
+                                                      place.region == '札幌' ? 'bg-info text-dark' :
+                                                      place.region == '沖縄' ? 'bg-success' :
+                                                      place.region == '名古屋' ? 'bg-dark' :
+                                                      place.region == '静岡' ? 'text-white' :
+                                                      place.region == '広島' ? 'text-white' : 'bg-secondary'}"
+                                      th:style="${place.region == '静岡' ? 'background-color: #fd7e14;' :
+                                                place.region == '広島' ? 'background-color: #6f42c1;' : ''}"
+                                      th:text="${place.region}"></span>
+                                
+                                <h5 class="card-title text-truncate fw-bold mb-0" th:text="${place.name}">スポット名</h5>
                             </div>
                         </div>
                     </a>
@@ -149,8 +159,20 @@
                                     class="card-img-top jroute-img-hover" alt="旅行先">
                             </div>
                             <div class="card-body">
-                                <span class="badge bg-secondary me-1 mb-2" th:text="${place.region}">地域</span>
-                                <h5 class="card-title text-truncate fw-bold" th:text="${place.name}">名前</h5>
+                                <span class="badge me-1 mb-2"
+                                      th:classappend="${place.region == '東京' ? 'bg-primary' :
+                                                      place.region == '大阪' ? 'bg-warning text-dark' :
+                                                      place.region == '福岡' ? 'bg-danger' :
+                                                      place.region == '札幌' ? 'bg-info text-dark' :
+                                                      place.region == '沖縄' ? 'bg-success' :
+                                                      place.region == '名古屋' ? 'bg-dark' :
+                                                      place.region == '静岡' ? 'text-white' :
+                                                      place.region == '広島' ? 'text-white' : 'bg-secondary'}"
+                                      th:style="${place.region == '静岡' ? 'background-color: #fd7e14;' :
+                                                place.region == '広島' ? 'background-color: #6f42c1;' : ''}"
+                                      th:text="${place.region}"></span>
+                                
+                                <h5 class="card-title text-truncate fw-bold mb-0" th:text="${place.name}">名前</h5>
                             </div>
                         </div>
                     </a>
@@ -165,13 +187,11 @@
         document.addEventListener('DOMContentLoaded', function () {
             const sidebarElement = document.getElementById('userSidebar');
 
-            // 사이드바가 닫힐 때 실행되는 이벤트
+            // サイドバーが閉じる時の処理
             sidebarElement.addEventListener('hidden.bs.offcanvas', function () {
-                // 혹시 남아있을지 모르는 모든 백드롭(어두운 배경) 요소를 강제로 제거
                 const backdrops = document.querySelectorAll('.offcanvas-backdrop');
                 backdrops.forEach(backdrop => backdrop.remove());
 
-                // 본문의 스크롤 고정 해제 (가끔 백드롭 제거 후 스크롤이 안 되는 버그 방지)
                 document.body.style.overflow = '';
                 document.body.style.paddingRight = '';
             });
