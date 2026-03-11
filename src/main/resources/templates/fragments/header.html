@@ -10,7 +10,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link active" th:href="@{/}">ホーム</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/}">ホーム</a></li>
                     <li class="nav-item"><a class="nav-link" th:href="@{/place/list}">旅行検索</a></li>
                     <li class="nav-item"><a class="nav-link" th:href="@{/board/list}">掲示板</a></li>
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">
@@ -41,6 +41,24 @@
             </div>
         </div>
     </nav>
+
+    <script>
+        (function () {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.jroute-header .nav-link');
+
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (!href) return;
+
+                if (href === '/') {
+                    if (currentPath === '/') link.classList.add('active');
+                } else if (currentPath.startsWith(href) || (href === '/place/list' && currentPath.startsWith('/place'))) {
+                    link.classList.add('active');
+                }
+            });
+        })();
+    </script>
 </div>
 
 </html>
