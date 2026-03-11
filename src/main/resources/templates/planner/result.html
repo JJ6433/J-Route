@@ -387,7 +387,7 @@
             const dateEl = document.getElementById('display-dates');
             const peopleEl = document.getElementById('display-people');
             const hotelEl = document.getElementById('display-accommodation');
-            const needsInfo = (el) => el && (el.textContent.includes('なし') || el.textContent.includes('없음') || el.textContent.trim() === '' || el.textContent.includes('日程情報'));
+            const needsInfo = (el) => el && (el.textContent.includes('なし') || el.textContent.trim() === '' || el.textContent.includes('日程情報'));
 
             if (plan.weather && plan.weather.length > 0 && needsInfo(dateEl)) {
                 dateEl.textContent = `${plan.weather[0].date} ~ ${plan.weather[plan.weather.length - 1].date}`;

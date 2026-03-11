@@ -232,11 +232,17 @@
 
                     <div id="selected-hotel-info" class="hotel-info-card">
                         <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1 fw-bold" id="display-hotel-name">숙소명</h6>
-                                <p class="mb-0 text-muted small" id="display-hotel-address">주소</p>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1 fw-bold" id="display-hotel-name">宿泊施設名</h6>
+                                <div class="d-flex flex-wrap gap-x-4 gap-y-1 small mt-1 mb-2">
+                                    <span id="display-hotel-rating" class="text-secondary"><i class="bi bi-star-fill text-warning me-1"></i>評価: -</span>
+                                    <span id="display-hotel-reviews" class="text-secondary"><i class="bi bi-chat-left-text me-1"></i>口コミ: -</span>
+                                    <span id="display-hotel-price" class="text-danger fw-bold"><i class="bi bi-currency-yen me-1"></i>価格帯: -</span>
+                                    <span id="display-hotel-languages" class="text-secondary"><i class="bi bi-translate me-1"></i>対応言語: -</span>
+                                </div>
+                                <p class="mb-0 text-muted small"><i class="bi bi-geo-alt-fill me-1"></i><span id="display-hotel-address-full">住所情報なし</span></p>
                             </div>
-                            <span class="badge bg-success">選択済み</span>
+                            <span class="badge bg-success ms-3">選択済み</span>
                         </div>
                     </div>
 
@@ -340,92 +346,7 @@
         let currentStep = 1;
         let selectedRegion = '';
 
-        // Hardcoded representative hotels per region
-        const regionHotels = {
-            '東京': [
-                { name: '新宿ワシントンホテル', address: '東京都新宿区西新宿3-2-9', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
-                { name: '品川プリンスホテル', address: '東京都港区高輪4-10-30', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
-                { name: 'ホテルメトロポリタンエドモント', address: '東京都千代田区飯田橋3-10-8', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
-                { name: 'アパホテル＆リゾート〈両国駅タワー〉', address: '東京都墨田区横網1-11-10', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
-                { name: 'ホテルグレイスリー新宿', address: '東京都新宿区歌舞伎町1-19-1', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
-                { name: '東武ホテルレバント東京', address: '東京都墨田区錦糸1-2-2', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
-                { name: 'グランドニッコー東京 台場', address: '東京都港区台場2-6-1', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
-                { name: '京王プラザホテル', address: '東京都新宿区西新宿2-2-1', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
-            ],
-            '大阪': [
-                { name: 'ホテルグランヴィア大阪', address: '大阪府大阪市北区梅田3-1-1', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
-                { name: 'スイスホテル南海大阪', address: '大阪府大阪市中央区難波5-1-60', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
-                { name: 'リーガロイヤルホテル', address: '大阪府大阪市北区中之島5-3-68', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
-                { name: 'アートホテル大阪ベイタワー', address: '大阪府大阪市港区弁天1-2-1', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
-                { name: 'ホテル京阪 淀屋橋', address: '大阪府大阪市中央区北浜2-4-6', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
-                { name: 'コンラッド大阪', address: '大阪府大阪市北区中之島3-2-4', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
-                { name: 'インターコンチネンタルホテル大阪', address: '大阪府大阪市北区大深町3-60', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
-                { name: 'ホテルモントレ グラスミア大阪', address: '大阪府大阪市浪速区湊町1-2-3', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
-            ],
-            '福岡': [
-                { name: 'グランドハイアット福岡', address: '福岡県福岡市博多区住吉1-2-82', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
-                { name: '都ホテル 博多', address: '福岡県福岡市博多区博多駅東2-1-1', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
-                { name: 'ホテル日航福岡', address: '福岡県福岡市博多区博多駅前2-18-25', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
-                { name: '西鉄グランドホテル', address: '福岡県福岡市中央区大名2-6-60', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
-                { name: 'ANAクラウンプラザホテル福岡', address: '福岡県福岡市博多区博多駅前3-3-3', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
-                { name: 'ソラリア西鉄ホテル福岡', address: '福岡県福岡市中央区天神2-2-43', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
-                { name: 'ホテルオークラ福岡', address: '福岡県福岡市博多区下川端町3-2', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
-                { name: 'キャナルシティ・福岡ワシントンホテル', address: '福岡県福岡市博多区住吉1-2-20', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
-            ],
-            '札幌': [
-                { name: '札幌グランドホテル', address: '北海道札幌市中央区北1条西4丁目', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
-                { name: '京王プラザホテル札幌', address: '北海道札幌市中央区北5条西7-2-1', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
-                { name: 'センチュリーロイヤルホテル', address: '北海道札幌市中央区北5条西5丁目', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
-                { name: 'ホテルモントレ札幌', address: '北海道札幌市中央区北4条西1丁目3', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
-                { name: 'JRタワーホテル日航札幌', address: '北海道札幌市中央区北5条西2丁目5番地', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
-                { name: 'ANAクラウンプラザホテル札幌', address: '北海道札幌市中央区北3条西1丁目2-9', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
-                { name: 'クロスホテル札幌', address: '北海道札幌市中央区北2条西2-23', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
-                { name: 'ニューオータニイン札幌', address: '北海道札幌市中央区北2条西1丁目1-1', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
-            ],
-            '沖縄': [
-                { name: '沖縄かりゆしビーチリゾート', address: '沖縄県国頭郡恩納村名嘉真ヤーシ原2591-1', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
-                { name: 'ホテルモントレ沖縄', address: '沖縄県国頭郡恩納村冨着 1550番地1', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
-                { name: 'ルネッサンス リゾート オキナワ', address: '沖縄県国頭郡恩納村山田3425-2', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
-                { name: 'カフー リゾート フチャク', address: '沖縄県国頭郡恩納村字冨着志利福地原246-1', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
-                { name: 'ザ・ブセナテラス', address: '沖縄県名護市喜瀬1808', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
-                { name: 'ハレクラニ沖縄', address: '沖縄県国頭郡恩納村名嘉真1967-1', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
-                { name: '琉球温泉 瀬長島ホテル', address: '沖縄県豊見城市瀬長174-5', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
-                { name: 'ANAインターコンチネンタル万座', address: '沖縄県国頭郡恩納村字瀬良垣2260', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
-            ],
-            '名古屋': [
-                { name: '名古屋マリオットアソシアホテル', address: '愛知県名古屋市中村区名駅1-1-4', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
-                { name: '名古屋観光ホテル', address: '愛知県名古屋市中区錦1-19-30', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
-                { name: 'ヒルトン名古屋', address: '愛知県名古屋市中区栄1-3-3', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
-                { name: 'ANAクラウンプラザホテルグランコート', address: '愛知県名古屋市中区金山町1-1-1', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
-                { name: '名古屋プリンスホテル', address: '愛知県名古屋市中村区平池町4-60-12', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
-                { name: 'ストリングスホテル 名古屋', address: '愛知県名古屋市中村区平池町4-60-7', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
-                { name: '名鉄グランドホテル', address: '愛知県名古屋市中村区名駅1-2-4', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
-                { name: '三井ガーデンホテル名古屋', address: '愛知県名古屋市中村区名駅4-11-27', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
-            ],
-            '静岡': [
-                { name: 'ホテルアソシア静岡', address: '静岡県静岡市葵区黒金町56', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
-                { name: '日本平ホテル', address: '静岡県静岡市清水区馬走1500-2', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
-                { name: '静鉄ホテルプレジオ', address: '静岡県静岡市葵区御幸町11-6', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
-                { name: 'ホテルオーレ', address: '静岡県藤枝市前島1-3-1', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
-                { name: '中島屋グランドホテル', address: '静岡県静岡市葵区紺屋町3-10', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
-                { name: 'ホテルグランヒルズ静岡', address: '静岡県静岡市駿河区南町18-1', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
-                { name: '藤枝パークインホテル', address: '静岡県藤枝市駅前2-12-16', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
-                { name: 'スマイルホテル静岡', address: '静岡県静岡市葵区伝馬町23-5', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
-            ],
-            '広島': [
-                { name: 'リーガロイヤルホテル広島', address: '広島県広島市中区基町6-78', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' },
-                { name: 'ホテルグランヴィア広島', address: '広島県広島市南区松原町1-5', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80' },
-                { name: 'シェラトングランドホテル広島', address: '広島県広島市東区若草町12-1', img: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&q=80' },
-                { name: 'ANAクラウンプラザホテル広島', address: '広島県広島市中区中町7-20', img: 'https://images.unsplash.com/photo-1551882547-ff40c0d12462?w=500&q=80' },
-                { name: 'グランドプリンスホテル広島', address: '広島県広島市南区元宇品町23-1', img: 'https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?w=500&q=80' },
-                { name: 'ひろしま国際ホテル', address: '広島県広島市中区立町3-13', img: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=500&q=80' },
-                { name: 'ホテルインターゲート広島', address: '広島県広島市中区鉄砲町5-16', img: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=500&q=80' },
-                { name: 'オリエンタルホテル広島', address: '広島県広島市中区田中町6-10', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&q=80' }
-            ],
-            'デフォルト': [
-                { name: '駅前ホテル', address: '中心部の駅前', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80' }
-            ]
-        };
+
 
         function selectCity(city, element) {
             selectedRegion = city;
@@ -477,32 +398,84 @@
 
         function renderHotelGrid() {
             const grid = document.getElementById('hotel-grid');
-            grid.innerHTML = '';
+            if (!grid) return;
+            
+            grid.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-danger" role="status"></div>
+                    <p class="mt-2 text-muted">「${selectedRegion}」周辺の宿泊施設を検索中です...</p>
+                </div>
+            `;
 
-            const hotels = regionHotels[selectedRegion] || regionHotels['デフォルト'];
+            fetch(`/api/hotels/search?city=${encodeURIComponent(selectedRegion)}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    grid.innerHTML = '';
+                    
+                    if (data.error || !data.data || !data.data.hotels || data.data.hotels.length === 0) {
+                        const errorMsg = data.error || "宿泊施設情報を取得できませんでした。";
+                        grid.innerHTML = `<div class="col-11 text-center py-4 alert alert-warning mx-auto">${errorMsg}<br>別の都市を選択するか、直接入力してください。</div>`;
+                        return;
+                    }
 
-            hotels.forEach(hotel => {
-                const col = document.createElement('div');
-                col.className = 'col-6 col-md-3';
-                col.innerHTML = `
-                    <div class="card city-card" onclick="selectHotel('${hotel.name}', '${hotel.address}', this)">
-                        <img src="${hotel.img}" class="card-img-top" alt="${hotel.name}" style="height: 100px;">
-                        <div class="card-body p-2 text-center">
-                            <h6 class="mb-1" style="font-size: 0.9rem;">${hotel.name}</h6>
-                            <small class="text-muted d-block text-truncate">${hotel.address}</small>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(col);
-            });
+                    const hotels = data.data.hotels.slice(0, 8); // 최대 8개 표시
+
+                    hotels.forEach(hotel => {
+                        const prop = hotel.property;
+                        if (!prop) return;
+
+                        let hotelName = prop.name || "宿泊施設";
+                        const photoUrl = (prop.photoUrls && prop.photoUrls.length > 0) ? prop.photoUrls[0] : 'https://placehold.co/300x200/e9ecef/6c757d?text=No+Image';
+                        const address = prop.wishlistName || selectedRegion;
+                        // 상세 주소 및 언어 (API에서 제공하는 경우)
+                        const fullAddress = prop.address || prop.wishlistName || "住所情報なし";
+                        const languages = (hotel.languages && hotel.languages.length > 0) ? hotel.languages.join(', ') : "日本語、英語など";
+                        
+                        // 추가 정보 추출
+                        const rating = prop.reviewScore || "なし";
+                        const reviews = prop.reviewCount || "0";
+                        const price = (prop.priceBreakdown && prop.priceBreakdown.grossAmount) ? 
+                                      Math.round(prop.priceBreakdown.grossAmount.value).toLocaleString() + "円" : "情報なし";
+
+                        const col = document.createElement('div');
+                        col.className = 'col-6 col-md-3';
+                        col.innerHTML = `
+                            <div class="card city-card" onclick="selectHotel('${hotelName.replace(/'/g, "\\'")}', '${address.replace(/'/g, "\\'")}', this, '${rating}', '${reviews}', '${price}', '${fullAddress.replace(/'/g, "\\'")}', '${languages.replace(/'/g, "\\'")}')">
+                                <img src="${photoUrl}" class="card-img-top" alt="${hotelName}" style="height: 100px; object-fit: cover;">
+                                <div class="card-body p-2 text-center">
+                                    <h6 class="mb-1 text-truncate" style="font-size: 0.9rem;" title="${hotelName}">${hotelName}</h6>
+                                    <div class="small text-warning mb-1">
+                                        <i class="bi bi-star-fill"></i> ${rating}
+                                    </div>
+                                    <small class="text-muted d-block text-truncate">${address}</small>
+                                </div>
+                            </div>
+                        `;
+                        grid.appendChild(col);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching hotels:', error);
+                    grid.innerHTML = `<div class="col-12 text-center py-4 alert alert-danger">通信エラーが発生しました。 (${error.message})</div>`;
+                });
         }
 
-        function selectHotel(name, address, element) {
+        function selectHotel(name, address, element, rating = "-", reviews = "-", price = "-", fullAddress = "-", languages = "-") {
             document.getElementById('hotel-name-input').value = name;
-            document.getElementById('hotel-address-input').value = address;
+            document.getElementById('hotel-address-input').value = fullAddress !== "-" ? fullAddress : address;
 
             document.getElementById('display-hotel-name').innerText = name;
-            document.getElementById('display-hotel-address').innerText = address;
+            document.getElementById('display-hotel-address-full').innerText = fullAddress !== "-" ? fullAddress : address;
+            
+            // 상세 정보 표시
+            document.getElementById('display-hotel-rating').innerHTML = `<i class="bi bi-star-fill text-warning me-1"></i>評価: ${rating}`;
+            document.getElementById('display-hotel-reviews').innerHTML = `<i class="bi bi-chat-left-text me-1"></i>口コミ: ${reviews}`;
+            document.getElementById('display-hotel-price').innerHTML = `<i class="bi bi-currency-yen me-1"></i>価格帯: ${price}`;
+            document.getElementById('display-hotel-languages').innerHTML = `<i class="bi bi-translate me-1"></i>対応言語: ${languages}`;
+            
             document.getElementById('selected-hotel-info').classList.add('active');
 
             // Highlight selected
