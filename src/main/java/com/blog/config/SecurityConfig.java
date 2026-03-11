@@ -26,6 +26,9 @@ public class SecurityConfig {
                         .requestMatchers("/", "/user/**", "/place/list", "/place/detail",
                                 "/planner/form", "/planner/generate",
                                 "/board/list", "/board/detail",
+                                "/trip/hotels", "/hotel-search-page", "/api/hotels/**",
+                                "/trip/flights", "/search-page", "/api/flights/**",
+                                "/planner/save", "/planner/update",
                                 "/css/**", "/js/**", "/images/**", "/upload/**", "/favicon.ico")
                         .permitAll()
                         // 2. 관리자 전용 경로
