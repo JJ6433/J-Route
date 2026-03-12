@@ -41,4 +41,9 @@ public class ReservationService {
     public List<ReservationDto> getAllReservationsForAdmin() {
         return reservationMapper.findAllWithUser();
     }
+
+    // 주문 번호(orderId)로 특정 예약 상세 정보 가져오기
+    public ReservationDto getReservationByOrderId(String orderId) {
+        return reservationMapper.findByOrderId(orderId);
+    }
 }

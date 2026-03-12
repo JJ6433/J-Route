@@ -17,4 +17,7 @@ public interface ReservationMapper {
 
     // 관리자용: 모든 예약 내역 조회 (닉네임 포함)
     List<ReservationDto> findAllWithUser();
+
+    // 주문번호(orderId)로 특정 예약 조회
+    ReservationDto findByOrderId(String orderId);
 }

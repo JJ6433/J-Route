@@ -26,4 +26,8 @@
         ORDER BY r.created_at DESC
     </select>
 	
+    <select id="findByOrderId" parameterType="string" resultType="com.blog.dto.ReservationDto">
+        SELECT * FROM reservation WHERE order_id = #{orderId}
+    </select>
+	
 </mapper>
