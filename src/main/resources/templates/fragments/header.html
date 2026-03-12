@@ -19,7 +19,8 @@
                 </ul>
                 <ul class="navbar-nav align-items-center">
                     <li class="nav-item" sec:authorize="isAnonymous()">
-                        <a class="nav-link jroute-btn-login btn btn-sm" th:href="@{/user/login}">ログイン</a>
+                        <a class="nav-link jroute-btn-login btn btn-sm" th:href="@{/user/login}"
+                            style="color: black !important;">ログイン</a>
                     </li>
                     <li class="nav-item" sec:authorize="isAnonymous()">
                         <a class="nav-link" th:href="@{/user/signup}">会員登録</a>
