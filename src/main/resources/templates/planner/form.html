@@ -2,6 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{fragments/head :: headFragment}"></head>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const loginRequired = /*[[${loginRequired}]]*/ false;
+    if (loginRequired) {
+        alert("AI旅行プランナーをご利用いただくにはログインが必要です。ログイン画面へ移動します。");
+        window.location.href = "/user/login";
+    }
+    /*]]>*/
+</script>
 
 <!-- Add custom styles for the Wizard -->
 <style>
@@ -109,6 +118,36 @@
     .hotel-info-card.active {
         display: block;
         border-color: #ff4d4f;
+    }
+
+    /* AI Insight Box Styles */
+    .ai-insight-box {
+        background: #f0f7ff;
+        border-left: 4px solid #007bff;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    .ai-insight-box i {
+        color: #007bff;
+        margin-right: 0.5rem;
+    }
+
+    .ai-dynamic-notice {
+        display: none;
+        background: #fffbe6;
+        border-left-color: #faad14;
+    }
+
+    .ai-dynamic-notice.active {
+        display: block;
+    }
+
+    .ai-dynamic-notice i {
+        color: #faad14;
     }
 </style>
 
@@ -235,12 +274,17 @@
                             <div class="flex-grow-1">
                                 <h6 class="mb-1 fw-bold" id="display-hotel-name">宿泊施設名</h6>
                                 <div class="d-flex flex-wrap gap-x-4 gap-y-1 small mt-1 mb-2">
-                                    <span id="display-hotel-rating" class="text-secondary"><i class="bi bi-star-fill text-warning me-1"></i>評価: -</span>
-                                    <span id="display-hotel-reviews" class="text-secondary"><i class="bi bi-chat-left-text me-1"></i>口コミ: -</span>
-                                    <span id="display-hotel-price" class="text-danger fw-bold"><i class="bi bi-currency-yen me-1"></i>価格帯: -</span>
-                                    <span id="display-hotel-languages" class="text-secondary"><i class="bi bi-translate me-1"></i>対応言語: -</span>
+                                    <span id="display-hotel-rating" class="text-secondary"><i
+                                            class="bi bi-star-fill text-warning me-1"></i>評価: -</span>
+                                    <span id="display-hotel-reviews" class="text-secondary"><i
+                                            class="bi bi-chat-left-text me-1"></i>口コミ: -</span>
+                                    <span id="display-hotel-price" class="text-danger fw-bold"><i
+                                            class="bi bi-currency-yen me-1"></i>価格帯: -</span>
+                                    <span id="display-hotel-languages" class="text-secondary"><i
+                                            class="bi bi-translate me-1"></i>対応言語: -</span>
                                 </div>
-                                <p class="mb-0 text-muted small"><i class="bi bi-geo-alt-fill me-1"></i><span id="display-hotel-address-full">住所情報なし</span></p>
+                                <p class="mb-0 text-muted small"><i class="bi bi-geo-alt-fill me-1"></i><span
+                                        id="display-hotel-address-full">住所情報なし</span></p>
                             </div>
                             <span class="badge bg-success ms-3">選択済み</span>
                         </div>
@@ -313,6 +357,19 @@
                                         <option value="一人旅">一人旅</option>
                                     </select>
                                 </div>
+
+                                <!-- AI Insights / Notices -->
+                                <div class="mb-3">
+                                    <div class="ai-insight-box">
+                                        <i class="bi bi-info-circle-fill"></i>
+                                        <span>🏠 宿泊先を拠点とし、各日程の開始と終了が宿泊施設となるよう最適化されます。</span>
+                                    </div>
+                                    <div id="long-trip-notice" class="ai-insight-box ai-dynamic-notice">
+                                        <i class="bi bi-lightbulb-fill"></i>
+                                        <span>💡 5日以上の旅行スケジュールですね！周辺都市（京都、神戸、奈良など）への日帰りプランも考慮して作成します。</span>
+                                    </div>
+                                </div>
+
                                 <button type="submit" class="btn jroute-btn-primary w-100 py-3 fw-bold">
                                     AI旅行プランナーを起動する <i class="bi bi-lightning-fill"></i>
                                 </button>
@@ -399,7 +456,7 @@
         function renderHotelGrid() {
             const grid = document.getElementById('hotel-grid');
             if (!grid) return;
-            
+
             grid.innerHTML = `
                 <div class="col-12 text-center py-5">
                     <div class="spinner-border text-danger" role="status"></div>
@@ -414,7 +471,7 @@
                 })
                 .then(data => {
                     grid.innerHTML = '';
-                    
+
                     if (data.error || !data.data || !data.data.hotels || data.data.hotels.length === 0) {
                         const errorMsg = data.error || "宿泊施設情報を取得できませんでした。";
                         grid.innerHTML = `<div class="col-11 text-center py-4 alert alert-warning mx-auto">${errorMsg}<br>別の都市を選択するか、直接入力してください。</div>`;
@@ -433,12 +490,12 @@
                         // 상세 주소 및 언어 (API에서 제공하는 경우)
                         const fullAddress = prop.address || prop.wishlistName || "住所情報なし";
                         const languages = (hotel.languages && hotel.languages.length > 0) ? hotel.languages.join(', ') : "日本語、英語など";
-                        
+
                         // 추가 정보 추출
                         const rating = prop.reviewScore || "なし";
                         const reviews = prop.reviewCount || "0";
-                        const price = (prop.priceBreakdown && prop.priceBreakdown.grossAmount) ? 
-                                      Math.round(prop.priceBreakdown.grossAmount.value).toLocaleString() + "円" : "情報なし";
+                        const price = (prop.priceBreakdown && prop.priceBreakdown.grossAmount) ?
+                            Math.round(prop.priceBreakdown.grossAmount.value).toLocaleString() + "円" : "情報なし";
 
                         const col = document.createElement('div');
                         col.className = 'col-6 col-md-3';
@@ -469,13 +526,13 @@
 
             document.getElementById('display-hotel-name').innerText = name;
             document.getElementById('display-hotel-address-full').innerText = fullAddress !== "-" ? fullAddress : address;
-            
+
             // 상세 정보 표시
             document.getElementById('display-hotel-rating').innerHTML = `<i class="bi bi-star-fill text-warning me-1"></i>評価: ${rating}`;
             document.getElementById('display-hotel-reviews').innerHTML = `<i class="bi bi-chat-left-text me-1"></i>口コミ: ${reviews}`;
             document.getElementById('display-hotel-price').innerHTML = `<i class="bi bi-currency-yen me-1"></i>価格帯: ${price}`;
             document.getElementById('display-hotel-languages').innerHTML = `<i class="bi bi-translate me-1"></i>対応言語: ${languages}`;
-            
+
             document.getElementById('selected-hotel-info').classList.add('active');
 
             // Highlight selected
@@ -516,6 +573,28 @@
 
         document.getElementById('startDate').valueAsDate = nextWeek;
         document.getElementById('endDate').valueAsDate = dayAfter;
+
+        // Logic to toggle AI dynamic notice
+        function checkDuration() {
+            const start = new Date(document.getElementById('startDate').value);
+            const end = new Date(document.getElementById('endDate').value);
+            if (start && end && !isNaN(start) && !isNaN(end)) {
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                const notice = document.getElementById('long-trip-notice');
+                if (diffDays >= 5) {
+                    notice.classList.add('active');
+                } else {
+                    notice.classList.remove('active');
+                }
+            }
+        }
+
+        document.getElementById('startDate').addEventListener('change', checkDuration);
+        document.getElementById('endDate').addEventListener('change', checkDuration);
+
+        // Initial check
+        checkDuration();
     </script>
 </body>
 

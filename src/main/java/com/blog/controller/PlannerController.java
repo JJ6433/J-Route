@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -35,7 +37,10 @@ public class PlannerController {
 	}
 
 	@GetMapping("/form")
-	public String showForm(Model model) {
+	public String showForm(Model model, Authentication authentication) {
+		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+			model.addAttribute("loginRequired", true);
+		}
 		model.addAttribute("apiKey", googleMapsApiKey);
 		return "planner/form";
 	}
