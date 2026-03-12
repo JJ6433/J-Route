@@ -52,8 +52,8 @@ body {
 
 .jroute-btn-login {
   background: var(--jroute-red) !important;
-  color: var(--jroute-white) !important;
-  border: none;
+  color: #000 !important;
+  border: none !important;
   border-radius: var(--jroute-radius);
   padding: 8px 20px;
   font-weight: 500;
@@ -61,7 +61,7 @@ body {
 
 .jroute-btn-login:hover {
   background: var(--jroute-red-hover) !important;
-  color: var(--jroute-white) !important;
+  color: #000 !important;
 }
 
 /* ========== Hero Banner (후지산·벚꽃 분위기, 빨간 강조 텍스트) ========== */
