@@ -7,57 +7,77 @@
     <header th:replace="~{fragments/header :: headerFragment}"></header>
     <main class="container mt-5 mb-5 flex-grow-1" style="max-width: 1000px;">
         <div class="d-flex align-items-center mb-4">
-            <a th:href="@{/mypage}" class="btn btn-outline-secondary rounded-circle me-3" style="width: 40px; height: 40px; padding: 7px;"><i class="bi bi-arrow-left"></i></a>
+            <a th:href="@{/mypage}" class="btn btn-outline-secondary rounded-circle me-3"
+                style="width: 40px; height: 40px; padding: 7px;"><i class="bi bi-arrow-left"></i></a>
             <h2 class="fw-bold mb-0"><i class="bi bi-heart-fill text-danger me-2"></i>ブックマーク</h2>
         </div>
 
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
             <div class="card-body p-0">
-                
+
                 <ul class="nav nav-tabs nav-fill bg-white border-bottom-0 pt-3 px-3" id="wishlistTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active fw-bold py-3" id="hotel-tab" data-bs-toggle="tab" data-bs-target="#hotel" type="button" role="tab"><i class="bi bi-building me-1"></i> 宿泊</button>
+                        <button class="nav-link active fw-bold py-3" id="hotel-tab" data-bs-toggle="tab"
+                            data-bs-target="#hotel" type="button" role="tab"><i class="bi bi-building me-1"></i>
+                            宿泊</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold py-3" id="flight-tab" data-bs-toggle="tab" data-bs-target="#flight" type="button" role="tab"><i class="bi bi-airplane me-1"></i> 航空券</button>
+                        <button class="nav-link fw-bold py-3" id="flight-tab" data-bs-toggle="tab"
+                            data-bs-target="#flight" type="button" role="tab"><i class="bi bi-airplane me-1"></i>
+                            航空券</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold py-3" id="place-tab" data-bs-toggle="tab" data-bs-target="#place" type="button" role="tab"><i class="bi bi-geo-alt me-1"></i> 旅行先</button>
+                        <button class="nav-link fw-bold py-3" id="place-tab" data-bs-toggle="tab"
+                            data-bs-target="#place" type="button" role="tab"><i class="bi bi-geo-alt me-1"></i>
+                            旅行先</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold py-3" id="gourmet-tab" data-bs-toggle="tab"
+                            data-bs-target="#gourmet" type="button" role="tab"><i class="bi bi-shop me-1"></i>
+                            グルメ</button>
                     </li>
                 </ul>
 
                 <div class="tab-content p-4 p-md-5 bg-white" id="wishlistTabsContent">
-                    
+
                     <div class="tab-pane fade show active" id="hotel" role="tabpanel">
-                        <div class="d-flex justify-content-between align-items-center mb-4" th:if="${!#lists.isEmpty(wishlists.?[category == 'HOTEL'])}">
+                        <div class="d-flex justify-content-between align-items-center mb-4"
+                            th:if="${!#lists.isEmpty(wishlists.?[category == 'HOTEL'])}">
                             <h5 class="fw-bold mb-0 text-dark">保存した宿泊先</h5>
                             <a href="/trip/hotels" class="btn btn-sm btn-outline-primary rounded-pill px-3">
                                 <i class="bi bi-search me-1"></i> 宿泊先を探す
                             </a>
                         </div>
 
-                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" 
-                             th:if="${!#lists.isEmpty(wishlists.?[category == 'HOTEL'])}">
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"
+                            th:if="${!#lists.isEmpty(wishlists.?[category == 'HOTEL'])}">
                             <div class="col" th:each="wish : ${wishlists}" th:if="${wish.category == 'HOTEL'}">
-                                <div class="card h-100 border border-light shadow-sm rounded-4 overflow-hidden position-relative transition-hover">
+                                <div
+                                    class="card h-100 border border-light shadow-sm rounded-4 overflow-hidden position-relative transition-hover">
                                     <img th:src="${wish.imageUrl != null ? wish.imageUrl : 'https://via.placeholder.com/400x250?text=No+Image'}"
-                                        class="card-img-top" th:alt="${wish.placeName}" style="height: 180px; object-fit: cover;">
+                                        class="card-img-top" th:alt="${wish.placeName}"
+                                        style="height: 180px; object-fit: cover;">
                                     <div class="card-body">
                                         <div class="mb-2 text-primary small fw-bold">
                                             <i class="bi bi-building me-1"></i> HOTEL
                                         </div>
-                                        <h5 class="card-title fw-bold text-truncate" th:text="${wish.placeName}">場所名</h5>
+                                        <h5 class="card-title fw-bold text-truncate" th:text="${wish.placeName}">場所名
+                                        </h5>
                                         <p class="small text-muted mb-0">
-                                            <i class="bi bi-clock me-1"></i> <span th:text="${#temporals.format(wish.createdAt, 'yyyy/MM/dd')}"></span> に保存
+                                            <i class="bi bi-clock me-1"></i> <span
+                                                th:text="${#temporals.format(wish.createdAt, 'yyyy/MM/dd')}"></span> に保存
                                         </p>
                                     </div>
                                     <div class="card-footer bg-white border-0 pb-3 p-3 pt-0">
                                         <div class="d-grid gap-2">
-                                            <a th:href="${wish.apiId != null and #strings.startsWith(wish.apiId, '/') ? wish.apiId + '&name=' + #uris.escapeQueryParam(wish.placeName) + '&photoUrl=' + #uris.escapeQueryParam(wish.imageUrl) : '/hotel/detail?id=' + wish.apiId}" class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
+                                            <a th:href="${wish.apiId != null and #strings.startsWith(wish.apiId, '/') ? wish.apiId + '&name=' + #uris.escapeQueryParam(wish.placeName) + '&photoUrl=' + #uris.escapeQueryParam(wish.imageUrl) : '/hotel/detail?id=' + wish.apiId}"
+                                                class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
                                                 詳細を見る <i class="bi bi-chevron-right small"></i>
                                             </a>
-                                            <button type="button" class="btn btn-link text-danger btn-sm w-100 text-decoration-none"
-                                                    th:data-api-id="${wish.apiId}" th:data-category="${wish.category}" onclick="removeWishlistItem(this)">
+                                            <button type="button"
+                                                class="btn btn-link text-danger btn-sm w-100 text-decoration-none"
+                                                th:data-api-id="${wish.apiId}" th:data-category="${wish.category}"
+                                                onclick="removeWishlistItem(this)">
                                                 削除 <i class="bi bi-trash small"></i>
                                             </button>
                                         </div>
@@ -73,33 +93,40 @@
                     </div>
 
                     <div class="tab-pane fade" id="flight" role="tabpanel">
-                        <div class="d-flex justify-content-between align-items-center mb-4" th:if="${!#lists.isEmpty(wishlists.?[category == 'FLIGHT'])}">
+                        <div class="d-flex justify-content-between align-items-center mb-4"
+                            th:if="${!#lists.isEmpty(wishlists.?[category == 'FLIGHT'])}">
                             <h5 class="fw-bold mb-0 text-dark">保存した航空券</h5>
                             <a href="/trip/flights" class="btn btn-sm btn-outline-primary rounded-pill px-3">
                                 <i class="bi bi-search me-1"></i> 航空券を探す
                             </a>
                         </div>
 
-                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" 
-                             th:if="${!#lists.isEmpty(wishlists.?[category == 'FLIGHT'])}">
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"
+                            th:if="${!#lists.isEmpty(wishlists.?[category == 'FLIGHT'])}">
                             <div class="col" th:each="wish : ${wishlists}" th:if="${wish.category == 'FLIGHT'}">
-                                <div class="card h-100 border border-light shadow-sm rounded-4 overflow-hidden position-relative transition-hover">
+                                <div
+                                    class="card h-100 border border-light shadow-sm rounded-4 overflow-hidden position-relative transition-hover">
                                     <div class="card-body p-4">
                                         <div class="mb-2 text-info small fw-bold">
                                             <i class="bi bi-airplane me-1"></i> FLIGHT
                                         </div>
-                                        <h5 class="card-title fw-bold text-truncate" th:text="${wish.placeName}">航空券</h5>
+                                        <h5 class="card-title fw-bold text-truncate" th:text="${wish.placeName}">航空券
+                                        </h5>
                                         <p class="small text-muted mb-0">
-                                            <i class="bi bi-clock me-1"></i> <span th:text="${#temporals.format(wish.createdAt, 'yyyy/MM/dd')}"></span> に保存
+                                            <i class="bi bi-clock me-1"></i> <span
+                                                th:text="${#temporals.format(wish.createdAt, 'yyyy/MM/dd')}"></span> に保存
                                         </p>
                                     </div>
                                     <div class="card-footer bg-white border-0 pb-3 p-3 pt-0">
                                         <div class="d-grid gap-2">
-                                            <a th:href="${wish.apiId != null and #strings.startsWith(wish.apiId, '/') ? wish.apiId + '&itemName=' + #uris.escapeQueryParam(wish.placeName) : '/trip/flights'}" class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
+                                            <a th:href="${wish.apiId != null and #strings.startsWith(wish.apiId, '/') ? wish.apiId + '&itemName=' + #uris.escapeQueryParam(wish.placeName) : '/trip/flights'}"
+                                                class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
                                                 詳細・決済へ進む <i class="bi bi-chevron-right small"></i>
                                             </a>
-                                            <button type="button" class="btn btn-link text-danger btn-sm w-100 text-decoration-none"
-                                                    th:data-api-id="${wish.apiId}" th:data-category="${wish.category}" onclick="removeWishlistItem(this)">
+                                            <button type="button"
+                                                class="btn btn-link text-danger btn-sm w-100 text-decoration-none"
+                                                th:data-api-id="${wish.apiId}" th:data-category="${wish.category}"
+                                                onclick="removeWishlistItem(this)">
                                                 削除 <i class="bi bi-trash small"></i>
                                             </button>
                                         </div>
@@ -108,45 +135,55 @@
                             </div>
                         </div>
                         <div class="text-center py-5" th:if="${#lists.isEmpty(wishlists.?[category == 'FLIGHT'])}">
-                            <div class="display-1 text-muted opacity-25 mb-3"><i class="bi bi-airplane-engines"></i></div>
+                            <div class="display-1 text-muted opacity-25 mb-3"><i class="bi bi-airplane-engines"></i>
+                            </div>
                             <h5 class="fw-bold text-secondary">保存された航空券がありません。</h5>
                             <a href="/trip/flights" class="btn btn-primary rounded-pill px-4 mt-3 shadow-sm">航空券を探す</a>
                         </div>
                     </div>
 
                     <div class="tab-pane fade" id="place" role="tabpanel">
-                        <div class="d-flex justify-content-between align-items-center mb-4" th:if="${!#lists.isEmpty(wishlists.?[category == 'PLACE'])}">
+                        <div class="d-flex justify-content-between align-items-center mb-4"
+                            th:if="${!#lists.isEmpty(wishlists.?[category == 'PLACE'])}">
                             <h5 class="fw-bold mb-0 text-dark">保存した旅行先</h5>
                             <a th:href="@{/}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
                                 <i class="bi bi-search me-1"></i> 旅行先を探す
                             </a>
                         </div>
 
-                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" 
-                             th:if="${!#lists.isEmpty(wishlists.?[category == 'PLACE'])}">
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"
+                            th:if="${!#lists.isEmpty(wishlists.?[category == 'PLACE'])}">
                             <div class="col" th:each="wish : ${wishlists}" th:if="${wish.category == 'PLACE'}">
-                                <div class="card h-100 border border-light shadow-sm rounded-4 overflow-hidden position-relative transition-hover">
+                                <div
+                                    class="card h-100 border border-light shadow-sm rounded-4 overflow-hidden position-relative transition-hover">
                                     <img th:src="${wish.imageUrl != null ? wish.imageUrl : 'https://via.placeholder.com/400x250?text=No+Image'}"
-                                        class="card-img-top" th:alt="${wish.placeName}" style="height: 180px; object-fit: cover;">
+                                        class="card-img-top" th:alt="${wish.placeName}"
+                                        style="height: 180px; object-fit: cover;">
                                     <div class="card-body">
                                         <div class="mb-2">
-                                            <span class="badge bg-secondary opacity-75" th:text="${wish.placeRegion}">地域</span>
-                                            <span class="badge bg-light text-dark border" th:text="${wish.placeCategory}">カテゴリ</span>
+                                            <span class="badge bg-secondary opacity-75"
+                                                th:text="${wish.placeRegion}">地域</span>
+                                            <span class="badge bg-light text-dark border"
+                                                th:text="${wish.placeCategory}">カテゴリ</span>
                                         </div>
-                                        <h5 class="card-title fw-bold text-truncate" th:text="${wish.placeName}">場所名</h5>
+                                        <h5 class="card-title fw-bold text-truncate" th:text="${wish.placeName}">場所名
+                                        </h5>
                                         <p class="small text-muted mb-0">
-                                            <i class="bi bi-clock me-1"></i> <span th:text="${#temporals.format(wish.createdAt, 'yyyy/MM/dd')}"></span> に保存
+                                            <i class="bi bi-clock me-1"></i> <span
+                                                th:text="${#temporals.format(wish.createdAt, 'yyyy/MM/dd')}"></span> に保存
                                         </p>
                                     </div>
                                     <div class="card-footer bg-white border-0 pb-3 p-3 pt-0">
                                         <div class="d-grid gap-2">
-                                            <a th:href="@{/place/detail(id=${wish.placeId})}" class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
+                                            <a th:href="@{/place/detail(id=${wish.placeId})}"
+                                                class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
                                                 詳細を見る <i class="bi bi-chevron-right small"></i>
                                             </a>
                                             <form th:action="@{/wishlist/toggle}" method="post">
                                                 <input type="hidden" name="placeId" th:value="${wish.placeId}">
                                                 <input type="hidden" name="redirect" value="/wishlist/list">
-                                                <button type="submit" class="btn btn-link text-danger btn-sm w-100 text-decoration-none">
+                                                <button type="submit"
+                                                    class="btn btn-link text-danger btn-sm w-100 text-decoration-none">
                                                     削除 <i class="bi bi-trash small"></i>
                                                 </button>
                                             </form>
@@ -163,7 +200,64 @@
                             <a th:href="@{/}" class="btn btn-primary rounded-pill px-4 shadow-sm">旅行先を探す</a>
                         </div>
                     </div>
-                    
+
+                    <!-- Gourmet Wishlist Tab -->
+                    <div class="tab-pane fade" id="gourmet" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-4"
+                            th:if="${!#lists.isEmpty(wishlists.?[category == 'GOURMET'])}">
+                            <h5 class="fw-bold mb-0 text-dark">保存したグルメスポット</h5>
+                            <a th:href="@{/trip/gourmet}" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                <i class="bi bi-search me-1"></i> グルメエリア検索
+                            </a>
+                        </div>
+
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"
+                            th:if="${!#lists.isEmpty(wishlists.?[category == 'GOURMET'])}">
+                            <div class="col" th:each="wish : ${wishlists}" th:if="${wish.category == 'GOURMET'}">
+                                <div
+                                    class="card h-100 border border-light shadow-sm rounded-4 overflow-hidden position-relative transition-hover">
+                                    <img th:src="${wish.imageUrl != null ? wish.imageUrl : 'https://via.placeholder.com/400x250?text=No+Photo'}"
+                                        class="card-img-top" th:alt="${wish.placeName}"
+                                        style="height: 180px; object-fit: cover;">
+                                    <div class="card-body">
+                                        <div class="mb-2 text-danger small fw-bold">
+                                            <i class="bi bi-shop me-1"></i> GOURMET
+                                        </div>
+                                        <h5 class="card-title fw-bold text-truncate" th:text="${wish.placeName}">場所名
+                                        </h5>
+                                        <p class="small text-muted mb-0">
+                                            <i class="bi bi-clock me-1"></i> <span
+                                                th:text="${#temporals.format(wish.createdAt, 'yyyy/MM/dd')}"></span> に保存
+                                        </p>
+                                    </div>
+                                    <div class="card-footer bg-white border-0 pb-3 p-3 pt-0">
+                                        <div class="d-grid gap-2">
+                                            <a th:href="'https://www.google.com/maps/search/?api=1&query=' + ${#uris.escapeQueryParam(wish.placeName)} + '&query_place_id=' + ${wish.apiId}"
+                                                target="_blank"
+                                                class="btn btn-outline-danger btn-sm rounded-pill fw-bold">
+                                                詳細を見る <i class="bi bi-chevron-right small"></i>
+                                            </a>
+                                            <button type="button"
+                                                class="btn btn-link text-danger btn-sm w-100 text-decoration-none"
+                                                th:data-api-id="${wish.apiId}" th:data-category="${wish.category}"
+                                                onclick="removeWishlistItem(this)">
+                                                削除 <i class="bi bi-trash small"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center py-5" th:if="${#lists.isEmpty(wishlists.?[category == 'GOURMET'])}">
+                            <div class="display-1 text-muted opacity-25 mb-3"><i class="bi bi-shop"></i></div>
+                            <h5 class="text-muted fw-bold">保存されたグルメスポットがありません。</h5>
+                            <p class="text-muted mb-4">気になるお店を見つけて保存してみましょう！</p>
+                            <a th:href="@{/trip/gourmet}"
+                                class="btn btn-danger rounded-pill px-4 shadow-sm">グルメ・カフェを探す</a>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -175,37 +269,58 @@
             const apiId = btn.getAttribute('data-api-id');
             const category = btn.getAttribute('data-category');
 
-            if(!confirm('本当に削除しますか？ ')) return;
+            if (!confirm('本当に削除しますか？ ')) return;
 
             fetch('/api/wishlist/toggle', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ apiId: apiId, category: category })
             })
-            .then(res => {
-                if(!res.ok) throw new Error('Network error');
-                return res.json();
-            })
-            .then(data => {
-                if (data.status === 'unauthorized') {
-                    window.location.href = '/user/login';
-                } else {
-                    window.location.reload();
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('削除中にエラーが発生しました。');
-            });
+                .then(res => {
+                    if (!res.ok) throw new Error('Network error');
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.status === 'unauthorized') {
+                        window.location.href = '/user/login';
+                    } else {
+                        window.location.reload();
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('削除中にエラーが発生しました。');
+                });
         }
     </script>
 
     <style>
-        .nav-tabs .nav-link { color: #6c757d; border: none; border-bottom: 3px solid transparent; }
-        .nav-tabs .nav-link.active { color: #003580; background-color: transparent; border-color: transparent transparent #003580 transparent; }
-        .nav-tabs .nav-link:hover:not(.active) { border-color: transparent transparent #e9ecef transparent; }
-        .transition-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .transition-hover:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .1) !important; border-color: #003580 !important; }
+        .nav-tabs .nav-link {
+            color: #6c757d;
+            border: none;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #003580;
+            background-color: transparent;
+            border-color: transparent transparent #003580 transparent;
+        }
+
+        .nav-tabs .nav-link:hover:not(.active) {
+            border-color: transparent transparent #e9ecef transparent;
+        }
+
+        .transition-hover {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .transition-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .1) !important;
+            border-color: #003580 !important;
+        }
     </style>
 </body>
+
 </html>
