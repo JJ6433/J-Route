@@ -3,8 +3,10 @@
 <mapper namespace="com.blog.mapper.ReservationMapper">
 
     <insert id="insertReservation" parameterType="com.blog.dto.ReservationDto">
-        INSERT INTO reservation (order_id, user_id, item_name, category, amount, status)
-        VALUES (#{orderId}, #{userId}, #{itemName}, #{category}, #{amount}, #{status})
+        INSERT INTO reservation 
+        (order_id, user_id, item_name, category, amount, status, image_url, check_in, check_out, address, details)
+        VALUES 
+        (#{orderId}, #{userId}, #{itemName}, #{category}, #{amount}, #{status}, #{imageUrl}, #{checkIn}, #{checkOut}, #{address}, #{details})
     </insert>
 	
 	<select id="countReservationsByUserId" parameterType="long" resultType="int">

@@ -57,10 +57,20 @@
                         </h2>
                     </div>
                     
-                    <a th:href="@{/checkout(itemName=${hotelName}, price=${price}, checkin=${checkinDate}, adults=${adults}, category='HOTEL')}" 
-                       class="btn btn-primary rounded-pill px-5 py-3 fw-bold shadow-sm" style="font-size: 1.1rem;">
-                        予約・決済へ進む <i class="bi bi-credit-card ms-2"></i>
-                    </a>
+                    <a th:href="@{/checkout(
+					        itemName=${hotelName}, 
+					        price=${price}, 
+					        checkin=|${checkinDate} 15:00|,  
+					        adults=${adults}, 
+					        category='HOTEL',
+					        imageUrl=${photoUrl},
+					        checkOut=|${checkoutDate} 11:00|, 
+					        address=${hotelName},               
+					        details=|大人 ${adults}名 / スタンダード ダブル|
+					    )}" 
+					   class="btn btn-primary rounded-pill px-5 py-3 fw-bold shadow-sm" style="font-size: 1.1rem;">
+					    予約・決済へ進む <i class="bi bi-credit-card ms-2"></i>
+					</a>
                 </div>
             </div>
         </div>

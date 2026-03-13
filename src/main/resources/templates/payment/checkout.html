@@ -71,7 +71,7 @@
                         </div>
                         <div class="ticket-footer bg-light px-4 py-3 d-flex justify-content-between text-muted small">
                             <span><i class="bi bi-person-check me-1"></i> 搭乗者: <span th:text="${adults} + '名'">1名</span></span>
-                            <span>エコノ미ークラス</span>
+                            <span>エコノミークラス</span>
                         </div>
                     </div>
                 </div>
@@ -123,12 +123,10 @@
             }
         });
 
-        // 💡 [수정] 결제 화면 찜하기 버튼 기능 고도화
         async function toggleCheckoutWishlist() {
+            // (위시리스트 기존 코드 동일)
             const btn = document.getElementById('checkout-wishlist-btn');
             const icon = btn.querySelector('i');
-            
-            // 1. UI 즉시 변경 (UX 향상)
             const isCurrentlySaved = icon.classList.contains('bi-heart-fill');
             if (isCurrentlySaved) {
                 icon.classList.remove('bi-heart-fill', 'text-white');
@@ -142,7 +140,6 @@
                 btn.classList.add('btn-danger');
             }
 
-            // 2. 데이터 준비
             const urlParams = new URLSearchParams(window.location.search);
             const category = urlParams.get('category') || 'HOTEL';
             const itemName = /*[[${itemName}]]*/ '選択した商品';
@@ -151,21 +148,20 @@
             const adults = /*[[${adults}]]*/ '1';
 
             let saveApiId = '';
-            let imageUrl = '';
+            let wishlistImageUrl = '';
 
             if(category === 'FLIGHT') {
                 const depTime = urlParams.get('depTime') || '';
                 const arrTime = urlParams.get('arrTime') || '';
                 saveApiId = `/checkout?price=${price}&checkin=${checkin}&adults=${adults}&category=FLIGHT&depTime=${depTime}&arrTime=${arrTime}`;
-                imageUrl = 'https://cdn-icons-png.flaticon.com/512/785/785116.png';
+                wishlistImageUrl = 'https://cdn-icons-png.flaticon.com/512/785/785116.png';
             } else {
                 const hotelId = urlParams.get('id') || '';
                 const checkoutDate = urlParams.get('checkoutDate') || '';
                 saveApiId = `/hotel/detail?id=${hotelId}&price=${price}&checkinDate=${checkin}&checkoutDate=${checkoutDate}&adults=${adults}`;
-                imageUrl = urlParams.get('photoUrl') || '';
+                wishlistImageUrl = urlParams.get('photoUrl') || '';
             }
 
-            // 3. 서버 전송
             try {
                 const response = await fetch('/api/wishlist/toggle', {
                     method: 'POST',
@@ -173,7 +169,7 @@
                     body: JSON.stringify({
                         apiId: saveApiId,
                         placeName: itemName,
-                        imageUrl: imageUrl,
+                        imageUrl: wishlistImageUrl,
                         category: category
                     })
                 });
@@ -181,7 +177,6 @@
                 if (!response.ok) throw new Error('Network error');
                 
                 const result = await response.json();
-                // 4. 서버 응답에 따른 최종 UI 보정
                 if (result.wished) {
                     icon.className = 'bi bi-heart-fill fs-4 text-white';
                     btn.className = 'btn btn-danger rounded-circle shadow-sm d-flex justify-content-center align-items-center';
@@ -192,7 +187,6 @@
 
             } catch (error) {
                 console.error(error);
-                // 에러 발생 시 원래 상태로 복구
                 if (isCurrentlySaved) {
                     icon.className = 'bi bi-heart-fill fs-4 text-white';
                     btn.className = 'btn btn-danger rounded-circle shadow-sm d-flex justify-content-center align-items-center';
@@ -214,6 +208,36 @@
             const buyerEmail = document.getElementById('buyerEmail').value;
             const orderUid = "ORD-" + new Date().toISOString().slice(0, 10).replace(/-/g, '') + "-" + new Date().getTime();
 
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentCategory = urlParams.get('category') || /*[[${category}]]*/ 'HOTEL';
+
+            // 💡 [궁극의 해결책] Java(Controller)를 믿지 않고, 브라우저 주소창(URL)에서 데이터를 직접 싹 다 긁어옵니다!
+            let finalCheckIn = urlParams.get('checkin') || /*[[${checkin}]]*/ '';
+            let finalCheckOut = urlParams.get('checkOut') || urlParams.get('checkoutDate') || /*[[${checkOut}]]*/ '';
+            let finalAddress = urlParams.get('address') || /*[[${address}]]*/ '現地にて確認';
+            let finalDetails = urlParams.get('details') || /*[[${details}]]*/ '';
+            let finalImageUrl = urlParams.get('imageUrl') || /*[[${imageUrl}]]*/ '';
+
+            // 🏨 호텔일 경우: 날짜만 있고 시간이 없다면 여기서 완벽하게 조립해 줍니다!
+            if (currentCategory === 'HOTEL') {
+                if (finalCheckIn && !finalCheckIn.includes(':')) {
+                    finalCheckIn = finalCheckIn + ' 15:00';
+                }
+                if (finalCheckOut && !finalCheckOut.includes(':')) {
+                    finalCheckOut = finalCheckOut + ' 11:00';
+                }
+            } 
+            // ✈️ 항공권일 경우
+            else if (currentCategory === 'FLIGHT') {
+                const depTime = urlParams.get('depTime') || '--:--';
+                const arrTime = urlParams.get('arrTime') || '--:--';
+                
+                if (finalCheckIn && !finalCheckIn.includes(':')) {
+                    finalCheckIn = finalCheckIn + ' ' + depTime;
+                }
+                finalCheckOut = arrTime;
+            }
+
             IMP.request_pay({
                 pg: "html5_inicis",        
                 pay_method: "card",        
@@ -225,17 +249,20 @@
                 buyer_tel: "010-1234-5678" 
             }, function (rsp) { 
                 if (rsp.success) {
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const currentCategory = urlParams.get('category') || /*[[${category}]]*/ 'HOTEL';
-
                     fetch('/api/payment/complete', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
+                        // 💡 조립이 끝난 완벽한 데이터를 서버로 쏩니다!
                         body: JSON.stringify({
                             orderId: rsp.merchant_uid,
                             itemName: itemName,
                             category: currentCategory, 
-                            amount: amount 
+                            amount: amount,
+                            imageUrl: finalImageUrl,
+                            checkIn: finalCheckIn,     
+                            checkOut: finalCheckOut,   
+                            address: finalAddress,
+                            details: finalDetails
                         })
                     })
                     .then(res => res.json())
@@ -250,7 +277,7 @@
                                 allowOutsideClick: false 
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                    window.location.href = "/"; 
+                                    window.location.href = "/mypage/reservations"; // 💡 결제 완료 후 마이페이지 예약 내역으로 이동!
                                 }
                             });
                         } else {
