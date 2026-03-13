@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: headFragment}">
+    <title>宿泊先詳細 - J-Route</title>
+</head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+
+    <main class="container py-5 flex-grow-1" style="max-width: 900px;">
+        <div class="d-flex align-items-center mb-4">
+            <button onclick="history.back()" class="btn btn-outline-secondary rounded-circle me-3" style="width: 40px; height: 40px; padding: 7px;">
+                <i class="bi bi-arrow-left"></i>
+            </button>
+            <h2 class="fw-bold mb-0">宿泊先 詳細情報</h2>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+            <div th:style="'height: 350px; background-image: url(' + ${photoUrl} + '); background-size: cover; background-position: center;'"></div>
+            
+            <div class="card-body p-4 p-md-5">
+                <div class="mb-2">
+                    <span class="badge bg-primary opacity-75 me-2"><i class="bi bi-building"></i> HOTEL</span>
+                    <span class="text-muted small">ID: <span th:text="${hotelId}"></span></span>
+                </div>
+                
+                <h3 class="fw-bold mb-4" th:text="${hotelName}">宿泊施設名</h3>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 border h-100">
+                            <p class="small text-muted mb-1"><i class="bi bi-calendar-check text-primary me-1"></i>チェックイン</p>
+                            <h6 class="fw-bold mb-0" th:text="${checkinDate}">未定</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 border h-100">
+                            <p class="small text-muted mb-1"><i class="bi bi-calendar-x text-danger me-1"></i>チェックアウト</p>
+                            <h6 class="fw-bold mb-0" th:text="${checkoutDate}">未定</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 border h-100">
+                            <p class="small text-muted mb-1"><i class="bi bi-people text-success me-1"></i>ご利用人数</p>
+                            <h6 class="fw-bold mb-0"><span th:text="${adults}"></span> 名</h6>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-4 text-muted">
+                
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                    <div class="mb-3 mb-md-0 text-center text-md-start">
+                        <p class="small text-muted mb-0">合計料金 (税込)</p>
+                        <h2 class="text-danger fw-bold mb-0">
+                            <span th:if="${price == null || price == '-' || price == '0'}">価格情報なし</span>
+                            <span th:unless="${price == null || price == '-' || price == '0'}" th:text="'¥' + ${#numbers.formatInteger(price, 3, 'COMMA')}"></span>
+                        </h2>
+                    </div>
+                    
+                    <a th:href="@{/checkout(
+					        itemName=${hotelName}, 
+					        price=${price}, 
+					        checkin=|${checkinDate} 15:00|,  
+					        adults=${adults}, 
+					        category='HOTEL',
+					        imageUrl=${photoUrl},
+					        checkOut=|${checkoutDate} 11:00|, 
+					        address=${hotelName},               
+					        details=|大人 ${adults}名 / スタンダード ダブル|
+					    )}" 
+					   class="btn btn-primary rounded-pill px-5 py-3 fw-bold shadow-sm" style="font-size: 1.1rem;">
+					    予約・決済へ進む <i class="bi bi-credit-card ms-2"></i>
+					</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+</html>

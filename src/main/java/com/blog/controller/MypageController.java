@@ -53,7 +53,6 @@ public class MypageController {
         List<ReviewDto> reviews = reviewService.getReviewsByUserId(user.getUserId());
         int reviewCount = reviewService.getReviewCountByUserId(user.getUserId());
 
-        // 💡 핵심 변경: getUsername() -> getUserId() 로 원상복구! (숫자 PK로 조회)
         int reservationCount = reservationService.getReservationCount(user.getUserId());
         List<ReservationDto> recentReservations = reservationService.getRecentReservations(user.getUserId());
 
@@ -146,10 +145,29 @@ public class MypageController {
         if (user == null)
             return "redirect:/login";
 
-        //  핵심 변경: getUsername() -> getUserId() 로 원상복구! (숫자 PK로 조회)
         List<ReservationDto> reservations = reservationService.getAllReservations(user.getUserId());
         model.addAttribute("reservations", reservations);
         
         return "user/reservations"; 
+    }
+
+    // 예약 상세 내역 보기 페이지
+    @GetMapping("/reservation/detail")
+    public String reservationDetail(@AuthenticationPrincipal UserDetails userDetails, 
+                                    @RequestParam("orderId") String orderId, 
+                                    Model model) {
+        UserDto user = getAuthenticatedUser(userDetails);
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        // DB에서 orderId를 기반으로 상세 예약 정보를 가져옵니다.
+        ReservationDto reservation = reservationService.getReservationByOrderId(orderId);
+        
+        // 가져온 정보를 화면(HTML)에 넘겨줍니다.
+        model.addAttribute("res", reservation);
+        
+        // user/reservation-detail.html 로 이동
+        return "user/reservation-detail"; 
     }
 }

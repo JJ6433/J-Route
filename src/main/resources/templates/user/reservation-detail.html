@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}">
+    <title>予約詳細 - J-Route</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+
+    <main class="container mt-5 mb-5 flex-grow-1" style="max-width: 800px;">
+        <div class="d-flex align-items-center mb-4">
+            <button onclick="history.back()" class="btn btn-outline-secondary rounded-circle me-3" style="width: 40px; height: 40px; padding: 7px;">
+                <i class="bi bi-arrow-left"></i>
+            </button>
+            <h3 class="fw-bold mb-0"><i class="bi bi-receipt text-secondary me-2"></i>予約詳細</h3>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+            
+            <div th:if="${res.category == 'HOTEL'}" class="position-relative">
+                <img th:src="${res.imageUrl != null and res.imageUrl != '' ? res.imageUrl : 'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=1200'}" 
+                     onerror="this.src='https://placehold.co/800x250/e9ecef/6c757d?text=Hotel+Image'"
+                     class="card-img-top object-fit-cover w-100" alt="Hotel Image" style="height: 250px;">
+                <div class="position-absolute top-0 end-0 p-3">
+                    <span class="badge bg-success shadow-sm fs-6"><i class="bi bi-check-circle-fill me-1"></i> 決済完了</span>
+                </div>
+            </div>
+
+            <div th:if="${res.category == 'FLIGHT'}" class="card-header bg-info bg-opacity-10 border-bottom-0 pt-4 pb-3 px-4 px-md-5">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-info text-dark fs-6"><i class="bi bi-airplane-fill me-1"></i> 航空券</span>
+                    <span class="badge bg-success-subtle text-success fs-6"><i class="bi bi-check-circle-fill me-1"></i> 決済完了</span>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-md-5 bg-white">
+                <div class="mb-5">
+                    <span th:if="${res.category == 'HOTEL'}" class="badge bg-primary fs-6 mb-2"><i class="bi bi-building-fill me-1"></i> 宿泊先</span>
+                    <h3 class="fw-bold text-dark mb-4" th:text="${res.itemName}">商品名</h3>
+                    
+                    <div class="row text-muted small">
+                        <div class="col-sm-6 mb-2 mb-sm-0">
+                            <i class="bi bi-hash me-1"></i>注文番号: <span class="font-monospace text-dark" th:text="${res.orderId}">ORD-123</span>
+                        </div>
+                        <div class="col-sm-6 text-sm-end">
+                            <i class="bi bi-clock me-1"></i>予約日時: <span class="text-dark" th:text="${#dates.format(res.createdAt, 'yyyy年 MM月 dd日 HH:mm')}">2026/03/05</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="opacity-10 mb-4">
+
+                <div th:if="${res.category == 'HOTEL'}" class="mb-5">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-card-list text-primary me-2"></i>宿泊詳細</h5>
+                    
+                    <div class="bg-light rounded-4 p-4 border border-light">
+                        <div class="row text-center mb-4 pb-3 border-bottom">
+                            <div class="col-6 border-end">
+                                <p class="text-muted small mb-1">チェックイン</p>
+                                <h5 class="fw-bold text-primary mb-0" th:text="${res.checkIn != null ? res.checkIn : '15:00'}">15:00</h5>
+                                <small class="text-muted">現地にて確認</small> 
+                            </div>
+                            <div class="col-6">
+                                <p class="text-muted small mb-1">チェックアウト</p>
+                                <h5 class="fw-bold text-primary mb-0" th:text="${res.checkOut != null ? res.checkOut : '11:00'}">11:00</h5>
+                                <small class="text-muted">現地にて確認</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <i class="bi bi-geo-alt-fill text-danger fs-5 me-3 mt-1"></i>
+                                    <div>
+                                        <p class="text-muted small mb-0">所在地</p>
+                                        <p class="mb-0 fw-bold text-dark">
+                                            <span th:text="${res.address != null ? res.address : res.itemName}"></span>
+                                            <a th:href="'https://www.google.com/maps/search/?api=1&query=' + ${res.address != null ? res.address : res.itemName}" 
+                                               target="_blank" 
+                                               class="text-primary small ms-1 text-decoration-none d-inline-block mt-1">
+                                               <i class="bi bi-map"></i> (地図で見る)
+                                            </a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <i class="bi bi-person-fill text-secondary fs-5 me-3 mt-1"></i>
+                                    <div>
+                                        <p class="text-muted small mb-0">宿泊人数 / 客室</p>
+                                        <p class="mb-0 fw-bold text-dark" th:text="${res.details != null ? res.details : '大人 2名 / スタンダード ダブル'}">詳細</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${res.category == 'FLIGHT'}" class="mb-5">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-card-list text-info me-2"></i>搭乗詳細</h5>
+                    
+                    <div class="bg-light rounded-4 p-4 border border-light">
+                        <div class="row text-center align-items-center mb-4 pb-3 border-bottom">
+                            <div class="col-5">
+                                <p class="text-muted small mb-1">出発 (Departure)</p>
+                                <h5 class="fw-bold text-dark mb-0" th:text="${res.checkIn != null ? res.checkIn : '08:00'}">08:00</h5>
+                                <small class="text-muted">現地にて確認</small> 
+                            </div>
+                            <div class="col-2 text-muted">
+                                <i class="bi bi-arrow-right fs-3"></i>
+                            </div>
+                            <div class="col-5">
+                                <p class="text-muted small mb-1">到着 (Arrival)</p>
+                                <h5 class="fw-bold text-dark mb-0" th:text="${res.checkOut != null ? res.checkOut : '10:30'}">10:30</h5>
+                                <small class="text-muted">現地にて確認</small> 
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <i class="bi bi-airplane-engines-fill text-info fs-5 me-3 mt-1"></i>
+                                    <div>
+                                        <p class="text-muted small mb-0">航空会社 / 便名</p>
+                                        <p class="mb-0 fw-bold text-dark" th:text="${res.address != null ? res.address : 'J-Route 航空 / JR-1234'}">便名</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <i class="bi bi-person-fill text-secondary fs-5 me-3 mt-1"></i>
+                                    <div>
+                                        <p class="text-muted small mb-0">搭乗人数 / 座席</p>
+                                        <p class="mb-0 fw-bold text-dark" th:text="${res.details != null ? res.details : '大人 1名 / エコノミー'}">座席</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-primary bg-opacity-10 rounded-4 p-4 d-flex justify-content-between align-items-center">
+                    <span class="fw-bold fs-5 text-dark">合計決済金額</span>
+                    <span class="text-danger fw-bold fs-2" th:text="'¥' + ${#numbers.formatInteger(res.amount, 3, 'COMMA')}">¥0</span>
+                </div>
+            </div>
+            
+            <div class="card-footer bg-white border-top py-4 px-4 px-md-5 text-center">
+                <p class="text-muted small mb-3"><i class="bi bi-info-circle me-1"></i> 予約の変更やキャンセルについては、カスタマーサポートまでお問い合わせください。</p>
+                <a th:href="@{/mypage/reservations}" class="btn btn-outline-primary rounded-pill px-5 fw-bold shadow-sm">一覧に戻る</a>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <style>
+        .bg-success-subtle { background-color: #e6f9f0 !important; }
+        .object-fit-cover { object-fit: cover; }
+    </style>
+</body>
+</html>
