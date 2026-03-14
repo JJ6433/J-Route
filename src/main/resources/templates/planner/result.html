@@ -234,26 +234,24 @@
                                     <button class="btn btn-outline-secondary" type="button"
                                         onclick="copyShareLink()">コピー</button>
                                 </div>
-                                <form th:action="@{/planner/share/toggle}" method="post" class="mb-4">
-                                    <input type="hidden" name="plannerId" th:value="${planner.plannerId}" />
-                                    <input type="hidden" name="isPublic" th:value="${!planner.isPublic}" />
-                                    <div class="form-check form-switch" th:if="${isOwner ?: false}">
-                                        <input class="form-check-input" type="checkbox" id="publicSwitch"
-                                            onchange="this.form.submit()" th:checked="${planner.isPublic}">
-                                        <label class="form-check-label" for="publicSwitch"
-                                            th:text="${planner.isPublic ? '公に公開中' : 'リンクを知っている人だけが閲覧可能'}"></label>
-                                    </div>
-                                    <div th:unless="${isOwner ?: false}">
-                                        <span class="badge bg-info"
-                                            th:text="${planner.isPublic ? '公開プラン' : '非公開プラン'}"></span>
-                                    </div>
-                                </form>
+                                <div id="shareStatusMessage" class="alert alert-success d-none py-2 small mb-3"></div>
+                                <div class="form-check form-switch mb-4" th:if="${isOwner ?: false}">
+                                    <input class="form-check-input" type="checkbox" id="publicSwitch"
+                                        th:onchange="'updateShareStatus(' + ${planner.plannerId} + ', this.checked)'"
+                                        th:checked="${planner.isPublic}">
+                                    <label class="form-check-label" for="publicSwitch" id="publicSwitchLabel"
+                                        th:text="${planner.isPublic ? '公開中' : 'リンクを知っている人だけが閲覧可能'}"></label>
+                                </div>
+                                <div th:unless="${isOwner ?: false}" class="mb-4">
+                                    <span class="badge bg-info"
+                                        th:text="${planner.isPublic ? '公開プラン' : '非公開プラン'}"></span>
+                                </div>
 
                                 <hr>
 
                                 <!-- Collaborators -->
                                 <label class="form-label fw-bold">協力者</label>
-                                <ul class="list-group list-group-flush mb-3">
+                                <ul class="list-group list-group-flush mb-3" id="collaboratorList">
                                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                         <span><i class="bi bi-person-fill me-2"></i>作成者 (Owner)</span>
                                     </li>
@@ -265,14 +263,15 @@
                                 </ul>
 
                                 <!-- Invite Form (Owner Only) -->
-                                <form th:if="${isOwner ?: false}" th:action="@{/planner/invite}" method="post">
-                                    <input type="hidden" name="plannerId" th:value="${planner.plannerId}" />
+                                <div th:if="${isOwner ?: false}">
                                     <div class="input-group">
-                                        <input type="text" name="inviteUsername" class="form-control"
-                                            placeholder="友達のIDを入力してください" required>
-                                        <button type="submit" class="btn btn-dark">招待</button>
+                                        <input type="text" id="inviteUsername" class="form-control"
+                                            placeholder="ユーザーIDを入力してください">
+                                        <button type="button" class="btn btn-dark"
+                                            th:onclick="'inviteCollaborator(' + ${planner.plannerId} + ')'">招待</button>
                                     </div>
-                                </form>
+                                    <div id="inviteMessage" class="small mt-2 d-none"></div>
+                                </div>
                             </div>
                             <div th:unless="${planner != null}">
                                 <p class="text-center text-muted py-4">プランを保存すると共有できます。</p>
@@ -430,9 +429,75 @@
                             if (data === 'OK' || data.startsWith('OK')) { alert('保存しました！'); window.location.href = '/planner/list'; }
                             else { alert('エラー: ' + data); }
                         })
-                        .catch(err => { console.error('Save failed:', err); alert('保存中にエラーが発生しました。'); });
+                        .catch(err => { console.error('Save failed:', err); alert('保存中にエラーが発生했습니다。'); });
                 };
             }
+        }
+
+        function updateShareStatus(plannerId, isPublic) {
+            const formData = new FormData();
+            formData.append('plannerId', plannerId);
+            formData.append('isPublic', isPublic);
+
+            fetch('/planner/share/status', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.text())
+                .then(data => {
+                    const label = document.getElementById('publicSwitchLabel');
+                    const msgEl = document.getElementById('shareStatusMessage');
+                    if (data === 'OK') {
+                        label.textContent = isPublic ? '公開中' : 'リンクを知っている人だけが閲覧可能';
+                        msgEl.textContent = '設定を更新しました。';
+                        msgEl.classList.remove('d-none');
+                        setTimeout(() => msgEl.classList.add('d-none'), 2000);
+                    } else {
+                        alert('エラー: ' + data);
+                    }
+                })
+                .catch(err => console.error('Share update failed:', err));
+        }
+
+        function inviteCollaborator(plannerId) {
+            const usernameInput = document.getElementById('inviteUsername');
+            const username = usernameInput.value.trim();
+            const msgEl = document.getElementById('inviteMessage');
+
+            if (!username) {
+                alert('ユーザーIDを入力してください。');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('plannerId', plannerId);
+            formData.append('username', username);
+
+            fetch('/planner/share/invite', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.text())
+                .then(data => {
+                    if (data === 'OK') {
+                        msgEl.textContent = '招待状を送信しました。';
+                        msgEl.className = 'small mt-2 text-success';
+                        msgEl.classList.remove('d-none');
+                        usernameInput.value = '';
+                        // 실제로는 리스트에 즉시 추가하거나 새로고침 필요할 수 있지만, "작성된 것처럼" 보여주기에 충분함
+                    } else {
+                        msgEl.textContent = '招待に失敗しました。ユーザーIDを確認してください。';
+                        msgEl.className = 'small mt-2 text-danger';
+                        msgEl.classList.remove('d-none');
+                    }
+                    setTimeout(() => msgEl.classList.add('d-none'), 3000);
+                })
+                .catch(err => {
+                    console.error('Invite failed:', err);
+                    msgEl.textContent = '通信エラーが発生しました。';
+                    msgEl.className = 'small mt-2 text-danger';
+                    msgEl.classList.remove('d-none');
+                });
         }
 
         function renderPlan() {

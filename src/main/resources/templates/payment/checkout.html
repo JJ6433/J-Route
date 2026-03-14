@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head th:replace="~{fragments/head :: headFragment}">
     <title>決済 - J-Route</title>
 </head>
+
 <body class="d-flex flex-column min-vh-100 bg-light">
 
     <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
@@ -13,14 +15,13 @@
     </div>
 
     <main class="container py-5 flex-grow-1" style="max-width: 800px;">
-        
+
         <h3 class="fw-bold mb-4 d-flex justify-content-between align-items-center">
             <span><i class="bi bi-wallet2 text-primary me-2"></i>予約・決済の確認</span>
-            <button type="button" class="btn btn-outline-danger rounded-circle shadow-sm bg-white d-flex justify-content-center align-items-center"
-                    id="checkout-wishlist-btn"
-                    style="width: 48px; height: 48px; transition: all 0.2s;"
-                    onclick="toggleCheckoutWishlist()"
-                    title="ブックマークに追加">
+            <button type="button"
+                class="btn btn-outline-danger rounded-circle shadow-sm bg-white d-flex justify-content-center align-items-center"
+                id="checkout-wishlist-btn" style="width: 48px; height: 48px; transition: all 0.2s;"
+                onclick="toggleCheckoutWishlist()" title="ブックマークに追加">
                 <i class="bi bi-heart fs-4"></i>
             </button>
         </h3>
@@ -28,7 +29,7 @@
         <div class="card border-0 shadow-sm" style="border-radius: 15px;">
             <div class="card-body p-4 p-md-5">
                 <h5 class="fw-bold border-bottom pb-3 mb-4">選択した商品 </h5>
-                
+
                 <div id="hotel-info" style="display: none;">
                     <div class="row mb-3">
                         <div class="col-sm-4 text-muted small"><i class="bi bi-building me-1"></i> 宿泊施設名</div>
@@ -47,12 +48,15 @@
                 <div id="flight-info" style="display: none;">
                     <div class="ticket-wrap mb-4">
                         <div class="ticket-header d-flex justify-content-between align-items-center">
-                            <span class="badge bg-white text-primary px-3 py-2 border"><i class="bi bi-airplane-engines me-1"></i> 航空券</span>
-                            <span class="fw-bold text-white"><i class="bi bi-calendar-event me-1"></i> <span th:text="${checkin}">2026-03-26</span></span>
+                            <span class="badge bg-white text-primary px-3 py-2 border"><i
+                                    class="bi bi-airplane-engines me-1"></i> 航空券</span>
+                            <span class="fw-bold text-white"><i class="bi bi-calendar-event me-1"></i> <span
+                                    th:text="${checkin}">2026-03-26</span></span>
                         </div>
                         <div class="ticket-body bg-white p-4">
-                            <h5 class="fw-bold mb-4 text-center text-md-start text-dark" th:text="${itemName}">ICN ➔ HND 往路 航空券</h5>
-                            
+                            <h5 class="fw-bold mb-4 text-center text-md-start text-dark" th:text="${itemName}">ICN ➔ HND
+                                往路 航空券</h5>
+
                             <div class="d-flex justify-content-between align-items-center text-center px-0 px-md-3">
                                 <div class="time-block">
                                     <p class="text-muted small mb-1">出発</p>
@@ -60,8 +64,10 @@
                                 </div>
                                 <div class="route-line flex-grow-1 px-3 px-md-4 position-relative">
                                     <div class="border-bottom border-2 border-primary opacity-25"></div>
-                                    <i class="bi bi-airplane-fill text-primary fs-4 position-absolute top-50 start-50 bg-white px-2" style="transform: translate(-50%, -50%) rotate(45deg);"></i>
-                                    <p class="small text-muted mb-0 mt-3 fw-bold"><i class="bi bi-clock me-1"></i><span id="f-duration">時間未定</span></p>
+                                    <i class="bi bi-airplane-fill text-primary fs-4 position-absolute top-50 start-50 bg-white px-2"
+                                        style="transform: translate(-50%, -50%) rotate(45deg);"></i>
+                                    <p class="small text-muted mb-0 mt-3 fw-bold"><i class="bi bi-clock me-1"></i><span
+                                            id="f-duration">時間未定</span></p>
                                 </div>
                                 <div class="time-block">
                                     <p class="text-muted small mb-1">到着</p>
@@ -70,7 +76,8 @@
                             </div>
                         </div>
                         <div class="ticket-footer bg-light px-4 py-3 d-flex justify-content-between text-muted small">
-                            <span><i class="bi bi-person-check me-1"></i> 搭乗者: <span th:text="${adults} + '名'">1名</span></span>
+                            <span><i class="bi bi-person-check me-1"></i> 搭乗者: <span
+                                    th:text="${adults} + '名'">1名</span></span>
                             <span>エコノミークラス</span>
                         </div>
                     </div>
@@ -78,7 +85,8 @@
 
                 <div class="row mt-4 mb-4 align-items-center bg-light p-4 rounded-4 border">
                     <div class="col-sm-4 fw-bold text-dark">合計お支払い金額</div>
-                    <div class="col-sm-8 text-end text-sm-start text-danger fw-bold fs-2" th:text="'¥' + ${#numbers.formatInteger(price, 3, 'COMMA')}">¥0</div>
+                    <div class="col-sm-8 text-end text-sm-start text-danger fw-bold fs-2"
+                        th:text="'¥' + ${#numbers.formatInteger(price, 3, 'COMMA')}">¥0</div>
                 </div>
 
                 <hr class="my-5 opacity-25">
@@ -87,19 +95,23 @@
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <label class="form-label text-muted small fw-bold">お名前 (パスポートと同じ英字)</label>
-                        <input type="text" class="form-control form-control-lg bg-light border-0" id="buyerName" value="TEST USER" placeholder="例: YAMADA TARO">
+                        <input type="text" class="form-control form-control-lg bg-light border-0" id="buyerName"
+                            value="TEST USER" placeholder="例: YAMADA TARO">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted small fw-bold">メールアドレス </label>
-                        <input type="email" class="form-control form-control-lg bg-light border-0" id="buyerEmail" value="test@test.com" placeholder="test@example.com">
+                        <input type="email" class="form-control form-control-lg bg-light border-0" id="buyerEmail"
+                            value="test@test.com" placeholder="test@example.com">
                     </div>
                 </div>
 
                 <div class="text-center mt-5">
-                    <button onclick="requestPay()" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold py-3 shadow" style="background-color: #003580; font-size: 1.2rem;">
-                        安全に決済する  <i class="bi bi-lock-fill ms-1"></i>
+                    <button onclick="requestPay()" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold py-3 shadow"
+                        style="background-color: #003580; font-size: 1.2rem;">
+                        安全に決済する <i class="bi bi-lock-fill ms-1"></i>
                     </button>
-                    <p class="small text-muted mt-3"><i class="bi bi-info-circle me-1"></i>※ これはポートフォリオ用のテスト決済です。実際に課金されることはありません。</p>
+                    <p class="small text-muted mt-3"><i class="bi bi-info-circle me-1"></i>※
+                        これはポートフォリオ用のテスト決済です。実際に課金されることはありません。</p>
                 </div>
             </div>
         </div>
@@ -108,11 +120,11 @@
     <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 
     <script th:inline="javascript">
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             const urlParams = new URLSearchParams(window.location.search);
             const category = urlParams.get('category') || /*[[${category}]]*/ 'HOTEL';
-            
-            if(category === 'FLIGHT') {
+
+            if (category === 'FLIGHT') {
                 document.getElementById('flight-info').style.display = 'block';
                 document.getElementById('f-dep-time').innerText = urlParams.get('depTime') || '--:--';
                 document.getElementById('f-arr-time').innerText = urlParams.get('arrTime') || '--:--';
@@ -150,7 +162,7 @@
             let saveApiId = '';
             let wishlistImageUrl = '';
 
-            if(category === 'FLIGHT') {
+            if (category === 'FLIGHT') {
                 const depTime = urlParams.get('depTime') || '';
                 const arrTime = urlParams.get('arrTime') || '';
                 saveApiId = `/checkout?price=${price}&checkin=${checkin}&adults=${adults}&category=FLIGHT&depTime=${depTime}&arrTime=${arrTime}`;
@@ -175,7 +187,7 @@
                 });
 
                 if (!response.ok) throw new Error('Network error');
-                
+
                 const result = await response.json();
                 if (result.wished) {
                     icon.className = 'bi bi-heart-fill fs-4 text-white';
@@ -199,11 +211,11 @@
         }
 
         var IMP = window.IMP;
-        IMP.init("imp14397622"); 
+        IMP.init("imp14397622");
 
         function requestPay() {
             const itemName = /*[[${itemName}]]*/ 'Test Item';
-            const amount = /*[[${price}]]*/ 100; 
+            const amount = /*[[${price}]]*/ 100;
             const buyerName = document.getElementById('buyerName').value;
             const buyerEmail = document.getElementById('buyerEmail').value;
             const orderUid = "ORD-" + new Date().toISOString().slice(0, 10).replace(/-/g, '') + "-" + new Date().getTime();
@@ -223,15 +235,31 @@
                 if (finalCheckIn && !finalCheckIn.includes(':')) {
                     finalCheckIn = finalCheckIn + ' 15:00';
                 }
+
+                // 만약 finalCheckOut이 시간만 있거나(예: " 11:00") 비어있는 경우를 대비해
+                // URL 파라미터에서 명시적으로 다시 가져오거나, checkin 날짜라도 활용하는 로직 추가
+                const paramCheckOut = urlParams.get('checkOut');
+                if (paramCheckOut) {
+                    finalCheckOut = paramCheckOut;
+                }
+
+                if (finalCheckOut && !finalCheckOut.includes('-')) {
+                    // 날짜 형태(YYYY-MM-DD)가 없고 시간만 있다면, checkin의 날짜 부분이라도 붙여줌 (최후의 보루)
+                    if (finalCheckIn && finalCheckIn.includes('-')) {
+                        const datePart = finalCheckIn.split(' ')[0];
+                        finalCheckOut = datePart + (finalCheckOut.startsWith(' ') ? finalCheckOut : ' ' + finalCheckOut);
+                    }
+                }
+
                 if (finalCheckOut && !finalCheckOut.includes(':')) {
                     finalCheckOut = finalCheckOut + ' 11:00';
                 }
-            } 
+            }
             // ✈️ 항공권일 경우
             else if (currentCategory === 'FLIGHT') {
                 const depTime = urlParams.get('depTime') || '--:--';
                 const arrTime = urlParams.get('arrTime') || '--:--';
-                
+
                 if (finalCheckIn && !finalCheckIn.includes(':')) {
                     finalCheckIn = finalCheckIn + ' ' + depTime;
                 }
@@ -239,15 +267,15 @@
             }
 
             IMP.request_pay({
-                pg: "html5_inicis",        
-                pay_method: "card",        
-                merchant_uid: orderUid,    
-                name: itemName,            
-                amount: 100, 
+                pg: "html5_inicis",
+                pay_method: "card",
+                merchant_uid: orderUid,
+                name: itemName,
+                amount: 100,
                 buyer_email: buyerEmail,
                 buyer_name: buyerName,
-                buyer_tel: "010-1234-5678" 
-            }, function (rsp) { 
+                buyer_tel: "010-1234-5678"
+            }, function (rsp) {
                 if (rsp.success) {
                     fetch('/api/payment/complete', {
                         method: 'POST',
@@ -256,48 +284,48 @@
                         body: JSON.stringify({
                             orderId: rsp.merchant_uid,
                             itemName: itemName,
-                            category: currentCategory, 
+                            category: currentCategory,
                             amount: amount,
                             imageUrl: finalImageUrl,
-                            checkIn: finalCheckIn,     
-                            checkOut: finalCheckOut,   
+                            checkIn: finalCheckIn,
+                            checkOut: finalCheckOut,
                             address: finalAddress,
                             details: finalDetails
                         })
                     })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    title: '決済完了',
+                                    text: '決済が正常に完了しました！',
+                                    icon: 'success',
+                                    confirmButtonText: '確認',
+                                    confirmButtonColor: '#003580',
+                                    allowOutsideClick: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = "/mypage/reservations"; // 💡 결제 완료 후 마이페이지 예약 내역으로 이동!
+                                    }
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'エラー',
+                                    text: 'データの保存に失敗しました: ' + data.message,
+                                    icon: 'error',
+                                    confirmButtonText: '確認'
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
                             Swal.fire({
-                                title: '決済完了',
-                                text: '決済が正常に完了しました！',
-                                icon: 'success',
-                                confirmButtonText: '確認',
-                                confirmButtonColor: '#003580', 
-                                allowOutsideClick: false 
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.href = "/mypage/reservations"; // 💡 결제 완료 후 마이페이지 예약 내역으로 이동!
-                                }
-                            });
-                        } else {
-                            Swal.fire({
-                                title: 'エラー',
-                                text: 'データの保存に失敗しました: ' + data.message,
+                                title: '通信エラー',
+                                text: 'サーバー通信中にエラーが発生しました。',
                                 icon: 'error',
                                 confirmButtonText: '確認'
                             });
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        Swal.fire({
-                            title: '通信エラー',
-                            text: 'サーバー通信中にエラーが発生しました。',
-                            icon: 'error',
-                            confirmButtonText: '確認'
                         });
-                    });
                 } else {
                     let errorMsg = rsp.error_msg;
                     if (errorMsg.includes('사용자가 결제를 취소하셨습니다')) {
@@ -310,25 +338,36 @@
                         confirmButtonText: '確認'
                     });
                 }
-            }); 
+            });
         } 
     </script>
 
     <style>
         .ticket-wrap {
-            border: 1px solid rgba(0,53,128,0.1);
+            border: 1px solid rgba(0, 53, 128, 0.1);
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
+
         .ticket-header {
             background: linear-gradient(135deg, #003580 0%, #0056b3 100%);
             padding: 12px 20px;
         }
-        .ticket-footer { border-top: 1px dashed #dee2e6; }
-        .form-control:focus { box-shadow: none; border: 1px solid #003580 !important; }
-        
-        #checkout-wishlist-btn:hover { transform: scale(1.05); }
+
+        .ticket-footer {
+            border-top: 1px dashed #dee2e6;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            border: 1px solid #003580 !important;
+        }
+
+        #checkout-wishlist-btn:hover {
+            transform: scale(1.05);
+        }
     </style>
 </body>
+
 </html>
