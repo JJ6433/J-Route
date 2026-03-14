@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{fragments/head :: headFragment}">
     <title>天気＆服装 - J-Route</title>
 </head>
+
 <body class="d-flex flex-column min-vh-100 bg-light">
     <header th:replace="~{fragments/header :: headerFragment}"></header>
 
@@ -23,9 +25,12 @@
                         </span>
                     </div>
 
-                    <form action="/weather/weather-result" method="get" class="d-flex align-items-center bg-white p-2 rounded-pill shadow-sm">
+                    <form id="weatherForm" action="/weather/weather-result" method="get"
+                        class="d-flex align-items-center bg-white p-2 rounded-pill shadow-sm">
                         <i class="bi bi-geo-alt-fill text-primary ms-3 me-2"></i>
-                        <select name="cityId" class="form-select border-0 bg-transparent shadow-none fw-bold text-dark" style="width: 140px; cursor: pointer;">
+                        <select id="citySelect" name="cityId"
+                            class="form-select border-0 bg-transparent shadow-none fw-bold text-dark"
+                            style="width: 140px; cursor: pointer;">
                             <option value="ALL" th:selected="${selectedCity == 'ALL'}">全国 (現在時刻)</option>
                             <option value="Tokyo" th:selected="${selectedCity == 'Tokyo'}">東京</option>
                             <option value="Osaka" th:selected="${selectedCity == 'Osaka'}">大阪</option>
@@ -36,38 +41,50 @@
                             <option value="Hiroshima" th:selected="${selectedCity == 'Hiroshima'}">広島</option>
                             <option value="Okinawa" th:selected="${selectedCity == 'Okinawa'}">沖縄</option>
                         </select>
-                        
+
                         <div class="vr mx-2"></div>
-                        
+
                         <i class="bi bi-calendar-event text-primary ms-2 me-2"></i>
-                        <input type="date" name="date" id="forecastDate" class="form-control border-0 bg-transparent shadow-none pe-2" th:value="${selectedDate}" required>
-                        <button type="submit" class="btn btn-primary rounded-pill px-4 ms-1 text-nowrap fw-bold shadow-sm">検索</button>
+                        <input type="date" name="date" id="forecastDate"
+                            class="form-control border-0 bg-transparent shadow-none pe-2" th:value="${selectedDate}"
+                            required>
+                        <button type="submit"
+                            class="btn btn-primary rounded-pill px-4 ms-1 text-nowrap fw-bold shadow-sm">検索</button>
                     </form>
                 </div>
 
-                <div class="alert alert-primary bg-primary bg-opacity-10 border-0 rounded-3 mb-4 py-2 px-3 text-dark small">
-                    <i class="bi bi-calendar-check text-primary me-2"></i> 
+                <div
+                    class="alert alert-primary bg-primary bg-opacity-10 border-0 rounded-3 mb-4 py-2 px-3 text-dark small">
+                    <i class="bi bi-calendar-check text-primary me-2"></i>
                     <strong th:text="${selectedDate}">2026-03-15</strong> の天気情報を表示しています。(現在時刻基準)
                 </div>
 
                 <div th:if="${viewMode == 'ALL'}" class="row g-3">
                     <div class="col-6 col-md-6 col-lg-4 col-xl-3" th:each="weather : ${weatherList}">
-                        <div class="card border-0 shadow-sm rounded-4 h-100 weather-card">
+                        <div class="card border-0 shadow-sm rounded-4 h-100 weather-card" style="cursor: pointer;"
+                            th:attr="onclick=|submitWeatherForm('${weather.city}')|">
                             <div class="card-body p-3 text-center d-flex flex-column justify-content-between">
                                 <div>
                                     <h6 class="fw-bold text-dark mb-0" th:text="${weather.cityNameJa}">東京</h6>
-                                    <p class="text-muted mb-2" style="font-size: 0.75rem;" th:text="${weather.city}">Tokyo</p>
-                                    
-                                    <div style="font-size: 3.5rem; line-height: 1.2;" th:text="${weather.iconEmoji}">☀️</div>
-                                    
+                                    <p class="text-muted mb-2" style="font-size: 0.75rem;" th:text="${weather.city}">
+                                        Tokyo</p>
+
+                                    <div style="font-size: 3.5rem; line-height: 1.2;" th:text="${weather.iconEmoji}">☀️
+                                    </div>
+
                                     <h3 class="fw-bold text-primary mb-1 mt-2">
-                                        <span th:text="${#numbers.formatDecimal(weather.temperature, 1, 1)}">15.0</span>°C
+                                        <span
+                                            th:text="${#numbers.formatDecimal(weather.temperature, 1, 1)}">15.0</span>°C
                                     </h3>
-                                    <span class="badge bg-light text-dark border-0 mb-3 small py-2 px-3 w-100" style="background-color: #f8f9fa !important;" th:text="${weather.description}">晴れ</span>
+                                    <span class="badge bg-light text-dark border-0 mb-3 small py-2 px-3 w-100"
+                                        style="background-color: #f8f9fa !important;"
+                                        th:text="${weather.description}">晴れ</span>
                                 </div>
                                 <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-start mt-auto">
-                                    <p style="font-size: 0.7rem;" class="fw-bold text-primary mb-1"><i class="bi bi-stars me-1"></i>おすすめ</p>
-                                    <p style="font-size: 0.75rem; line-height: 1.4;" class="text-dark mb-0 fw-medium" th:text="${weather.outfitHint}">服装ヒント</p>
+                                    <p style="font-size: 0.7rem;" class="fw-bold text-primary mb-1"><i
+                                            class="bi bi-stars me-1"></i>おすすめ</p>
+                                    <p style="font-size: 0.75rem; line-height: 1.4;" class="text-dark mb-0 fw-medium"
+                                        th:text="${weather.outfitHint}">服装ヒント</p>
                                 </div>
                             </div>
                         </div>
@@ -75,15 +92,16 @@
                 </div>
 
                 <div th:if="${viewMode == 'DETAIL'}">
-                    <h5 class="fw-bold mb-3 ms-2 text-dark"><i class="bi bi-graph-up-arrow text-primary me-2"></i> <span th:text="${detailCityName}">東京</span>の時間別予報</h5>
-                    
+                    <h5 class="fw-bold mb-3 ms-2 text-dark"><i class="bi bi-graph-up-arrow text-primary me-2"></i> <span
+                            th:text="${detailCityName}">東京</span>の時間別予報</h5>
+
                     <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
                         <div style="overflow-x: auto; padding-top: 25px;" class="custom-scrollbar pb-3">
                             <div style="min-width: 700px; position: relative;">
                                 <div style="position: relative; height: 130px; width: 100%;">
                                     <canvas id="hourlyTempChart"></canvas>
                                 </div>
-                                
+
                                 <div id="hourlyLabels" class="d-flex justify-content-between text-center mt-3 px-2">
                                 </div>
                             </div>
@@ -91,11 +109,13 @@
                     </div>
 
                     <div class="card border-0 shadow-sm rounded-4 bg-primary bg-opacity-10 p-4">
-                        <h6 class="fw-bold text-primary mb-2"><i class="bi bi-bag-check-fill me-2"></i> AIによる服装アドバイス</h6>
-                        <p class="text-dark mb-0 fw-medium" th:if="${not #lists.isEmpty(hourlyList)}" th:text="${hourlyList[0].outfitHint}"></p>
+                        <h6 class="fw-bold text-primary mb-2"><i class="bi bi-bag-check-fill me-2"></i> AIによる服装アドバイス
+                        </h6>
+                        <p class="text-dark mb-0 fw-medium" th:if="${not #lists.isEmpty(hourlyList)}"
+                            th:text="${hourlyList[0].outfitHint}"></p>
                     </div>
                 </div>
-                
+
                 <p class="mt-4 text-center text-muted small">
                     <i class="bi bi-info-circle me-1"></i> データ提供：Open-Meteo (最大16日先まで検索可能)
                 </p>
@@ -112,21 +132,26 @@
         const dateInput = document.getElementById('forecastDate');
         const today = new Date();
         const maxDate = new Date();
-        
+
         // 💡 오늘 포함 최대 16일!
-        maxDate.setDate(today.getDate() + 15); 
-        
+        maxDate.setDate(today.getDate() + 15);
+
         const formatYYYYMMDD = (d) => d.toISOString().split('T')[0];
         dateInput.min = formatYYYYMMDD(today);
         dateInput.max = formatYYYYMMDD(maxDate);
 
+        function submitWeatherForm(cityId) {
+            document.getElementById('citySelect').value = cityId;
+            document.getElementById('weatherForm').submit();
+        }
+
         const viewMode = /*[[${viewMode}]]*/ 'ALL';
-        const hourlyList = /*[[${hourlyList}]]*/ [];
+        const hourlyList = /*[[${hourlyList}]]*/[];
 
         if (viewMode === 'DETAIL' && hourlyList && hourlyList.length > 0) {
             const labels = hourlyList.map(h => h.time);
             const temps = hourlyList.map(h => h.temperature);
-            
+
             const labelsContainer = document.getElementById('hourlyLabels');
             let labelsHtml = '';
             hourlyList.forEach(h => {
@@ -141,7 +166,7 @@
 
             Chart.register(ChartDataLabels);
             const ctx = document.getElementById('hourlyTempChart').getContext('2d');
-            
+
             const minTemp = Math.min(...temps);
             const maxTemp = Math.max(...temps);
 
@@ -151,21 +176,21 @@
                     labels: labels,
                     datasets: [{
                         data: temps,
-                        borderColor: '#ced4da', 
+                        borderColor: '#ced4da',
                         backgroundColor: '#ced4da',
                         borderWidth: 3,
-                        pointBackgroundColor: '#0d6efd', 
+                        pointBackgroundColor: '#0d6efd',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2,
                         pointRadius: 5,
                         pointHoverRadius: 7,
                         fill: false,
-                        tension: 0.4 
+                        tension: 0.4
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false, 
+                    maintainAspectRatio: false,
                     layout: { padding: { top: 30, bottom: 5, left: 20, right: 20 } },
                     plugins: {
                         legend: { display: false },
@@ -176,13 +201,13 @@
                             offset: 4,
                             color: '#495057',
                             font: { weight: 'bold', size: 14 },
-                            formatter: function(value) {
+                            formatter: function (value) {
                                 return Math.round(value) + '°';
                             }
                         }
                     },
                     scales: {
-                        x: { display: false }, 
+                        x: { display: false },
                         y: {
                             display: false,
                             min: minTemp - 5,
@@ -195,13 +220,39 @@
     </script>
 
     <style>
-        .weather-card { transition: all 0.3s cubic-bezier(.25,.8,.25,1); }
-        .weather-card:hover { transform: translateY(-7px); box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important; }
-        input[type="date"]:focus, select:focus { outline: none; box-shadow: none; }
-        .custom-scrollbar::-webkit-scrollbar { height: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f8f9fa; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #adb5bd; }
+        .weather-card {
+            transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+        }
+
+        .weather-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+        }
+
+        input[type="date"]:focus,
+        select:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #ced4da;
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #adb5bd;
+        }
     </style>
 </body>
+
 </html>
