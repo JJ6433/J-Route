@@ -33,8 +33,16 @@
                                 <span class="input-group-text bg-white border-end-0 text-muted">
                                     <i class="bi bi-geo-alt"></i>
                                 </span>
-                                <input type="text" id="locationInput" class="form-control border-start-0"
-                                    placeholder="都市・エリア">
+                                <select id="locationInput" class="form-select border-start-0">
+                                    <option value="東京">東京</option>
+                                    <option value="大阪">大阪</option>
+                                    <option value="福岡">福岡</option>
+                                    <option value="札幌">札幌</option>
+                                    <option value="沖縄">沖縄</option>
+                                    <option value="名古屋">名古屋</option>
+                                    <option value="静岡">静岡</option>
+                                    <option value="広島">広島</option>
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -207,7 +215,7 @@
 
             clearMarkers();
 
-            const queryText = loc + " " + kw + " " + (cat === 'restaurant' ? '' : cat) + " お勧め";
+            const queryText = loc + " " + kw + " " + (cat === 'restaurant' ? 'レストラン' : cat) + " お勧め";
             const request = {
                 query: queryText,
                 fields: ["name", "geometry", "formatted_address", "photos", "rating", "user_ratings_total", "price_level", "opening_hours", "place_id"],
