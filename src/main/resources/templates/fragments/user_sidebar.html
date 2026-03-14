@@ -9,13 +9,9 @@
             <i class="bi bi-airplane me-2"></i> 航空券予約
         </a>
         <a th:href="@{/trip/hotels}" class="list-group-item list-group-item-action border-0 px-4 py-2"
-           th:classappend="${activeMenu == 'hotels'} ? 'active' : ''">
-            <i class="bi bi-building me-2"></i> 宿泊先を探す
-        </a>
-        <a th:href="@{/trip/explore}" class="list-group-item list-group-item-action border-0 px-4 py-2"
-           th:classappend="${activeMenu == 'explore'} ? 'active' : ''">
-            <i class="bi bi-geo-alt me-2"></i> 観光スポット探索 <span class="badge bg-info text-dark ms-1">AI</span>
-        </a>
+		   th:classappend="${activeMenu == 'hotels'} ? 'active' : ''">
+		    <i class="bi bi-building me-2"></i> 宿泊先を探す
+		</a>
         <a th:href="@{/trip/gourmet}" class="list-group-item list-group-item-action border-0 px-4 py-2"
            th:classappend="${activeMenu == 'gourmet'} ? 'active' : ''">
             <i class="bi bi-cup-hot me-2"></i> グルメ・カフェ
@@ -25,7 +21,7 @@
             <small class="text-primary d-block mb-1" style="font-size: 0.7rem;">TRIP ASSISTANT</small>
             <span class="fs-6">旅行アシスタント</span>
         </div>
-        <a th:href="@{/assistant/weather}" class="list-group-item list-group-item-action border-0 px-4 py-2"
+        <a th:href="@{/weather/weather-result}" class="list-group-item list-group-item-action border-0 px-4 py-2"
            th:classappend="${activeMenu == 'weather'} ? 'active' : ''">
             <i class="bi bi-cloud-sun me-2"></i> 天気＆服装
         </a>

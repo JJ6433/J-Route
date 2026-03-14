@@ -29,7 +29,7 @@
                     <h2 class="accordion-header" id="headingOne">
                         <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse"
                             data-bs-target="#collapseOne" aria-expanded="true">
-                            <i class="bi bi-map me-2"></i> 旅の計画 (Plan)
+                            <i class="bi bi-map me-2"></i> 旅の計画
                         </button>
                     </h2>
                     <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#sidebarAccordion">
@@ -38,11 +38,6 @@
                                 航空券予約</a>
                             <a th:href="@{/trip/hotels}" class="list-group-item list-group-item-action ps-5">🏨
                                 宿泊先を探す</a>
-                            <a th:href="@{/trip/explore}"
-                                class="list-group-item list-group-item-action ps-5 d-flex justify-content-between">
-                                <span>📍 観光スポット</span>
-                                <span class="badge bg-info text-dark">AI</span>
-                            </a>
                             <a th:href="@{/trip/gourmet}" class="list-group-item list-group-item-action ps-5">🍽️
                                 グルメ・カフェ</a>
                         </div>
@@ -58,8 +53,11 @@
                     </h2>
                     <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
                         <div class="list-group list-group-flush">
-                            <a th:href="@{/assistant/weather}" class="list-group-item list-group-item-action ps-5">☀️
-                                天気＆服装</a>
+                            <a th:href="@{/weather/weather-result}" 
+							   class="list-group-item list-group-item-action ps-5"
+							   th:classappend="${activeMenu == 'weather'} ? 'active' : ''">
+							    ⛅ 天気＆服装
+							</a>
                             <a th:href="@{/assistant/exchange}" class="list-group-item list-group-item-action ps-5">💴
                                 為替＆予算</a>
                             <a th:href="@{/assistant/transport}" class="list-group-item list-group-item-action ps-5">🚌

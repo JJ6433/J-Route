@@ -5,93 +5,102 @@
     <title>日本行き航空券検索 - J-Route</title>
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100 bg-light">
 
     <div style="position: relative; z-index: 1050;">
         <header th:replace="~{fragments/header :: headerFragment}"></header>
     </div>
 
-    <main class="container mt-5 flex-grow-1">
-        <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
-            <h3 class="fw-bold mb-4">
-                <i class="bi bi-airplane-fill text-primary me-2"></i>日本行き航空券検索
-            </h3>
-
-            <div class="mb-4">
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="tripType" id="oneWay" value="oneway" checked onclick="toggleReturnDate(false)">
-                    <label class="form-check-label fw-bold" for="oneWay">片道 </label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="tripType" id="roundTrip" value="roundtrip" onclick="toggleReturnDate(true)">
-                    <label class="form-check-label fw-bold" for="roundTrip">往復 </label>
-                </div>
+    <main class="container py-5 flex-grow-1">
+        <div class="row">
+            
+            <div class="col-lg-3 mb-4">
+                <div th:replace="~{fragments/user_sidebar :: user_sidebarFragment}"></div>
             </div>
 
-            <hr>
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: 15px;">
+                    <h3 class="fw-bold mb-4">
+                        <i class="bi bi-airplane-fill text-primary me-2"></i>日本行き航空券検索
+                    </h3>
 
-            <form action="/search-page" method="get">
-                <input type="hidden" name="type" id="tripTypeHidden" value="oneway">
-
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold text-dark">出発地</label>
-                        <select name="fromId" class="form-select form-select-lg" required>
-                            <option value="" disabled selected>出発地を選択</option>
-                            <optgroup label="韓国の主要空港">
-                                <option value="ICN.AIRPORT">ソウル / 仁川 (ICN)</option>
-                                <option value="GMP.AIRPORT">ソウル / 金浦 (GMP)</option>
-                                <option value="PUS.AIRPORT">釜山 / 金海 (PUS)</option>
-                                <option value="CJU.AIRPORT">済州 (CJU)</option>
-                                <option value="TAE.AIRPORT">大邱 (TAE)</option>
-                                <option value="CJJ.AIRPORT">清州 (CJJ)</option>
-                                <option value="MWX.AIRPORT">務安 (MWX)</option>
-                            </optgroup>
-                        </select>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold text-dark">目的地</label>
-                        <select name="toId" class="form-select form-select-lg" required>
-                            <option value="" disabled selected>目的地を選択</option>
-                            <optgroup label="日本の主要空港">
-                                <option value="NRT.AIRPORT">東京 / 成田空港 (NRT)</option>
-                                <option value="HND.AIRPORT">東京 / 羽田空港 (HND)</option>
-                                <option value="KIX.AIRPORT">大阪 / 関西国際空港 (KIX)</option>
-                                <option value="ITM.AIRPORT">大阪 / 伊丹空港 (ITM)</option>
-                                <option value="FUK.AIRPORT">福岡 / 福岡空港 (FUK)</option>
-                                <option value="CTS.AIRPORT">札幌 / 新千歳空港 (CTS)</option>
-                                <option value="OKA.AIRPORT">沖縄 / 那覇空港 (OKA)</option>
-                                <option value="NGO.AIRPORT">名古屋 / 中部国際空港 (NGO)</option>
-                            </optgroup>
-                        </select>
-                    </div>
-
-                    <div class="col-md-3" id="departure-col">
-                        <label class="form-label fw-bold text-dark">往路出発日</label>
-                        <div class="date-input-wrapper">
-                            <input type="date" name="departDate" id="departDate" class="form-control form-control-lg custom-date-input" required>
+                    <div class="mb-4">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="tripType" id="oneWay" value="oneway" checked onclick="toggleReturnDate(false)">
+                            <label class="form-check-label fw-bold" for="oneWay">片道 </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="tripType" id="roundTrip" value="roundtrip" onclick="toggleReturnDate(true)">
+                            <label class="form-check-label fw-bold" for="roundTrip">往復 </label>
                         </div>
                     </div>
 
-                    <div class="col-md-3 d-none" id="return-date-col">
-                        <label class="form-label fw-bold text-dark">復路出発日</label>
-                        <div class="date-input-wrapper">
-                            <input type="date" name="returnDate" id="returnDateInput" class="form-control form-control-lg custom-date-input">
-                        </div>
-                    </div>
+                    <hr class="mb-4 opacity-10">
 
-                    <div class="col-12 text-end mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm fw-bold">
-                            航空券を検索 <i class="bi bi-search ms-2"></i>
-                        </button>
+                    <form action="/search-page" method="get">
+                        <input type="hidden" name="type" id="tripTypeHidden" value="oneway">
+
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-dark small">出発地</label>
+                                <select name="fromId" class="form-select form-select-lg bg-light border-0" required>
+                                    <option value="" disabled selected>出発地を選択</option>
+                                    <optgroup label="韓国の主要空港">
+                                        <option value="ICN.AIRPORT">ソウル / 仁川 (ICN)</option>
+                                        <option value="GMP.AIRPORT">ソウル / 金浦 (GMP)</option>
+                                        <option value="PUS.AIRPORT">釜山 / 金海 (PUS)</option>
+                                        <option value="CJU.AIRPORT">済州 (CJU)</option>
+                                        <option value="TAE.AIRPORT">大邱 (TAE)</option>
+                                        <option value="CJJ.AIRPORT">清州 (CJJ)</option>
+                                        <option value="MWX.AIRPORT">務安 (MWX)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-dark small">目的地</label>
+                                <select name="toId" class="form-select form-select-lg bg-light border-0" required>
+                                    <option value="" disabled selected>目的地を選択</option>
+                                    <optgroup label="日本の主要空港">
+                                        <option value="NRT.AIRPORT">東京 / 成田空港 (NRT)</option>
+                                        <option value="HND.AIRPORT">東京 / 羽田空港 (HND)</option>
+                                        <option value="KIX.AIRPORT">大阪 / 関西国際空港 (KIX)</option>
+                                        <option value="ITM.AIRPORT">大阪 / 伊丹空港 (ITM)</option>
+                                        <option value="FUK.AIRPORT">福岡 / 福岡空港 (FUK)</option>
+                                        <option value="CTS.AIRPORT">札幌 / 新千歳空港 (CTS)</option>
+                                        <option value="OKA.AIRPORT">沖縄 / 那覇空港 (OKA)</option>
+                                        <option value="NGO.AIRPORT">名古屋 / 中部国際空港 (NGO)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3" id="departure-col">
+                                <label class="form-label fw-bold text-dark small">往路出発日</label>
+                                <div class="date-input-wrapper">
+                                    <input type="date" name="departDate" id="departDate" class="form-control form-control-lg bg-light border-0 custom-date-input" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 d-none" id="return-date-col">
+                                <label class="form-label fw-bold text-dark small">復路出発日</label>
+                                <div class="date-input-wrapper">
+                                    <input type="date" name="returnDate" id="returnDateInput" class="form-control form-control-lg bg-light border-0 custom-date-input">
+                                </div>
+                            </div>
+
+                            <div class="col-12 text-end mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg px-5 shadow fw-bold rounded-pill">
+                                    航空券を検索 <i class="bi bi-search ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="mt-5 p-4 bg-primary bg-opacity-10 rounded-4 border-0">
+                        <h6 class="fw-bold mb-2 text-primary"><i class="bi bi-info-circle-fill me-2"></i>ご利用案内</h6>
+                        <p class="small text-dark mb-0">往復を選択された場合は、往路と復路の両方の出発日を指定してください。</p>
                     </div>
                 </div>
-            </form>
-
-            <div class="mt-5 p-4 bg-light rounded-3 border-0">
-                <h6 class="fw-bold mb-3 text-secondary"><i class="bi bi-info-circle me-2"></i>ご利用案内</h6>
-                <p class="small text-muted mb-0">往復を選択された場合は、往路と復路の両方の出発日を指定してください。</p>
             </div>
         </div>
     </main>
@@ -101,31 +110,23 @@
     <script>
         const departInput = document.getElementById('departDate');
         const returnInput = document.getElementById('returnDateInput');
-
-        // 1. 초기화: 오늘 이전 날짜는 선택 불가능하게 설정
         const today = new Date().toISOString().split('T')[0];
         departInput.min = today;
         returnInput.min = today;
 
-        // 2. 왕로 출발일(가는 날)이 변경될 때마다 복로(오는 날)의 최소 날짜를 업데이트
         departInput.addEventListener('change', function() {
             const selectedDepartDate = this.value;
             if (selectedDepartDate) {
-                // 오는 날의 최소 선택 가능일(min)을 가는 날로 고정
                 returnInput.min = selectedDepartDate;
-
-                // 만약 이미 선택된 오는 날이 새로 바뀐 가는 날보다 앞선다면, 오는 날을 가는 날로 초기화
                 if (returnInput.value && returnInput.value < selectedDepartDate) {
                     returnInput.value = selectedDepartDate;
                 }
             }
         });
 
-        // 왕복/편도 전환 로직
         function toggleReturnDate(isRoundTrip) {
             const returnCol = document.getElementById('return-date-col');
             const hiddenType = document.getElementById('tripTypeHidden');
-
             if (isRoundTrip) {
                 returnCol.classList.remove('d-none');
                 returnInput.required = true;
@@ -152,12 +153,10 @@
         }
         .custom-date-input:focus::before,
         .custom-date-input:valid::before { display: none; }
-
         .custom-date-input::-webkit-datetime-edit-year-field,
         .custom-date-input::-webkit-datetime-edit-month-field,
         .custom-date-input::-webkit-datetime-edit-day-field,
         .custom-date-input::-webkit-datetime-edit-text { color: transparent; }
-
         .custom-date-input:focus::-webkit-datetime-edit-year-field,
         .custom-date-input:focus::-webkit-datetime-edit-month-field,
         .custom-date-input:focus::-webkit-datetime-edit-day-field,
@@ -166,6 +165,7 @@
         .custom-date-input:valid::-webkit-datetime-edit-month-field,
         .custom-date-input:valid::-webkit-datetime-edit-day-field,
         .custom-date-input:valid::-webkit-datetime-edit-text { color: black; }
+        .bg-opacity-10 { background-color: rgba(13, 110, 253, 0.08) !important; }
     </style>
 </body>
 </html>
