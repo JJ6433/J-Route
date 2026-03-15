@@ -11,66 +11,76 @@
         <header th:replace="~{fragments/header :: headerFragment}"></header>
     </div>
 
-    <main class="container mt-5 flex-grow-1">
-        <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
-            <h3 class="fw-bold mb-4">
-                <i class="bi bi-building text-primary me-2"></i>宿泊先を探す
-            </h3>
-            <hr>
+    <main class="container py-5 flex-grow-1">
+        <div class="row">
+            
+            <div class="col-lg-3 mb-4">
+                <div th:replace="~{fragments/user_sidebar :: user_sidebarFragment}"></div>
+            </div>
 
-            <form action="/hotel-search-page" method="get">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold text-dark">目的地</label>
-                        <select name="destId" class="form-select form-select-lg" required>
-                            <option value="" disabled selected>都市を選択</option>
-                            <optgroup label="主要都市">
-                                <option value="-246227">東京 (Tokyo)</option>
-                                <option value="-240905">大阪 (Osaka)</option>
-                                <option value="-235402">京都 (Kyoto)</option>
-                                <option value="-227649">福岡 (Fukuoka)</option>
-                                <option value="-242307">札幌 (Sapporo)</option>
-                                <option value="-237896">那覇 (Naha/Okinawa)</option>
-                            </optgroup>
-                        </select>
-                        <input type="hidden" name="destType" value="city">
-                    </div>
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: 15px;">
+                    <h3 class="fw-bold mb-4">
+                        <i class="bi bi-building text-primary me-2"></i>宿泊先を探す
+                    </h3>
+                    
+                    <hr class="mb-4 opacity-10">
 
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold text-dark">チェックイン</label>
-                        <div class="date-input-wrapper">
-                            <input type="date" name="checkinDate" id="checkinDate" class="form-control form-control-lg custom-date-input" required>
+                    <form action="/hotel-search-page" method="get">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-dark small">目的地</label>
+                                <select name="destId" class="form-select form-select-lg bg-light border-0" required>
+                                    <option value="" disabled selected>都市を選択</option>
+                                    <optgroup label="主要都市">
+                                        <option value="-246227">東京 (Tokyo)</option>
+                                        <option value="-240905">大阪 (Osaka)</option>
+                                        <option value="-235402">京都 (Kyoto)</option>
+                                        <option value="-227649">福岡 (Fukuoka)</option>
+                                        <option value="-242307">札幌 (Sapporo)</option>
+                                        <option value="-237896">那覇 (Naha/Okinawa)</option>
+                                    </optgroup>
+                                </select>
+                                <input type="hidden" name="destType" value="city">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-dark small">チェックイン</label>
+                                <div class="date-input-wrapper">
+                                    <input type="date" name="checkinDate" id="checkinDate" class="form-control form-control-lg bg-light border-0 custom-date-input" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-dark small">チェックアウト</label>
+                                <div class="date-input-wrapper">
+                                    <input type="date" name="checkoutDate" id="checkoutDate" class="form-control form-control-lg bg-light border-0 custom-date-input" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-dark small">宿泊人数</label>
+                                <select name="adults" class="form-select form-select-lg bg-light border-0">
+                                    <option value="1">1 名</option>
+                                    <option value="2" selected>2 名</option>
+                                    <option value="3">3 名</option>
+                                    <option value="4">4 名</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 text-end mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg px-5 shadow fw-bold rounded-pill">
+                                    宿泊先を検索 <i class="bi bi-search ms-2"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    </form>
 
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold text-dark">チェックアウト</label>
-                        <div class="date-input-wrapper">
-                            <input type="date" name="checkoutDate" id="checkoutDate" class="form-control form-control-lg custom-date-input" required>
-                        </div>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold text-dark">宿泊人数</label>
-                        <select name="adults" class="form-select form-select-lg">
-                            <option value="1">1 名</option>
-                            <option value="2" selected>2 名</option>
-                            <option value="3">3 名</option>
-                            <option value="4">4 名</option>
-                        </select>
-                    </div>
-
-                    <div class="col-12 text-end mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm fw-bold">
-                            宿泊先を検索 <i class="bi bi-search ms-2"></i>
-                        </button>
+                    <div class="mt-5 p-4 bg-primary bg-opacity-10 rounded-4 border-0">
+                        <h6 class="fw-bold mb-2 text-primary"><i class="bi bi-info-circle-fill me-2"></i>ご利用案内</h6>
+                        <p class="small text-dark mb-0">チェックアウト日は、チェックイン日の翌日以降をご指定ください。</p>
                     </div>
                 </div>
-            </form>
-
-            <div class="mt-5 p-4 bg-light-subtle rounded-3 border-0">
-                <h6 class="fw-bold mb-3 text-secondary"><i class="bi bi-info-circle me-2"></i>ご利用案内</h6>
-                <p class="small text-muted mb-0">チェックアウト日は、チェックイン日の翌日以降をご指定ください。</p>
             </div>
         </div>
     </main>
@@ -127,6 +137,9 @@
         .custom-date-input:valid::-webkit-datetime-edit-month-field,
         .custom-date-input:valid::-webkit-datetime-edit-day-field,
         .custom-date-input:valid::-webkit-datetime-edit-text { color: black; }
+        
+        /* 💡 항공권과 동일한 은은한 파란색 배경 클래스 추가 */
+        .bg-opacity-10 { background-color: rgba(13, 110, 253, 0.08) !important; }
     </style>
 </body>
 </html>

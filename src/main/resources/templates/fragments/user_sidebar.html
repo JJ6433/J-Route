@@ -5,19 +5,16 @@
             <span class="fs-6">旅の計画</span>
         </div>
         <a th:href="@{/trip/flights}" class="list-group-item list-group-item-action border-0 px-4 py-2"
-           th:classappend="${activeMenu == 'flights'} ? 'active' : ''">
+            th:classappend="${activeMenu == 'flights'} ? 'active' : ''">
             <i class="bi bi-airplane me-2"></i> 航空券予約
         </a>
         <a th:href="@{/trip/hotels}" class="list-group-item list-group-item-action border-0 px-4 py-2"
-           th:classappend="${activeMenu == 'hotels'} ? 'active' : ''">
+            th:classappend="${activeMenu == 'hotels'} ? 'active' : ''">
             <i class="bi bi-building me-2"></i> 宿泊先を探す
         </a>
-        <a th:href="@{/trip/explore}" class="list-group-item list-group-item-action border-0 px-4 py-2"
-           th:classappend="${activeMenu == 'explore'} ? 'active' : ''">
-            <i class="bi bi-geo-alt me-2"></i> 観光スポット探索 <span class="badge bg-info text-dark ms-1">AI</span>
-        </a>
+
         <a th:href="@{/trip/gourmet}" class="list-group-item list-group-item-action border-0 px-4 py-2"
-           th:classappend="${activeMenu == 'gourmet'} ? 'active' : ''">
+            th:classappend="${activeMenu == 'gourmet'} ? 'active' : ''">
             <i class="bi bi-cup-hot me-2"></i> グルメ・カフェ
         </a>
 
@@ -25,21 +22,18 @@
             <small class="text-primary d-block mb-1" style="font-size: 0.7rem;">TRIP ASSISTANT</small>
             <span class="fs-6">旅行アシスタント</span>
         </div>
-        <a th:href="@{/assistant/weather}" class="list-group-item list-group-item-action border-0 px-4 py-2"
-           th:classappend="${activeMenu == 'weather'} ? 'active' : ''">
+        <a th:href="@{/weather/weather-result}" class="list-group-item list-group-item-action border-0 px-4 py-2"
+            th:classappend="${activeMenu == 'weather'} ? 'active' : ''">
             <i class="bi bi-cloud-sun me-2"></i> 天気＆服装
         </a>
         <a th:href="@{/assistant/exchange}" class="list-group-item list-group-item-action border-0 px-4 py-2"
-           th:classappend="${activeMenu == 'exchange'} ? 'active' : ''">
+            th:classappend="${activeMenu == 'exchange'} ? 'active' : ''">
             <i class="bi bi-currency-exchange me-2"></i> 為替＆予算
         </a>
         <a th:href="@{/assistant/transport}" class="list-group-item list-group-item-action border-0 px-4 py-2"
-           th:classappend="${activeMenu == 'transport'} ? 'active' : ''">
+            th:classappend="${activeMenu == 'transport'} ? 'active' : ''">
             <i class="bi bi-bus-front me-2"></i> 交通・パス
         </a>
-        <a th:href="@{/assistant/facilities}" class="list-group-item list-group-item-action border-0 px-4 py-2"
-           th:classappend="${activeMenu == 'facilities'} ? 'active' : ''">
-            <i class="bi bi-bag-check me-2"></i> 荷物預かり・施設
-        </a>
+
     </div>
 </div>
