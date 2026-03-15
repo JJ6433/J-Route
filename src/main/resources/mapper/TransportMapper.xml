@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.TransportMapper">
+
+    <select id="getAllPasses" resultType="com.blog.dto.TransportDto">
+        SELECT id, name, subtitle, icon_emoji AS iconEmoji, price, badge_text AS badgeText, description 
+        FROM transport_pass ORDER BY price ASC
+    </select>
+
+    <select id="getPassById" resultType="com.blog.dto.TransportDto">
+        SELECT id, name, subtitle, icon_emoji AS iconEmoji, price, badge_text AS badgeText, description 
+        FROM transport_pass WHERE id = #{id}
+    </select>
+
+    <insert id="insertPass">
+        INSERT INTO transport_pass (name, subtitle, icon_emoji, price, badge_text, description)
+        VALUES (#{name}, #{subtitle}, #{iconEmoji}, #{price}, #{badgeText}, #{description})
+    </insert>
+
+    <update id="updatePass">
+        UPDATE transport_pass 
+        SET name = #{name}, subtitle = #{subtitle}, icon_emoji = #{iconEmoji}, 
+            price = #{price}, badge_text = #{badgeText}, description = #{description}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deletePass">
+        DELETE FROM transport_pass WHERE id = #{id}
+    </delete>
+
+</mapper>

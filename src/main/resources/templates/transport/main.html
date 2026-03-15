@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}">
+    <title>交通・パス - J-Route</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+
+    <main class="container py-5 flex-grow-1">
+        <div class="row">
+            <div class="col-lg-3 mb-4">
+                <div th:replace="~{fragments/user_sidebar :: user_sidebarFragment}"></div>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                    <div class="d-flex align-items-center">
+                        <h3 class="fw-bold mb-0">
+                            <i class="bi bi-bus-front text-primary me-2"></i>交通・パス
+                        </h3>
+                        <span class="ms-3 badge bg-white text-dark border shadow-sm px-3 py-2 rounded-pill small">
+                            <i class="bi bi-info-circle me-1 text-info"></i> お得な移動手段
+                        </span>
+                    </div>
+                </div>
+
+                <ul class="nav nav-tabs mb-4" id="transportTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-bold" id="pass-tab" data-bs-toggle="tab" data-bs-target="#pass" type="button" role="tab" aria-controls="pass" aria-selected="true">
+                            🎟️ パス券情報
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold" id="route-tab" data-bs-toggle="tab" data-bs-target="#route" type="button" role="tab" aria-controls="route" aria-selected="false">
+                            🗺️ ルート検索
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="alert alert-primary bg-primary bg-opacity-10 border-0 rounded-3 mb-4 py-2 px-3 text-dark small">
+                    <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                    旅行に役立つ人気の<strong>交通パス</strong>や<strong>路線情報</strong>を確認できます。
+                </div>
+
+                <div class="tab-content" id="transportTabContent">
+                    
+                    <div class="tab-pane fade show active" id="pass" role="tabpanel" aria-labelledby="pass-tab">
+                        <div class="row g-3">
+                            <div class="col-6 col-md-6 col-lg-4 col-xl-4" th:each="pass : ${passList}">
+                                <div class="card border-0 shadow-sm rounded-4 h-100 hover-card">
+                                    <div class="card-body p-3 text-center d-flex flex-column justify-content-between">
+                                        <div>
+                                            <h6 class="fw-bold text-dark mb-0" th:text="${pass.name}">パス名</h6>
+                                            <p class="text-muted mb-2" style="font-size: 0.75rem;" th:text="${pass.subtitle}">サブタイトル</p>
+                                            <div style="font-size: 3.5rem; line-height: 1.2;" th:text="${pass.iconEmoji}">🎟️</div>
+                                            <h3 class="fw-bold text-primary mb-1 mt-2">
+                                                <span th:text="${#numbers.formatInteger(pass.price, 0, 'COMMA')}">0</span>円~
+                                            </h3>
+                                            <span class="badge bg-light text-dark border-0 mb-3 small py-2 px-3 w-100" style="background-color: #f8f9fa !important;" th:text="${pass.badgeText}">
+                                                バッジテキスト
+                                            </span>
+                                        </div>
+                                        <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-start mt-auto">
+                                            <p style="font-size: 0.7rem;" class="fw-bold text-primary mb-1"><i class="bi bi-stars me-1"></i>おすすめ</p>
+                                            <p style="font-size: 0.75rem; line-height: 1.4;" class="text-dark mb-0 fw-medium" th:text="${pass.description}">
+                                                説明文
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="route" role="tabpanel" aria-labelledby="route-tab">
+                        <div class="card border-0 shadow-sm rounded-4 p-4">
+                            <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-map text-primary me-2"></i> 目的地までのルート</h5>
+                            
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-5">
+                                    <input type="text" id="origin" class="form-control" placeholder="出発地 (例: 東京駅)">
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" id="destination" class="form-control" placeholder="目的地 (例: 新宿駅)">
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-primary w-100 fw-bold" onclick="calculateAndDisplayRoute()">検索</button>
+                                </div>
+                            </div>
+
+                            <div id="map" style="height: 400px; width: 100%; border-radius: 8px;" class="mb-3 bg-light"></div>
+                            
+                            <div id="directionsPanel" class="p-3 bg-light rounded-3" style="max-height: 300px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <style>
+        .hover-card { 
+            transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+            border: 1px solid rgba(0,0,0,0.03) !important;
+        }
+        .hover-card:hover { 
+            transform: translateY(-7px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+        }
+    </style>
+
+    <script th:src="@{'https://maps.googleapis.com/maps/api/js?key=' + ${googleMapsApiKey} + '&language=ja&callback=initMap'}" async defer></script>
+
+    <script>
+        let directionsService;
+        let directionsRenderer;
+
+        // マップ初期化
+        function initMap() {
+            directionsService = new google.maps.DirectionsService();
+            
+            // ルート線のカスタマイズ
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                polylineOptions: {
+                    strokeColor: '#e74c3c', 
+                    strokeWeight: 6,        
+                    strokeOpacity: 0.8      
+                }
+            });
+            
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 6,
+                center: { lat: 35.6895, lng: 139.6917 },
+                gestureHandling: 'greedy' 
+            });
+            
+            directionsRenderer.setMap(map);
+            directionsRenderer.setPanel(document.getElementById("directionsPanel"));
+        }
+
+        // ルート検索と表示
+        function calculateAndDisplayRoute() {
+            const origin = document.getElementById("origin").value;
+            const destination = document.getElementById("destination").value;
+
+            if(!origin || !destination) {
+                alert("出発地と目的地を入力してください。");
+                return;
+            }
+
+            // 自動車(DRIVING)ルート検索
+            directionsService.route(
+                {
+                    origin: origin,
+                    destination: destination,
+                    travelMode: google.maps.TravelMode.DRIVING 
+                },
+                (response, status) => {
+                    if (status === "OK") {
+                        directionsRenderer.setDirections(response);
+                    } else {
+                        alert("ルートを検索できませんでした: " + status);
+                    }
+                }
+            );
+        }
+    </script>
+</body>
+</html>

@@ -4,6 +4,7 @@
             <small class="text-primary d-block mb-1" style="font-size: 0.7rem;">PLAN YOUR TRIP</small>
             <span class="fs-6">旅の計画</span>
         </div>
+        
         <a th:href="@{/trip/flights}" class="list-group-item list-group-item-action border-0 px-4 py-2"
            th:classappend="${activeMenu == 'flights'} ? 'active' : ''">
             <i class="bi bi-airplane me-2"></i> 航空券予約
@@ -25,7 +26,8 @@
             <small class="text-primary d-block mb-1" style="font-size: 0.7rem;">TRIP ASSISTANT</small>
             <span class="fs-6">旅行アシスタント</span>
         </div>
-        <a th:href="@{/assistant/weather}" class="list-group-item list-group-item-action border-0 px-4 py-2"
+        
+        <a th:href="@{/weather/weather-result}" class="list-group-item list-group-item-action border-0 px-4 py-2"
            th:classappend="${activeMenu == 'weather'} ? 'active' : ''">
             <i class="bi bi-cloud-sun me-2"></i> 天気＆服装
         </a>
@@ -33,7 +35,7 @@
            th:classappend="${activeMenu == 'exchange'} ? 'active' : ''">
             <i class="bi bi-currency-exchange me-2"></i> 為替＆予算
         </a>
-        <a th:href="@{/assistant/transport}" class="list-group-item list-group-item-action border-0 px-4 py-2"
+        <a th:href="@{/transport}" class="list-group-item list-group-item-action border-0 px-4 py-2"
            th:classappend="${activeMenu == 'transport'} ? 'active' : ''">
             <i class="bi bi-bus-front me-2"></i> 交通・パス
         </a>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/admin}">
+
+<head>
+    <title>パス券の編集</title>
+</head>
+
+<body>
+    <main layout:fragment="content">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+            <h1 class="h3 fw-bold">
+                <i class="bi bi-bus-front text-success"></i>
+                <span th:text="${pass.id == null ? 'パス券の登録' : 'パス券の編集'}">パス券</span>
+            </h1>
+        </div>
+
+        <div class="card shadow-sm border-0" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <form th:action="@{/admin/transport/save}" th:object="${pass}" method="post">
+                    <input type="hidden" th:field="*{id}">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">パス名</label>
+                        <input type="text" class="form-control" th:field="*{name}" required placeholder="例: JR PASS">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">サブタイトル</label>
+                        <input type="text" class="form-control" th:field="*{subtitle}" placeholder="例: 全国版">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">アイコン (絵文字)</label>
+                            <input type="text" class="form-control" th:field="*{iconEmoji}" required placeholder="例: 🚅">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">価格 (円)</label>
+                            <input type="number" class="form-control" th:field="*{price}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">バッジテキスト</label>
+                        <input type="text" class="form-control" th:field="*{badgeText}" placeholder="例: 日本全国乗り放題">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">おすすめ説明文</label>
+                        <textarea class="form-control" th:field="*{description}" rows="5" required placeholder="旅行者に役立つ情報を入力してください"></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a th:href="@{/admin/transport/list}" class="btn btn-outline-secondary px-4">キャンセル</a>
+                        <button type="submit" class="btn btn-success px-4"
+                            th:text="${pass.id == null ? '登録' : '保存'}">登録</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
