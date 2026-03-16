@@ -58,8 +58,9 @@
 							   th:classappend="${activeMenu == 'weather'} ? 'active' : ''">
 							    ⛅ 天気＆服装
 							</a>
-                            <a th:href="@{/assistant/exchange}" class="list-group-item list-group-item-action ps-5">💴
-                                為替＆予算</a>
+                            <a th:href="@{/exchange/budget}" class="list-group-item list-group-item-action ps-5"
+					           th:classappend="${activeMenu == 'exchange'} ? 'active' : ''">
+					             💴 為替＆予算</a>
                             <a th:href="@{/assistant/transport}" class="list-group-item list-group-item-action ps-5">🚌
                                 交通・パス</a>
                         </div>
