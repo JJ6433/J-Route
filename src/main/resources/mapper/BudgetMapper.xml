@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.BudgetMapper">
+
+    <select id="getBudgetByUserId" resultType="com.blog.dto.BudgetDto">
+        SELECT 
+            budget_id as budgetId,
+            user_id as userId,
+            transport_cost as transportCost,
+            hotel_cost as hotelCost,
+            food_cost as foodCost,
+            updated_at as updatedAt
+        FROM budgets
+        WHERE user_id = #{userId}
+    </select>
+
+    <insert id="saveOrUpdateBudget" parameterType="com.blog.dto.BudgetDto">
+        INSERT INTO budgets (user_id, transport_cost, hotel_cost, food_cost)
+        VALUES (#{userId}, #{transportCost}, #{hotelCost}, #{foodCost})
+        ON DUPLICATE KEY UPDATE 
+            transport_cost = VALUES(transport_cost),
+            hotel_cost = VALUES(hotel_cost),
+            food_cost = VALUES(food_cost)
+    </insert>
+
+</mapper>

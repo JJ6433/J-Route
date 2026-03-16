@@ -25,4 +25,5 @@ public class WishlistDto {
     private String placeRegion;
     private String placeCategory;
     private String imageUrl;
+    private Integer price;
 }
