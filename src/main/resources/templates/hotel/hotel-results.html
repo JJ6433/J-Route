@@ -107,7 +107,6 @@
             mainContent.classList.remove('d-none');
             allHotels = response.data.hotels;
 
-            // 💡 [알잘딱깔센 패치] 검색된 숙소 중 가장 비싼 가격을 찾아 슬라이더 최대값 자동 세팅
             let highestPrice = 0;
             allHotels.forEach(h => {
                 const p = h.property?.priceBreakdown?.grossPrice;
@@ -115,7 +114,6 @@
                 if (val > highestPrice) highestPrice = val;
             });
 
-            // 제일 비싼 가격을 기준으로 1만 엔 단위로 올림 (예: 275,899 -> 280,000)
             const sliderMax = highestPrice > 0 ? Math.ceil(highestPrice / 10000) * 10000 : 100000;
             const priceFilter = document.getElementById('priceFilter');
             priceFilter.max = sliderMax;
@@ -202,6 +200,7 @@
                 const detailUrl = `/hotel/detail?id=${apiId}&name=${encodeURIComponent(hotelName)}&price=${purePrice}&photoUrl=${encodeURIComponent(photoUrl)}&checkinDate=${checkinDate}&checkoutDate=${checkoutDate}&adults=${adults}`;
                 const saveApiId = `/hotel/detail?id=${apiId}&price=${purePrice}&checkinDate=${checkinDate}&checkoutDate=${checkoutDate}&adults=${adults}`;
 
+                // 💡 [수정됨] button 태그 안에 data-price="${purePrice}" 가 추가되었습니다.
                 const cardHtml = `
                     <div class="card border-0 shadow-sm mb-4 hotel-card overflow-hidden position-relative" 
                          style="border-radius: 15px; cursor: pointer;"
@@ -214,6 +213,7 @@
                                 data-item-name="${hotelName}" 
                                 data-image-url="${photoUrl}"
                                 data-category="HOTEL"
+                                data-price="${purePrice}"
                                 onclick="toggleWishlist(this, event)">
                             <i class="bi bi-heart text-danger fs-5"></i>
                         </button>
@@ -249,6 +249,7 @@
             });
         }
 
+        // 💡 [수정됨] data-price에서 가격을 꺼내와 requestData에 담아 보냅니다.
         async function toggleWishlist(button, event) {
             event.preventDefault();
             event.stopPropagation();
@@ -257,15 +258,17 @@
             const itemName = button.getAttribute('data-item-name');
             const imageUrl = button.getAttribute('data-image-url');
             const category = button.getAttribute('data-category');
+            const price = parseInt(button.getAttribute('data-price')) || 0;
 
             const icon = button.querySelector('i');
             const isWished = icon.classList.contains('bi-heart-fill');
 
             const requestData = {
                 apiId: apiId,
-                placeName: itemName, // 💡 [핵심 수정] itemName이 아니라 서버가 기다리는 placeName으로 정확히 전달!
+                placeName: itemName, 
                 imageUrl: imageUrl,
-                category: category
+                category: category,
+                price: price
             };
 
             try {

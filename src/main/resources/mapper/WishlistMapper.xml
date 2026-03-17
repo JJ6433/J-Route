@@ -10,7 +10,7 @@
             w.category AS category,
             w.api_id AS apiId,
             w.created_at AS createdAt,
-            IFNULL(p.name, w.item_name) AS placeName, 
+            w.price AS price,  IFNULL(p.name, w.item_name) AS placeName, 
             IFNULL(p.region, 'API/WEB') AS placeRegion, 
             IFNULL(p.category, w.category) AS placeCategory, 
             IFNULL(p.image_url, w.image_url) AS imageUrl
@@ -21,9 +21,9 @@
     </select>
 
     <insert id="insertWishlist" parameterType="com.blog.dto.WishlistDto">
-        INSERT INTO wishlists (user_id, place_id, category, api_id, item_name, image_url) 
-        VALUES (#{userId}, #{placeId}, #{category}, #{apiId}, #{placeName}, #{imageUrl})
-    </insert>
+	    INSERT INTO wishlists (user_id, place_id, category, api_id, item_name, image_url, price) 
+	    VALUES (#{userId}, #{placeId}, #{category}, #{apiId}, #{placeName}, #{imageUrl}, #{price})
+	</insert>
 
     <delete id="deleteByUserAndPlace">
         DELETE FROM wishlists WHERE user_id = #{userId} AND place_id = #{placeId}
