@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head th:replace="~{fragments/head :: headFragment}">
     <title>宿泊先検索結果 - J-Route</title>
 </head>
+
 <body class="d-flex flex-column min-vh-100 bg-light">
     <div style="position: relative; z-index: 1050;">
         <header th:replace="~{fragments/header :: headerFragment}"></header>
@@ -10,7 +12,7 @@
 
     <div class="container py-5 flex-grow-1">
         <h2 class="mb-4 text-center fw-bold"><i class="bi bi-building text-primary me-2"></i>宿泊先検索結果</h2>
-        
+
         <div class="text-center py-5" id="loading">
             <div class="spinner-border text-primary" role="status"></div>
             <p class="mt-3 text-muted">条件に合う宿泊先を検索中です...</p>
@@ -21,10 +23,11 @@
                 <div class="card border-0 shadow-sm" style="border-radius: 15px; position: sticky; top: 20px;">
                     <div class="card-body p-4">
                         <h5 class="fw-bold mb-4"><i class="bi bi-funnel me-2"></i>絞り込み</h5>
-                        
+
                         <div class="mb-4">
                             <label class="fw-bold text-dark small mb-2">最大料金 (合計)</label>
-                            <input type="range" class="form-range" id="priceFilter" min="5000" step="5000" oninput="updatePriceLabel(this.value); applyFilters();">
+                            <input type="range" class="form-range" id="priceFilter" min="5000" step="5000"
+                                oninput="updatePriceLabel(this.value); applyFilters();">
                             <div class="d-flex justify-content-between text-muted small mt-1">
                                 <span>¥5,000</span>
                                 <span id="priceLabel" class="fw-bold text-primary">¥100,000</span>
@@ -34,19 +37,23 @@
                         <div class="mb-4">
                             <label class="fw-bold text-dark small mb-2">クチコミ評価</label>
                             <div class="form-check mb-2">
-                                <input class="form-check-input filter-score" type="radio" name="scoreFilter" id="score0" value="0" checked onchange="applyFilters()">
+                                <input class="form-check-input filter-score" type="radio" name="scoreFilter" id="score0"
+                                    value="0" checked onchange="applyFilters()">
                                 <label class="form-check-label small" for="score0">すべて</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input filter-score" type="radio" name="scoreFilter" id="score9" value="9" onchange="applyFilters()">
+                                <input class="form-check-input filter-score" type="radio" name="scoreFilter" id="score9"
+                                    value="9" onchange="applyFilters()">
                                 <label class="form-check-label small" for="score9">すばらしい: 9+</label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input filter-score" type="radio" name="scoreFilter" id="score8" value="8" onchange="applyFilters()">
+                                <input class="form-check-input filter-score" type="radio" name="scoreFilter" id="score8"
+                                    value="8" onchange="applyFilters()">
                                 <label class="form-check-label small" for="score8">とても良い: 8+</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input filter-score" type="radio" name="scoreFilter" id="score7" value="7" onchange="applyFilters()">
+                                <input class="form-check-input filter-score" type="radio" name="scoreFilter" id="score7"
+                                    value="7" onchange="applyFilters()">
                                 <label class="form-check-label small" for="score7">良い: 7+</label>
                             </div>
                         </div>
@@ -66,22 +73,22 @@
     <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 
     <script th:inline="javascript">
-        const rawData = [[${hotels}]];
+        const rawData = [[${ hotels }]];
         let response;
         try { response = JSON.parse(rawData); } catch (e) { response = {}; }
 
-        let allHotels = []; 
+        let allHotels = [];
 
         const loading = document.getElementById('loading');
         const mainContent = document.getElementById('main-content');
         const container = document.getElementById('results-container');
         const countLabel = document.getElementById('result-count');
-        
+
         const urlParams = new URLSearchParams(window.location.search);
         const checkinDate = urlParams.get('checkinDate');
         const checkoutDate = urlParams.get('checkoutDate');
         const adults = urlParams.get('adults');
-        
+
         if (response.error) {
             loading.style.display = 'none';
             mainContent.classList.remove('d-none');
@@ -92,33 +99,31 @@
                     <p class="text-muted mt-2">${response.error}</p>
                 </div>
             `;
-            throw new Error("API error occurred"); 
+            throw new Error("API error occurred");
         }
 
         if (response.status && response.data && response.data.hotels && response.data.hotels.length > 0) {
             loading.style.display = 'none';
-            mainContent.classList.remove('d-none'); 
-            allHotels = response.data.hotels; 
-            
-            // 💡 [알잘딱깔센 패치] 검색된 숙소 중 가장 비싼 가격을 찾아 슬라이더 최대값 자동 세팅
+            mainContent.classList.remove('d-none');
+            allHotels = response.data.hotels;
+
             let highestPrice = 0;
             allHotels.forEach(h => {
                 const p = h.property?.priceBreakdown?.grossPrice;
                 const val = p?.value || p || 0;
                 if (val > highestPrice) highestPrice = val;
             });
-            
-            // 제일 비싼 가격을 기준으로 1만 엔 단위로 올림 (예: 275,899 -> 280,000)
+
             const sliderMax = highestPrice > 0 ? Math.ceil(highestPrice / 10000) * 10000 : 100000;
             const priceFilter = document.getElementById('priceFilter');
             priceFilter.max = sliderMax;
             priceFilter.value = sliderMax;
             document.getElementById('priceLabel').innerText = '¥' + sliderMax.toLocaleString();
 
-            renderHotels(allHotels); 
+            renderHotels(allHotels);
         } else {
             loading.style.display = 'none';
-            mainContent.classList.remove('d-none'); 
+            mainContent.classList.remove('d-none');
             container.innerHTML = `
                 <div class="alert alert-light border shadow-sm text-center py-5 rounded-4 col-12">
                     <i class="bi bi-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
@@ -127,11 +132,11 @@
                 </div>
             `;
         }
-        
+
         function updatePriceLabel(value) {
             document.getElementById('priceLabel').innerText = '¥' + parseInt(value).toLocaleString();
         }
-        
+
         function applyFilters() {
             const maxPrice = parseInt(document.getElementById('priceFilter').value);
             const minScore = parseFloat(document.querySelector('input[name="scoreFilter"]:checked').value);
@@ -149,13 +154,13 @@
                 let score = prop.reviewScore || 0;
                 if (score < minScore) return false;
 
-                return true; 
+                return true;
             });
             renderHotels(filteredHotels);
         }
 
         function renderHotels(hotelsToRender) {
-            container.innerHTML = ''; 
+            container.innerHTML = '';
             countLabel.innerHTML = `表示中: <b>${hotelsToRender.length}</b> 件`;
 
             if (hotelsToRender.length === 0) {
@@ -173,14 +178,14 @@
                 const photoUrl = (prop.photoUrls && prop.photoUrls.length > 0) ? prop.photoUrls[0] : 'https://placehold.co/300x200/e9ecef/6c757d?text=No+Image';
                 const score = prop.reviewScore ? prop.reviewScore.toFixed(1) : '-';
                 const reviewCount = prop.reviewCount ? prop.reviewCount.toLocaleString() : '0';
-                
+
                 let badgeColor = "bg-secondary";
                 if (prop.reviewScore >= 9.0) badgeColor = "bg-success";
                 else if (prop.reviewScore >= 8.0) badgeColor = "bg-primary";
                 else if (prop.reviewScore >= 7.0) badgeColor = "bg-warning text-dark";
 
                 let priceStr = "価格情報なし";
-                let purePrice = 0; 
+                let purePrice = 0;
                 if (prop.priceBreakdown && prop.priceBreakdown.grossPrice) {
                     const val = prop.priceBreakdown.grossPrice.value || prop.priceBreakdown.grossPrice;
                     if (!isNaN(val)) {
@@ -190,11 +195,12 @@
                 }
 
                 const apiId = hotel.hotel_id || hotel.id || prop.id || hotelName;
-                const checkoutUrl = `/checkout?itemName=${encodeURIComponent(hotelName)}&price=${purePrice}&checkin=${checkinDate}&adults=${adults}&category=HOTEL`;
-                
+                const checkoutUrl = `/checkout?itemName=${encodeURIComponent(hotelName)}&price=${purePrice}&checkin=${checkinDate} 15:00&adults=${adults}&category=HOTEL&imageUrl=${encodeURIComponent(photoUrl)}&checkOut=${checkoutDate} 11:00&address=${encodeURIComponent(hotelName)}&details=${encodeURIComponent('大人 ' + adults + '名 / スタンダード ダブル')}`;
+
                 const detailUrl = `/hotel/detail?id=${apiId}&name=${encodeURIComponent(hotelName)}&price=${purePrice}&photoUrl=${encodeURIComponent(photoUrl)}&checkinDate=${checkinDate}&checkoutDate=${checkoutDate}&adults=${adults}`;
                 const saveApiId = `/hotel/detail?id=${apiId}&price=${purePrice}&checkinDate=${checkinDate}&checkoutDate=${checkoutDate}&adults=${adults}`;
 
+                // 💡 [수정됨] button 태그 안에 data-price="${purePrice}" 가 추가되었습니다.
                 const cardHtml = `
                     <div class="card border-0 shadow-sm mb-4 hotel-card overflow-hidden position-relative" 
                          style="border-radius: 15px; cursor: pointer;"
@@ -207,6 +213,7 @@
                                 data-item-name="${hotelName}" 
                                 data-image-url="${photoUrl}"
                                 data-category="HOTEL"
+                                data-price="${purePrice}"
                                 onclick="toggleWishlist(this, event)">
                             <i class="bi bi-heart text-danger fs-5"></i>
                         </button>
@@ -242,27 +249,30 @@
             });
         }
 
+        // 💡 [수정됨] data-price에서 가격을 꺼내와 requestData에 담아 보냅니다.
         async function toggleWishlist(button, event) {
-            event.preventDefault(); 
+            event.preventDefault();
             event.stopPropagation();
 
             const apiId = button.getAttribute('data-api-id');
             const itemName = button.getAttribute('data-item-name');
             const imageUrl = button.getAttribute('data-image-url');
             const category = button.getAttribute('data-category');
-            
+            const price = parseInt(button.getAttribute('data-price')) || 0;
+
             const icon = button.querySelector('i');
             const isWished = icon.classList.contains('bi-heart-fill');
 
             const requestData = {
                 apiId: apiId,
-                placeName: itemName, // 💡 [핵심 수정] itemName이 아니라 서버가 기다리는 placeName으로 정확히 전달!
+                placeName: itemName, 
                 imageUrl: imageUrl,
-                category: category
+                category: category,
+                price: price
             };
 
             try {
-                const url = '/api/wishlist/toggle'; 
+                const url = '/api/wishlist/toggle';
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -293,13 +303,40 @@
     </script>
 
     <style>
-        .hotel-card { transition: transform 0.2s ease, box-shadow 0.2s ease; border: 1px solid rgba(0,0,0,0.05); }
-        .hotel-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; border-color: #003580; }
-        .btn-primary { background-color: #003580; border: none; }
-        .btn-primary:hover { background-color: #00224f; }
-        input[type=range] { accent-color: #003580; }
-        .wishlist-btn:hover i { transform: scale(1.1); transition: transform 0.2s; }
-        .checkout-btn { position: relative; z-index: 5; }
+        .hotel-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .hotel-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+            border-color: #003580;
+        }
+
+        .btn-primary {
+            background-color: #003580;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #00224f;
+        }
+
+        input[type=range] {
+            accent-color: #003580;
+        }
+
+        .wishlist-btn:hover i {
+            transform: scale(1.1);
+            transition: transform 0.2s;
+        }
+
+        .checkout-btn {
+            position: relative;
+            z-index: 5;
+        }
     </style>
 </body>
+
 </html>

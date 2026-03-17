@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}">
+    <title>グルメ＆カフェ - J-Route</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <header th:replace="~{fragments/header :: headerFragment}"></header>
+
+    <main class="container mt-5 flex-grow-1">
+        <div class="row">
+            <div class="col-lg-3 mb-4">
+                <div th:replace="~{fragments/user_sidebar :: user_sidebarFragment}"></div>
+            </div>
+
+            <div class="col-lg-9">
+                <!-- Hero Section -->
+                <div class="row mb-5">
+                    <div class="col-12 text-center">
+                        <h1 class="display-4 fw-bold mb-3 text-dark">
+                            <span class="text-danger">J-Route</span> グルメ＆カフェ
+                        </h1>
+                        <p class="lead text-muted">AIとGoogleが提供する、日本で最も美味しい体験を見つけましょう。</p>
+                    </div>
+                </div>
+
+                <!-- Search & Filter Bar -->
+                <div class="card border-0 shadow-sm p-4 mb-5" style="border-radius: 20px;">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 text-muted">
+                                    <i class="bi bi-geo-alt"></i>
+                                </span>
+                                <select id="locationInput" class="form-select border-start-0">
+                                    <option value="東京">東京</option>
+                                    <option value="大阪">大阪</option>
+                                    <option value="福岡">福岡</option>
+                                    <option value="札幌">札幌</option>
+                                    <option value="沖縄">沖縄</option>
+                                    <option value="名古屋">名古屋</option>
+                                    <option value="静岡">静岡</option>
+                                    <option value="広島">広島</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 text-muted">
+                                    <i class="bi bi-shop"></i>
+                                </span>
+                                <input type="text" id="keywordSearchInput" class="form-control border-start-0"
+                                    placeholder="店名・キーワード">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="categorySelect" class="form-select">
+                                <option value="restaurant">すべてのグルメ</option>
+                                <option value="cafe">カフェ・スイーツ</option>
+                                <option value="bar">バー・ナイトライフ</option>
+                                <option value="sushi">寿司 (Sushi)</option>
+                                <option value="ramen">ラーメン (Ramen)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-danger w-100 fw-bold shadow-sm" onclick="searchGourmet()">
+                                <i class="bi bi-search me-2"></i>検索する
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Results Grid -->
+                    <div class="col-lg-8">
+                        <div id="loadingSpinner" class="text-center py-5 d-none">
+                            <div class="spinner-grow text-danger" style="width: 3rem; height: 3rem;" role="status">
+                            </div>
+                            <p class="mt-3 text-muted fw-bold">厳選されたスポットを探しています...</p>
+                        </div>
+
+                        <div id="noResults" class="text-center py-5 d-none">
+                            <i class="bi bi-search text-muted display-1 mb-3"></i>
+                            <p class="text-muted fs-5">条件に合うスポットが見つかりませんでした。</p>
+                        </div>
+
+                        <div id="resultsGrid" class="row g-4">
+                            <!-- Cards will be injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Side Map -->
+                    <div class="col-lg-4">
+                        <div class="sticky-top" style="top: 100px;">
+                            <div id="gourmetMap" class="rounded-4 shadow-sm border overflow-hidden"
+                                style="height: 600px; background: #eee;">
+                                <div class="h-100 d-flex align-items-center justify-content-center text-muted">
+                                    <p><i class="bi bi-map me-2"></i>マップを準備中...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- End col-lg-9 -->
+            </div> <!-- End row -->
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+    <style>
+        .gourmet-card {
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+            position: relative;
+        }
+
+        .gourmet-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .gourmet-card img {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .wishlist-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            color: #ccc;
+        }
+
+        .wishlist-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .wishlist-btn.active {
+            color: #ff4d4f;
+        }
+
+        .rating-badge {
+            background: rgba(255, 193, 7, 0.15);
+            color: #d39e00;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .price-level {
+            color: #198754;
+            font-weight: 600;
+        }
+
+        .open-status {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        #locationInput:focus {
+            border-color: #ff4d4f;
+            box-shadow: none;
+        }
+    </style>
+
+    <!-- Google Maps API -->
+    <script th:if="${apiKey}"
+        th:src="'https://maps.googleapis.com/maps/api/js?key=' + ${apiKey} + '&libraries=places&language=ja&callback=initMap'"
+        async defer></script>
+
+    <script th:inline="javascript">
+        let map;
+        let service;
+        let infowindow;
+        let markers = [];
+
+        function initMap() {
+            const defaultLoc = { lat: 35.6812, lng: 139.7671 }; // Tokyo
+            map = new google.maps.Map(document.getElementById("gourmetMap"), {
+                center: defaultLoc,
+                zoom: 13,
+                mapTypeControl: false,
+                styles: [
+                    { "featureType": "poi.business", "stylers": [{ "visibility": "off" }] }
+                ]
+            });
+            infowindow = new google.maps.InfoWindow();
+
+            // Initial search for Tokyo restaurants
+            searchGourmet("東京", "restaurant");
+        }
+
+        function searchGourmet(keyword, category) {
+            const loc = keyword || document.getElementById('locationInput').value || "東京";
+            const kw = document.getElementById('keywordSearchInput') ? document.getElementById('keywordSearchInput').value : "";
+            const cat = category || document.getElementById('categorySelect').value || "restaurant";
+
+            document.getElementById('loadingSpinner').classList.remove('d-none');
+            document.getElementById('resultsGrid').innerHTML = '';
+            document.getElementById('noResults').classList.add('d-none');
+
+            clearMarkers();
+
+            const queryText = loc + " " + kw + " " + (cat === 'restaurant' ? 'レストラン' : cat) + " お勧め";
+            const request = {
+                query: queryText,
+                fields: ["name", "geometry", "formatted_address", "photos", "rating", "user_ratings_total", "price_level", "opening_hours", "place_id"],
+                locationBias: map.getCenter()
+            };
+
+            service = new google.maps.places.PlacesService(map);
+            service.textSearch(request, (results, status) => {
+                document.getElementById('loadingSpinner').classList.add('d-none');
+
+                if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                    currentResults = results; // Store for wishlist usage
+                    displayResults(results);
+                    if (results[0].geometry && results[0].geometry.location) {
+                        map.setCenter(results[0].geometry.location);
+                    }
+                } else {
+                    document.getElementById('noResults').classList.remove('d-none');
+                }
+            });
+        }
+
+        function displayResults(results) {
+            const grid = document.getElementById('resultsGrid');
+            const bounds = new google.maps.LatLngBounds();
+
+            results.forEach((place, i) => {
+                if (!place.geometry || !place.geometry.location) return;
+
+                const photoUrl = place.photos ? place.photos[0].getUrl({ maxWidth: 400, maxHeight: 300 }) : 'https://placehold.co/400x300/e9ecef/6c757d?text=No+Photo';
+                const rating = place.rating || 'N/A';
+                const reviews = place.user_ratings_total || 0;
+                const price = getPriceString(place.price_level);
+                const isOpen = place.opening_hours ? (place.opening_hours.isOpen() ? '<span class="text-success">営業中</span>' : '<span class="text-danger">準備中</span>') : '情報なし';
+
+                const cardHtml = `
+                    <div class="col-md-6">
+                        <div class="card gourmet-card shadow-sm h-100">
+                            <button class="wishlist-btn" onclick="toggleGourmetWishlist(this, ${i})" id="wish-btn-${i}">
+                                <i class="bi bi-heart-fill"></i>
+                            </button>
+                            <img src="${photoUrl}" class="card-img-top" alt="${place.name}" onclick="focusOnPlace(${place.geometry.location.lat()}, ${place.geometry.location.lng()}, ${i})" style="cursor: pointer;">
+                            <div class="card-body" onclick="focusOnPlace(${place.geometry.location.lat()}, ${place.geometry.location.lng()}, ${i})" style="cursor: pointer;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="card-title fw-bold mb-0 text-truncate" style="max-width: 70%;">${place.name}</h5>
+                                    <span class="rating-badge"><i class="bi bi-star-fill text-warning me-1"></i>${rating}</span>
+                                </div>
+                                <p class="small text-muted mb-2 text-truncate"><i class="bi bi-geo-alt me-1"></i>${place.formatted_address}</p>
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <span class="price-level">${price}</span>
+                                    <span class="open-status">${isOpen}</span>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">${reviews}件のレビュー</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.insertAdjacentHTML('beforeend', cardHtml);
+                createMarker(place, i);
+                bounds.extend(place.geometry.location);
+            });
+            map.fitBounds(bounds);
+        }
+
+        let currentResults = [];
+
+        function toggleGourmetWishlist(btn, index) {
+            const place = currentResults[index];
+            if (!place) return;
+
+            const photoUrl = place.photos ? place.photos[0].getUrl({ maxWidth: 400, maxHeight: 300 }) : '';
+
+            fetch('/api/wishlist/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    apiId: place.place_id,
+                    category: 'GOURMET',
+                    placeName: place.name,
+                    imageUrl: photoUrl
+                })
+            })
+                .then(res => {
+                    if (res.status === 401) {
+                        alert('ログインが必要です。');
+                        window.location.href = '/user/login';
+                        return;
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && data.wished !== undefined) {
+                        btn.classList.toggle('active', data.wished);
+                        if (data.wished) {
+                            alert('「' + place.name + '」をブックマークしました。');
+                        } else {
+                            alert('ブックマークを解除しました。');
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error('Wishlist toggle failed:', err);
+                    alert('通信エラーが発生しました。');
+                });
+        }
+
+        function createMarker(place, index) {
+            const marker = new google.maps.Marker({
+                map,
+                position: place.geometry.location,
+                title: place.name,
+                animation: google.maps.Animation.DROP
+            });
+
+            google.maps.event.addListener(marker, "click", () => {
+                const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${place.place_id}`;
+                infowindow.setContent(`
+                    <div class="p-2" style="max-width: 200px;">
+                        <h6 class="fw-bold mb-1">${place.name}</h6>
+                        <p class="small text-muted mb-0">${place.formatted_address}</p>
+                        <a href="${mapLink}" target="_blank" class="btn btn-sm btn-outline-danger mt-2 w-100">詳細を見る</a>
+                    </div>
+                `);
+                infowindow.open(map, marker);
+            });
+            markers.push(marker);
+        }
+
+        function clearMarkers() {
+            markers.forEach(m => m.setMap(null));
+            markers = [];
+        }
+
+        function getPriceString(level) {
+            if (!level) return '不明';
+            return '¥'.repeat(level);
+        }
+
+        function focusOnPlace(lat, lng, index) {
+            const pos = { lat, lng };
+            map.setCenter(pos);
+            map.setZoom(17);
+            google.maps.event.trigger(markers[index], 'click');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+</html>
