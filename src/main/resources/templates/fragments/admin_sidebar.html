@@ -63,12 +63,18 @@
                     <a class="nav-link" id="nav-reservation" th:href="@{/admin/reservation}"><i class="bi bi-ticket-detailed"></i>
                         予約履歴管理</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="nav-transport" th:href="@{/admin/transport/list}"><i class="bi bi-bus-front"></i>
+                        パス券管理</a>
+                </li>
             </ul>
         </div>
 
         <script>
+            // 現在のURLに合わせてメニューをアクティブ化
             document.addEventListener("DOMContentLoaded", function () {
                 const currentPath = window.location.pathname;
+                
                 if (currentPath.includes('/admin/place')) {
                     document.getElementById('nav-place').classList.add('active');
                 } else if (currentPath.includes('/admin/review')) {
@@ -81,6 +87,8 @@
                     document.getElementById('nav-notice').classList.add('active');
                 } else if (currentPath.includes('/admin/reservation')) {
                     document.getElementById('nav-reservation').classList.add('active');
+                } else if (currentPath.includes('/admin/transport')) {
+                    document.getElementById('nav-transport').classList.add('active'); // パス券管理のアクティブ処理追加
                 } else {
                     document.getElementById('nav-dashboard').classList.add('active');
                 }
