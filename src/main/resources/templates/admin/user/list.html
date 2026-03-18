@@ -13,7 +13,6 @@
             <h1 class="h3 fw-bold"><i class="bi bi-people text-success"></i> 会員管理</h1>
         </div>
 
-        <!-- 検索フィルタ -->
         <div class="card shadow-sm mb-4 border-0" style="border-radius: 15px;">
             <div class="card-body p-4">
                 <form th:action="@{/admin/user/list}" method="get" class="row g-3">
@@ -75,7 +74,7 @@
                                     <span th:if="${user.role == 'ADMIN'}" class="badge bg-danger">管理者</span>
                                     <span th:if="${user.role != 'ADMIN'}" class="badge bg-secondary">一般</span>
                                 </td>
-                                <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}">2026-02-23</td>
+                                <td th:text="${#temporals.format(user.createdAt, 'yyyy年MM月dd日 HH:mm')}">2026年02月23日</td>
                                 <td class="pe-4 text-center">
                                     <form th:action="@{/admin/user/delete}" method="post" class="d-inline"
                                         onsubmit="return confirm('本当にこの会員を強制退会させますか？');">
