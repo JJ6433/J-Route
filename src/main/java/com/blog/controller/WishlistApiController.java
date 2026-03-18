@@ -27,36 +27,83 @@ public class WishlistApiController {
 
     @PostMapping("/toggle")
     public ResponseEntity<Map<String, Object>> toggleWishlist(@AuthenticationPrincipal UserDetails userDetails,
-                                                              @RequestBody WishlistDto requestDto) {
-        // 1. 로그인 확인 (안 되어있으면 401 에러 반환 -> JS에서 로그인 창으로 보냄)
-        if (userDetails == null) {
+            @RequestBody WishlistDto requestDto) {
+        if (userDetails == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        // 2. 현재 로그인한 유저 정보 가져오기
         UserDto user = userService.findByUsername(userDetails.getUsername()).orElse(null);
-        if (user == null) {
+        if (user == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
-        // 3. 자바스크립트에서 넘어온 DTO에 유저 ID 세팅
-        requestDto.setUserId(user.getUserId());
+        boolean isPlace = "PLACE".equalsIgnoreCase(requestDto.getCategory());
+        boolean isAlreadyWished;
 
-        // 💡 4. DB에 이미 찜이 되어 있는지 확인 (Service에 만들어둔 실제 메서드명 + 파라미터 적용!)
-        // apiId뿐만 아니라 category("HOTEL")까지 같이 넘겨서 정확히 찾습니다.
-        boolean isAlreadyWished = wishlistService.isApiWishlisted(user.getUserId(), requestDto.getApiId(), requestDto.getCategory());
-
-        // 💡 5. 찜 상태에 따라 추가 또는 삭제 실행 (마찬가지로 Service의 실제 메서드명 적용!)
-        if (isAlreadyWished) {
-            wishlistService.removeApiWishlist(user.getUserId(), requestDto.getApiId(), requestDto.getCategory());
+        if (isPlace) {
+            // For PLACE, apiId in request is actually placeId
+            if (requestDto.getPlaceId() == null && requestDto.getApiId() != null) {
+                try {
+                    requestDto.setPlaceId(Long.parseLong(requestDto.getApiId()));
+                } catch (Exception ignored) {
+                }
+            }
+            isAlreadyWished = wishlistService.isWished(user.getUserId(), requestDto.getPlaceId());
         } else {
-            wishlistService.addWishlist(requestDto); 
+            isAlreadyWished = wishlistService.isApiWishlisted(user.getUserId(), requestDto.getApiId(),
+                    requestDto.getCategory());
         }
 
-        // 6. 프론트엔드에 전달할 결과값 (true면 꽉 찬 하트, false면 빈 하트로 바뀜)
         Map<String, Object> response = new HashMap<>();
-        response.put("wished", !isAlreadyWished); 
+        try {
+            if (isAlreadyWished) {
+                if (isPlace)
+                    wishlistService.removeWish(user.getUserId(), requestDto.getPlaceId());
+                else
+                    wishlistService.removeApiWishlist(user.getUserId(), requestDto.getApiId(),
+                            requestDto.getCategory());
+            } else {
+                requestDto.setUserId(user.getUserId());
+                wishlistService.addWishlist(requestDto);
+            }
+            response.put("status", "success");
+            response.put("wished", !isAlreadyWished);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+        }
+        return ResponseEntity.ok(response);
+    }
 
+    @PostMapping("/remove")
+    public ResponseEntity<Map<String, Object>> removeWishlist(@AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody WishlistDto requestDto) {
+        if (userDetails == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        UserDto user = userService.findByUsername(userDetails.getUsername()).orElse(null);
+        if (user == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        boolean isPlace = "PLACE".equalsIgnoreCase(requestDto.getCategory());
+
+        if (isPlace) {
+            Long pId = requestDto.getPlaceId();
+            if (pId == null && requestDto.getApiId() != null) {
+                try {
+                    pId = Long.parseLong(requestDto.getApiId());
+                } catch (Exception ignored) {
+                }
+            }
+            if (pId != null)
+                wishlistService.removeWish(user.getUserId(), pId);
+
+            // Also try removing by apiId if category is PLACE to clean up ghost items
+            if (requestDto.getApiId() != null) {
+                wishlistService.removeApiWishlist(user.getUserId(), requestDto.getApiId(), "PLACE");
+            }
+        } else {
+            wishlistService.removeApiWishlist(user.getUserId(), requestDto.getApiId(), requestDto.getCategory());
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
         return ResponseEntity.ok(response);
     }
 }

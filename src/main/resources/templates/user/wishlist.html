@@ -179,14 +179,12 @@
                                                 class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
                                                 詳細を見る <i class="bi bi-chevron-right small"></i>
                                             </a>
-                                            <form th:action="@{/wishlist/toggle}" method="post">
-                                                <input type="hidden" name="placeId" th:value="${wish.placeId}">
-                                                <input type="hidden" name="redirect" value="/wishlist/list">
-                                                <button type="submit"
-                                                    class="btn btn-link text-danger btn-sm w-100 text-decoration-none">
-                                                    削除 <i class="bi bi-trash small"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button"
+                                                class="btn btn-link text-danger btn-sm w-100 text-decoration-none"
+                                                th:data-api-id="${wish.placeId}" data-category="PLACE"
+                                                onclick="removeWishlistItem(this)">
+                                                削除 <i class="bi bi-trash small"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -265,13 +263,33 @@
     <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 
     <script>
+        // --- Tab Persistence Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const activeTabId = sessionStorage.getItem('activeWishlistTab');
+            if (activeTabId) {
+                const tabTriggerEl = document.querySelector(`#${activeTabId}`);
+                if (tabTriggerEl) {
+                    const tab = new bootstrap.Tab(tabTriggerEl);
+                    tab.show();
+                }
+            }
+
+            // Listen for tab changes
+            const tabEls = document.querySelectorAll('button[data-bs-toggle="tab"]');
+            tabEls.forEach(tabEl => {
+                tabEl.addEventListener('shown.bs.tab', event => {
+                    sessionStorage.setItem('activeWishlistTab', event.target.id);
+                });
+            });
+        });
+
         function removeWishlistItem(btn) {
             const apiId = btn.getAttribute('data-api-id');
             const category = btn.getAttribute('data-category');
 
             if (!confirm('本当に削除しますか？ ')) return;
 
-            fetch('/api/wishlist/toggle', {
+            fetch('/api/wishlist/remove', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ apiId: apiId, category: category })

@@ -2,15 +2,15 @@ package com.blog.controller;
 
 import com.blog.dto.PlannerDto;
 import com.blog.dto.UserDto;
+import com.blog.dto.WishlistDto;
 import com.blog.service.PlannerService;
 import com.blog.service.UserService;
+import com.blog.service.WishlistService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -29,17 +29,26 @@ public class PlannerController {
 
 	private final PlannerService plannerService;
 	private final UserService userService;
+	private final WishlistService wishlistService;
+	private final com.blog.service.WeatherService weatherService;
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	public PlannerController(PlannerService plannerService, UserService userService) {
+	public PlannerController(PlannerService plannerService, UserService userService, WishlistService wishlistService,
+			com.blog.service.WeatherService weatherService) {
 		this.plannerService = plannerService;
 		this.userService = userService;
+		this.wishlistService = wishlistService;
+		this.weatherService = weatherService;
 	}
 
 	@GetMapping("/form")
-	public String showForm(Model model, Authentication authentication) {
-		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+	public String showForm(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+		if (userDetails == null) {
 			model.addAttribute("loginRequired", true);
+		} else {
+			UserDto loginUser = userService.findByUsername(userDetails.getUsername()).orElseThrow();
+			List<WishlistDto> wishlist = wishlistService.getWishlistByUserId(loginUser.getUserId());
+			model.addAttribute("wishlist", wishlist);
 		}
 		model.addAttribute("apiKey", googleMapsApiKey);
 		return "planner/form";
@@ -56,18 +65,49 @@ public class PlannerController {
 			@RequestParam("companion") String companion,
 			@RequestParam("accommodationName") String accommodationName,
 			@RequestParam("accommodationAddress") String accommodationAddress,
+			@RequestParam(value = "wishlistPlaces", required = false) List<String> wishlistPlaces,
+			@RequestParam(value = "flightArrival", required = false) String flightArrival,
+			@RequestParam(value = "flightDeparture", required = false) String flightDeparture,
+			@RequestParam(value = "arrivalAirport", required = false) String arrivalAirport,
+			@RequestParam(value = "departureAirport", required = false) String departureAirport,
 			Model model, HttpSession session,
 			@AuthenticationPrincipal UserDetails userDetails) {
 
 		System.out.println("Generating plan for: " + region + " from " + startDate + " to " + endDate);
 		System.out.println("Hotel: " + accommodationName + " (" + accommodationAddress + ")");
+		System.out.println("Airports: arrival=" + arrivalAirport + ", departure=" + departureAirport);
+
+		// Fetch weather forecast
+		String cityKey = weatherService.getCityKey(region);
+		List<com.blog.dto.WeatherDto> weatherForecast = weatherService.getWeatherForRange(cityKey, region, startDate,
+				endDate);
 
 		String result = plannerService.generatePlan(region, startDate, endDate, adults, children, style, companion,
-				accommodationName, accommodationAddress);
+				accommodationName, accommodationAddress, wishlistPlaces, flightArrival, flightDeparture,
+				arrivalAirport, departureAirport, weatherForecast);
+
+		model.addAttribute("region", region);
+		model.addAttribute("startDate", startDate);
+		model.addAttribute("endDate", endDate);
+		model.addAttribute("adults", adults);
+		model.addAttribute("children", children);
+		model.addAttribute("style", style);
+		model.addAttribute("companion", companion);
+		model.addAttribute("accommodationName", accommodationName);
+		model.addAttribute("accommodationAddress", accommodationAddress);
+		model.addAttribute("apiKey", googleMapsApiKey);
 
 		if (result.contains("\"error\":")) {
-			model.addAttribute("error", "AI 코스 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
-			model.addAttribute("apiKey", googleMapsApiKey);
+			String errorMsg = "AIコースの生成中にエラーが発生しました。しばらくしてからもう一度お試しください。";
+			try {
+				JsonNode root = objectMapper.readTree(result);
+				if (root.has("error")) {
+					errorMsg = root.get("error").asText();
+				}
+			} catch (Exception e) {
+				System.err.println("Failed to parse error from Gemini: " + e.getMessage());
+			}
+			model.addAttribute("error", errorMsg);
 			return "planner/form";
 		}
 
