@@ -187,9 +187,19 @@
         let service;
         let infowindow;
         let markers = [];
+        const REGION_COORDS = {
+            '東京': { lat: 35.6812, lng: 139.7671 },
+            '大阪': { lat: 34.6937, lng: 135.5023 },
+            '福岡': { lat: 33.5902, lng: 130.4017 },
+            '札幌': { lat: 43.0618, lng: 141.3545 },
+            '沖縄': { lat: 26.2124, lng: 127.6809 },
+            '名古屋': { lat: 35.1815, lng: 136.9066 },
+            '静岡': { lat: 34.9756, lng: 138.3828 },
+            '広島': { lat: 34.3853, lng: 132.4553 }
+        };
 
         function initMap() {
-            const defaultLoc = { lat: 35.6812, lng: 139.7671 }; // Tokyo
+            const defaultLoc = REGION_COORDS['東京'];
             map = new google.maps.Map(document.getElementById("gourmetMap"), {
                 center: defaultLoc,
                 zoom: 13,
@@ -200,42 +210,76 @@
             });
             infowindow = new google.maps.InfoWindow();
 
-            // Initial search for Tokyo restaurants
-            searchGourmet("東京", "restaurant");
+            // Add auto-search on region change
+            document.getElementById('locationInput').addEventListener('change', function () {
+                searchGourmet();
+            });
+
+            // Initial search for Tokyo restaurants - Wait for map to be ready
+            google.maps.event.addListenerOnce(map, 'tilesloaded', function () {
+                searchGourmet("東京", "restaurant");
+            });
         }
 
         function searchGourmet(keyword, category) {
-            const loc = keyword || document.getElementById('locationInput').value || "東京";
-            const kw = document.getElementById('keywordSearchInput') ? document.getElementById('keywordSearchInput').value : "";
-            const cat = category || document.getElementById('categorySelect').value || "restaurant";
+            if (!map || !google.maps.places) return;
 
-            document.getElementById('loadingSpinner').classList.remove('d-none');
-            document.getElementById('resultsGrid').innerHTML = '';
-            document.getElementById('noResults').classList.add('d-none');
+            try {
+                const loc = keyword || document.getElementById('locationInput').value || "東京";
+                const kw = document.getElementById('keywordSearchInput') ? document.getElementById('keywordSearchInput').value : "";
+                const cat = category || document.getElementById('categorySelect').value || "restaurant";
 
-            clearMarkers();
-
-            const queryText = loc + " " + kw + " " + (cat === 'restaurant' ? 'レストラン' : cat) + " お勧め";
-            const request = {
-                query: queryText,
-                fields: ["name", "geometry", "formatted_address", "photos", "rating", "user_ratings_total", "price_level", "opening_hours", "place_id"],
-                locationBias: map.getCenter()
-            };
-
-            service = new google.maps.places.PlacesService(map);
-            service.textSearch(request, (results, status) => {
-                document.getElementById('loadingSpinner').classList.add('d-none');
-
-                if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-                    currentResults = results; // Store for wishlist usage
-                    displayResults(results);
-                    if (results[0].geometry && results[0].geometry.location) {
-                        map.setCenter(results[0].geometry.location);
-                    }
-                } else {
-                    document.getElementById('noResults').classList.remove('d-none');
+                // Focus map on the selected region first to bias search correctly
+                const regionCoord = REGION_COORDS[loc];
+                if (regionCoord) {
+                    map.setCenter(regionCoord);
+                    map.setZoom(13);
                 }
-            });
+
+                document.getElementById('loadingSpinner').classList.remove('d-none');
+                document.getElementById('resultsGrid').innerHTML = '';
+                document.getElementById('noResults').classList.add('d-none');
+
+                clearMarkers();
+
+                // Explicitly add "Japan" to the query to prevent international results (like Seoul, Korea)
+                const queryText = "日本 " + loc + " " + kw + " " + (cat === 'restaurant' ? 'レストラン' : cat) + " お勧め";
+                const request = {
+                    query: queryText,
+                    fields: ["name", "geometry", "formatted_address", "photos", "rating", "user_ratings_total", "price_level", "opening_hours", "place_id"],
+                    locationBias: regionCoord || map.getCenter()
+                };
+
+                service = new google.maps.places.PlacesService(map);
+                service.textSearch(request, (results, status) => {
+                    // ALWAYS hide the spinner
+                    document.getElementById('loadingSpinner').classList.add('d-none');
+
+                    if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                        // Strict filter: only Japan results
+                        const filteredResults = results.filter(place =>
+                            place.formatted_address &&
+                            (place.formatted_address.includes("日本") || place.formatted_address.includes("Japan"))
+                        );
+
+                        if (filteredResults.length > 0) {
+                            currentResults = filteredResults; // Store for wishlist usage
+                            displayResults(filteredResults);
+                            if (filteredResults[0].geometry && filteredResults[0].geometry.location) {
+                                map.setCenter(filteredResults[0].geometry.location);
+                            }
+                        } else {
+                            document.getElementById('noResults').classList.remove('d-none');
+                        }
+                    } else {
+                        document.getElementById('noResults').classList.remove('d-none');
+                    }
+                });
+            } catch (err) {
+                console.error("Search failed:", err);
+                document.getElementById('loadingSpinner').classList.add('d-none');
+                document.getElementById('noResults').classList.remove('d-none');
+            }
         }
 
         function displayResults(results) {
@@ -249,7 +293,16 @@
                 const rating = place.rating || 'N/A';
                 const reviews = place.user_ratings_total || 0;
                 const price = getPriceString(place.price_level);
-                const isOpen = place.opening_hours ? (place.opening_hours.isOpen() ? '<span class="text-success">営業中</span>' : '<span class="text-danger">準備中</span>') : '情報なし';
+
+                // Safer opening hours check
+                let isOpen = '情報なし';
+                if (place.opening_hours) {
+                    if (typeof place.opening_hours.isOpen === 'function') {
+                        isOpen = place.opening_hours.isOpen() ? '<span class="text-success">営業中</span>' : '<span class="text-danger">準備中</span>';
+                    } else if (place.opening_hours.open_now !== undefined) {
+                        isOpen = place.opening_hours.open_now ? '<span class="text-success">営業中</span>' : '<span class="text-danger">準備中</span>';
+                    }
+                }
 
                 const cardHtml = `
                     <div class="col-md-6">

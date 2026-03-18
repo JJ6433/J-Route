@@ -77,6 +77,9 @@ public class HotelService {
             destId = "-245745";
         else if (lowerQuery.contains("bellustar"))
             destId = "hotel_bellustar_tokyo";
+        else if (lowerQuery.contains("intercontinental"))
+            return "{\"data\": [{\"dest_id\": \"hotel_ana_intercontinental_tokyo\", \"search_type\": \"PROPERTY\", \"name\": \""
+                    + query + "\"}]}";
 
         return "{\"data\": [{\"dest_id\": \"" + destId + "\", \"search_type\": \"CITY\", \"name\": \"" + query
                 + "\"}]}";
@@ -144,14 +147,15 @@ public class HotelService {
 
     private String getMockHotels(String destId) {
         // 간단한 Mock 데이터 생성 (검색 결과가 없을 때나 API 제한 시 사용)
-        String bellustarMock = "{\"property\": {\"name\": \"BELLUSTAR TOKYO Pan Pacific Hotel\", \"reviewScore\": 9.5, \"reviewCount\": 120, \"priceBreakdown\": {\"grossAmount\": {\"value\": 125000}}, \"photoUrls\": [\"https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500\"], \"wishlistName\": \"Shinjuku, Tokyo\", \"address\": \"1-29-1 Kabukicho, Shinjuku-ku, Tokyo\"}, \"languages\": [\"日本語\", \"English\"]}";
+        String bellustarMock = "{\"property\": {\"name\": \"BELLUSTAR TOKYO Pan Pacific Hotel\", \"reviewScore\": 9.5, \"reviewCount\": 120, \"priceBreakdown\": {\"grossAmount\": {\"value\": 125000}}, \"photoUrls\": [\"https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500\"], \"wishlistName\": \"Shinjuku, Tokyo\", \"address\": \"1-29-1 Kabukicho, Shinjuku-ku, Tokyo, Japan\"}, \"languages\": [\"日本語\", \"English\"]}";
+        String icMock = "{\"property\": {\"name\": \"ANA InterContinental Tokyo\", \"reviewScore\": 8.8, \"reviewCount\": 2100, \"priceBreakdown\": {\"grossAmount\": {\"value\": 45000}}, \"photoUrls\": [\"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500\"], \"wishlistName\": \"Minato, Tokyo\", \"address\": \"1-12-33 Akasaka, Minato-ku, Tokyo, Japan\"}, \"languages\": [\"日本語\", \"English\"]}";
 
         return "{\"data\": {\"hotels\": [" +
-                "{\"property\": {\"name\": \"[Mock] Hotel Sunroute Plaza Shinjuku\", \"reviewScore\": 8.5, \"reviewCount\": 12450, \"priceBreakdown\": {\"grossAmount\": {\"value\": 18500}}, \"photoUrls\": [\"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500\"], \"wishlistName\": \"Shinjuku, Tokyo\", \"address\": \"2-2-1 Yoyogi, Shibuya-ku, Tokyo\"}, \"languages\": [\"日本語\", \"English\"]},"
+                "{\"property\": {\"name\": \"[Mock] Hotel Sunroute Plaza Shinjuku\", \"reviewScore\": 8.5, \"reviewCount\": 12450, \"priceBreakdown\": {\"grossAmount\": {\"value\": 18500}}, \"photoUrls\": [\"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500\"], \"wishlistName\": \"Shinjuku, Tokyo\", \"address\": \"2-2-1 Yoyogi, Shibuya-ku, Tokyo, Japan\"}, \"languages\": [\"日本語\", \"English\"]},"
                 +
-                "{\"property\": {\"name\": \"[Mock] Park Hyatt Tokyo\", \"reviewScore\": 9.2, \"reviewCount\": 3500, \"priceBreakdown\": {\"grossAmount\": {\"value\": 85000}}, \"photoUrls\": [\"https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500\"], \"wishlistName\": \"Shinjuku, Tokyo\", \"address\": \"3-7-1-2 Nishi Shinjuku, Shinjuku-ku, Tokyo\"}, \"languages\": [\"日本語\", \"English\", \"French\"]},"
+                "{\"property\": {\"name\": \"[Mock] Park Hyatt Tokyo\", \"reviewScore\": 9.2, \"reviewCount\": 3500, \"priceBreakdown\": {\"grossAmount\": {\"value\": 85000}}, \"photoUrls\": [\"https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500\"], \"wishlistName\": \"Shinjuku, Tokyo\", \"address\": \"3-7-1-2 Nishi Shinjuku, Shinjuku-ku, Tokyo, Japan\"}, \"languages\": [\"日本語\", \"English\", \"French\"]},"
                 +
-                bellustarMock +
+                bellustarMock + "," + icMock +
                 "]}}";
     }
 
