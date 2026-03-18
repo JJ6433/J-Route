@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head th:replace="~{fragments/head :: headFragment}">
     <title>航空券検索結果 - J-Route</title>
 </head>
+
 <body class="d-flex flex-column min-vh-100 bg-light">
     <div style="position: relative; z-index: 1050;">
         <header th:replace="~{fragments/header :: headerFragment}"></header>
@@ -10,11 +12,11 @@
 
     <div class="container py-5 flex-grow-1">
         <h2 class="mb-4 text-center fw-bold"><i class="bi bi-airplane-engines text-primary me-2"></i>航空券検索結果</h2>
-        
+
         <div id="results-container" class="mx-auto" style="max-width: 900px;">
             <div class="text-center py-5" id="loading">
                 <div class="spinner-border text-primary" role="status"></div>
-                <p class="mt-3">最安値の航空券を検索中...</p>
+                <p class="mt-3">最安値の航空券を検索중...</p>
             </div>
         </div>
     </div>
@@ -22,92 +24,125 @@
     <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 
     <script th:inline="javascript">
-    const rawData = [[${flights}]];
-    let response;
-    try { response = JSON.parse(rawData); } catch (e) { response = {}; }
-
-    const container = document.getElementById('results-container');
-    const loading = document.getElementById('loading');
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const departDate = urlParams.get('departDate');
-    const returnDate = urlParams.get('returnDate');
-    const adults = urlParams.get('adults') || "1"; 
-    const isRoundTrip = returnDate && returnDate.trim() !== "";
-
-    function formatDateTime(dateStr) {
-        if (!dateStr) return "";
-        const d = new Date(dateStr);
-        return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
-    }
-
-    function formatTimeOnly(dateStr) {
-        if (!dateStr) return "";
-        const d = new Date(dateStr);
-        return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
-    }
-
-    function parseDuration(pt) {
-        if(!pt) return "";
-        let h = pt.match(/(\d+)H/);
-        let m = pt.match(/(\d+)M/);
-        let res = "";
-        if(h) res += h[1] + "時間 ";
-        if(m) res += m[1] + "分";
-        return res.trim();
-    }
-
-    if (response.status && response.data && response.data.flightOffers) {
-        loading.style.display = 'none';
-        container.innerHTML = '';
-        const offers = response.data.flightOffers;
-        let html = "";
-        
-        const isGroupedRoundTrip = offers.length > 0 && offers[0].segments && offers[0].segments.length > 1;
-
-        if (isGroupedRoundTrip) {
-            html += `<h4 class="fw-bold mb-4 text-center">往復航空券の検索結果</h4>`;
-            offers.forEach(offer => { html += createGroupedFlightCard(offer); });
-        } else {
-            const outboundFlights = offers.filter(o => o.segments[0].departureTime.startsWith(departDate));
-            const inboundFlights = isRoundTrip ? offers.filter(o => o.segments[0].departureTime.startsWith(returnDate)) : [];
-
-            if (outboundFlights.length > 0) {
-                html += `<h4 class="fw-bold mb-3"><span class="badge bg-primary me-2">往路</span> ${departDate} の航空券</h4>`;
-                outboundFlights.forEach(offer => html += createSingleFlightCard(offer, "往路"));
-            }
-            if (inboundFlights.length > 0) {
-                html += `<h4 class="fw-bold mt-5 mb-3"><span class="badge bg-success me-2">復路</span> ${returnDate} の航空券</h4>`;
-                inboundFlights.forEach(offer => html += createSingleFlightCard(offer, "復路"));
-            }
+        const rawData = /*[[${flights}]]*/ '[]';
+        let response;
+        try {
+            response = (typeof rawData === 'string') ? JSON.parse(rawData) : rawData;
+        } catch (e) {
+            response = {};
         }
 
-        container.innerHTML = html || `<div class="alert alert-light border shadow-sm text-center py-5">該当する航空券が見つかりませんでした。</div>`;
-    } else {
-        loading.style.display = 'none';
-        container.innerHTML = `<div class="alert alert-light border shadow-sm text-center py-5">該当する航空券が見つかりませんでした。</div>`;
-    }
+        const container = document.getElementById('results-container');
+        const loading = document.getElementById('loading');
 
-    function createGroupedFlightCard(offer) {
-        const outSeg = offer.segments[0];
-        const inSeg = offer.segments[offer.segments.length - 1]; 
-        
-        const purePrice = Math.round(offer.priceBreakdown.total.units);
-        const currency = offer.priceBreakdown.total.currencyCode === 'JPY' ? '¥' : offer.priceBreakdown.total.currencyCode;
-        const priceStr = `${currency}${purePrice.toLocaleString()}`;
-        
-        const outData = { from: outSeg.departureAirport.code, to: outSeg.arrivalAirport.code, time: formatDateTime(outSeg.departureTime) };
-        const inData = { from: inSeg.departureAirport.code, to: inSeg.arrivalAirport.code, time: formatDateTime(inSeg.departureTime) };
+        const urlParams = new URLSearchParams(window.location.search);
+        const departDate = urlParams.get('departDate');
+        const returnDate = urlParams.get('returnDate');
+        const adults = urlParams.get('adults') || "1";
+        const isRoundTrip = returnDate && returnDate.trim() !== "";
 
-        const flightName = `${outData.from} ➔ ${inData.to} 往復航空券`; 
-        const depTime = formatTimeOnly(outSeg.departureTime);
-        const arrTime = formatTimeOnly(inSeg.arrivalTime);
-        
-        const checkoutUrl = `/checkout?itemName=${encodeURIComponent(flightName)}&price=${purePrice}&checkin=${departDate}&adults=${adults}&category=FLIGHT&depTime=${depTime}&arrTime=${arrTime}&duration=往復`;
-        const saveApiId = `/checkout?price=${purePrice}&checkin=${departDate}&adults=${adults}&category=FLIGHT&depTime=${depTime}&arrTime=${arrTime}`;
+        function formatDateTime(dateStr) {
+            if (!dateStr) return "";
+            const d = new Date(dateStr);
+            return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+        }
 
-        // 💡 [수정됨] onclick 부분에 ${purePrice} 파라미터가 추가되었습니다.
-        return `
+        function formatTimeOnly(dateStr) {
+            if (!dateStr) return "";
+            const d = new Date(dateStr);
+            return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+        }
+
+        function parseDuration(pt) {
+            if (!pt) return "";
+            let h = pt.match(/(\d+)H/);
+            let m = pt.match(/(\d+)M/);
+            let res = "";
+            if (h) res += h[1] + "時間 ";
+            if (m) res += m[1] + "分";
+            return res.trim();
+        }
+
+        if (response.status && response.data && response.data.flightOffers) {
+            loading.style.display = 'none';
+            container.innerHTML = '';
+            const offers = response.data.flightOffers;
+            let html = "";
+
+            const isGroupedRoundTrip = offers.length > 0 && offers[0].segments && offers[0].segments.length > 1;
+
+            if (isGroupedRoundTrip) {
+                html += `<h4 class="fw-bold mb-4 text-center">往復航空券の検索結果</h4>`;
+                offers.forEach(offer => { html += createGroupedFlightCard(offer); });
+            } else {
+                const outboundFlights = offers.filter(o => o.segments[0].departureTime.startsWith(departDate));
+                const inboundFlights = isRoundTrip ? offers.filter(o => o.segments[0].departureTime.startsWith(returnDate)) : [];
+
+                if (outboundFlights.length > 0) {
+                    html += `<h4 class="fw-bold mb-3"><span class="badge bg-primary me-2">往路</span> ${departDate} の航空券</h4>`;
+                    outboundFlights.forEach(offer => html += createSingleFlightCard(offer, "往路"));
+                }
+                if (inboundFlights.length > 0) {
+                    html += `<h4 class="fw-bold mt-5 mb-3"><span class="badge bg-success me-2">復路</span> ${returnDate} の航空券</h4>`;
+                    inboundFlights.forEach(offer => html += createSingleFlightCard(offer, "復路"));
+                }
+            }
+
+            container.innerHTML = html || `<div class="alert alert-light border shadow-sm text-center py-5">該当する航空券が見つかりませんでした。</div>`;
+        } else {
+            loading.style.display = 'none';
+            container.innerHTML = `<div class="alert alert-light border shadow-sm text-center py-5">該当する航空券が見つかりませんでした。</div>`;
+        }
+
+        function createGroupedFlightCard(offer) {
+            const segments = offer.segments;
+            if (!segments || segments.length === 0) return "";
+
+            let outbound = [];
+            let inbound = [];
+
+            if (isRoundTrip && segments.length > 1) {
+                let returnStartIdx = segments.findIndex(s => s.departureTime.startsWith(returnDate));
+                if (returnStartIdx === -1) {
+                    returnStartIdx = Math.ceil(segments.length / 2);
+                }
+                outbound = segments.slice(0, returnStartIdx);
+                inbound = segments.slice(returnStartIdx);
+            } else {
+                outbound = segments;
+            }
+
+            const firstOut = outbound[0];
+            const lastOut = outbound[outbound.length - 1];
+            const outData = { from: firstOut.departureAirport.code, to: lastOut.arrivalAirport.code, time: formatDateTime(firstOut.departureTime) };
+
+            let inData = null;
+            let flightName = `${outData.from} ➔ ${outData.to} 航空券`;
+
+            if (inbound.length > 0) {
+                const firstIn = inbound[0];
+                const lastIn = inbound[inbound.length - 1];
+                inData = { from: firstIn.departureAirport.code, to: lastIn.arrivalAirport.code, time: formatDateTime(firstIn.departureTime) };
+                flightName = `${outData.from} ➔ ${outData.to} 往復航空券`;
+            }
+
+            const purePrice = Math.round(offer.priceBreakdown.total.units);
+            const currency = offer.priceBreakdown.total.currencyCode === 'JPY' ? '¥' : offer.priceBreakdown.total.currencyCode;
+            const priceStr = `${currency}${purePrice.toLocaleString()}`;
+
+            const actualDepartDate = (firstOut.departureTime || "").split('T')[0];
+            const actualReturnDate = (inbound.length > 0 && inbound[0].departureTime) ? inbound[0].departureTime.split('T')[0] : "";
+
+            const finalCheckin = departDate || actualDepartDate;
+            const finalReturn = returnDate || actualReturnDate;
+
+            const depTime = formatTimeOnly(firstOut.departureTime);
+            const arrTime = formatTimeOnly(lastOut.arrivalTime);
+
+            const checkoutUrl = `/checkout?itemName=${encodeURIComponent(flightName)}&price=${purePrice}&checkin=${finalCheckin}&adults=${adults}&category=FLIGHT&depTime=${depTime}&arrTime=${arrTime}&duration=${inbound.length > 0 ? '往復' : '片道'}`;
+            const saveApiId = `/checkout?price=${purePrice}&checkin=${finalCheckin}&returnDate=${finalReturn}&adults=${adults}&category=FLIGHT&depTime=${depTime}&arrTime=${arrTime}&fromId=${outData.from}&toId=${outData.to}`;
+
+            return `
             <div class="card border-0 shadow-sm mb-4 flight-card" style="border-radius: 20px;">
                 <div class="card-body p-4">
                     <div class="row align-items-center">
@@ -119,13 +154,14 @@
                                 <div class="fw-bold me-3">${outData.to}</div>
                                 <div class="small text-muted">${outData.time}</div>
                             </div>
+                            ${inData ? `
                             <div class="d-flex align-items-center">
                                 <div class="badge bg-success-subtle text-success me-3" style="width: 55px; font-size: 0.75rem;">復路</div>
                                 <div class="fw-bold me-2">${inData.from}</div>
                                 <i class="bi bi-arrow-right text-muted me-2"></i>
                                 <div class="fw-bold me-3">${inData.to}</div>
                                 <div class="small text-muted">${inData.time}</div>
-                            </div>
+                            </div>` : ''}
                         </div>
                         <div class="col-md-5 text-md-end border-start-md mt-3 mt-md-0">
                             <div class="h4 text-primary fw-bold mb-3">${priceStr}</div>
@@ -144,29 +180,38 @@
                     </div>
                 </div>
             </div>`;
-    }
+        }
 
-    function createSingleFlightCard(offer, label) {
-        const seg = offer.segments[0];
-        
-        const purePrice = Math.round(offer.priceBreakdown.total.units);
-        const currency = offer.priceBreakdown.total.currencyCode === 'JPY' ? '¥' : offer.priceBreakdown.total.currencyCode;
-        const priceStr = `${currency}${purePrice.toLocaleString()}`;
-        const badgeClass = label === "往路" ? "bg-primary-subtle text-primary" : "bg-success-subtle text-success";
-        
-        const flightData = { from: seg.departureAirport.code, to: seg.arrivalAirport.code, time: formatDateTime(seg.departureTime) };
-        const flightName = `${flightData.from} ➔ ${flightData.to} ${label} 航空券`; 
-        const targetDate = label === "往路" ? departDate : returnDate; 
-        
-        const depTime = formatTimeOnly(seg.departureTime);
-        const arrTime = formatTimeOnly(seg.arrivalTime);
-        const duration = parseDuration(seg.duration);
-        
-        const checkoutUrl = `/checkout?itemName=${encodeURIComponent(flightName)}&price=${purePrice}&checkin=${targetDate}&adults=${adults}&category=FLIGHT&depTime=${depTime}&arrTime=${arrTime}&duration=${encodeURIComponent(duration)}`;
-        const saveApiId = `/checkout?price=${purePrice}&checkin=${targetDate}&adults=${adults}&category=FLIGHT&depTime=${depTime}&arrTime=${arrTime}`;
+        function createSingleFlightCard(offer, label) {
+            const segments = offer.segments;
+            if (!segments || segments.length === 0) return "";
 
-        // 💡 [수정됨] onclick 부분에 ${purePrice} 파라미터가 추가되었습니다.
-        return `
+            const firstSeg = segments[0];
+            const lastSeg = segments[segments.length - 1];
+
+            const purePrice = Math.round(offer.priceBreakdown.total.units);
+            const currency = offer.priceBreakdown.total.currencyCode === 'JPY' ? '¥' : offer.priceBreakdown.total.currencyCode;
+            const priceStr = `${currency}${purePrice.toLocaleString()}`;
+            const badgeClass = label === "往路" ? "bg-primary-subtle text-primary" : "bg-success-subtle text-success";
+
+            const flightData = { from: firstSeg.departureAirport.code, to: lastSeg.arrivalAirport.code, time: formatDateTime(firstSeg.departureTime) };
+            const flightName = `${flightData.from} ➔ ${flightData.to} ${label} 航空券`;
+            const targetDate = label === "往路" ? departDate : returnDate;
+
+            const depTime = formatTimeOnly(firstSeg.departureTime);
+            const arrTime = formatTimeOnly(lastSeg.arrivalTime);
+
+            let totalDuration = "";
+            if (segments.length === 1) {
+                totalDuration = parseDuration(firstSeg.duration);
+            } else {
+                totalDuration = `${segments.length - 1}回乗継`;
+            }
+
+            const checkoutUrl = `/checkout?itemName=${encodeURIComponent(flightName)}&price=${purePrice}&checkin=${targetDate}&adults=${adults}&category=FLIGHT&depTime=${depTime}&arrTime=${arrTime}&duration=${encodeURIComponent(totalDuration)}`;
+            const saveApiId = `/checkout?price=${purePrice}&checkin=${targetDate}&adults=${adults}&category=FLIGHT&depTime=${depTime}&arrTime=${arrTime}`;
+
+            return `
             <div class="card border-0 shadow-sm mb-3 flight-card" style="border-radius: 15px;">
                 <div class="card-body p-3">
                     <div class="row align-items-center">
@@ -177,7 +222,7 @@
                                 <i class="bi bi-arrow-right text-muted me-2"></i>
                                 <div class="fw-bold me-3">${flightData.to}</div>
                                 <div class="small text-muted">${flightData.time}</div>
-                                <div class="badge bg-light text-dark border ms-3"><i class="bi bi-stopwatch"></i> ${duration}</div>
+                                <div class="badge bg-light text-dark border ms-3"><i class="bi bi-stopwatch"></i> ${totalDuration}</div>
                             </div>
                         </div>
                         <div class="col-md-5 d-flex justify-content-md-end align-items-center mt-3 mt-md-0">
@@ -195,75 +240,115 @@
                     </div>
                 </div>
             </div>`;
-    }
-
-    // 💡 [수정됨] 함수 파라미터에 price가 추가되고, fetch body에 price가 포함되었습니다.
-    function toggleWishlist(btn, apiId, itemName, category, price) {
-        const icon = btn.querySelector('i');
-        const isCurrentlySaved = icon.classList.contains('bi-heart-fill');
-
-        if (isCurrentlySaved) {
-            icon.classList.replace('bi-heart-fill', 'bi-heart');
-            icon.classList.replace('text-danger', 'text-secondary');
-        } else {
-            icon.classList.replace('bi-heart', 'bi-heart-fill');
-            icon.classList.replace('text-secondary', 'text-danger');
         }
 
-        fetch('/api/wishlist/toggle', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                apiId: apiId,
-                category: category,
-                placeName: itemName, 
-                imageUrl: 'https://cdn-icons-png.flaticon.com/512/785/785116.png',
-                price: price
-            })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then(data => {
-            if (data.status === 'unauthorized') {
-                alert('ログインが必要です。');
-                window.location.href = '/login';
-            } else if (data.status === 'error') {
-                alert('エラーが発生しました。');
-                revertHeartUI(icon, isCurrentlySaved);
+        function toggleWishlist(btn, apiId, itemName, category, price) {
+            const icon = btn.querySelector('i');
+            const isCurrentlySaved = icon.classList.contains('bi-heart-fill');
+
+            if (isCurrentlySaved) {
+                icon.classList.replace('bi-heart-fill', 'bi-heart');
+                icon.classList.replace('text-danger', 'text-secondary');
+            } else {
+                icon.classList.replace('bi-heart', 'bi-heart-fill');
+                icon.classList.replace('text-secondary', 'text-danger');
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            revertHeartUI(icon, isCurrentlySaved);
-        });
-    }
 
-    function revertHeartUI(icon, wasSaved) {
-        if (wasSaved) {
-            icon.classList.replace('bi-heart', 'bi-heart-fill');
-            icon.classList.replace('text-secondary', 'text-danger');
-        } else {
-            icon.classList.replace('bi-heart-fill', 'bi-heart');
-            icon.classList.replace('text-danger', 'text-secondary');
+            fetch('/api/wishlist/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    apiId: apiId,
+                    category: category,
+                    placeName: itemName,
+                    imageUrl: 'https://cdn-icons-png.flaticon.com/512/3125/3125713.png',
+                    price: price
+                })
+            })
+                .then(response => {
+                    if (response.status === 401) {
+                        alert('ログインが必要です。');
+                        window.location.href = '/user/login';
+                        throw new Error('Unauthorized');
+                    }
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'error') {
+                        const errMsg = data.message || '';
+                        alert('즐겨찾기 저장 중 오류가 발생했습니다.\n' + (errMsg ? '사유: ' + errMsg : ''));
+                        revertHeartUI(icon, isCurrentlySaved);
+                    } else if (data.status === 'success') {
+                        if (data.wished) {
+                            icon.classList.replace('bi-heart', 'bi-heart-fill');
+                            icon.classList.replace('text-secondary', 'text-danger');
+                        } else {
+                            icon.classList.replace('bi-heart-fill', 'bi-heart');
+                            icon.classList.replace('text-danger', 'text-secondary');
+                        }
+                    }
+                })
+                .catch(error => {
+                    if (error.message !== 'Unauthorized') {
+                        console.error('Error:', error);
+                        alert('통신 오류가 발생했습니다. 다시 시도해 주세요.');
+                        revertHeartUI(icon, isCurrentlySaved);
+                    }
+                });
         }
-    }
-</script>
+
+        function revertHeartUI(icon, wasSaved) {
+            if (wasSaved) {
+                icon.classList.replace('bi-heart', 'bi-heart-fill');
+                icon.classList.replace('text-secondary', 'text-danger');
+            } else {
+                icon.classList.replace('bi-heart-fill', 'bi-heart');
+                icon.classList.replace('text-danger', 'text-secondary');
+            }
+        }
+    </script>
 
     <style>
-        .flight-card { transition: all 0.3s ease; border: 1px solid rgba(0,0,0,0.05); }
-        .flight-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; border-color: #003580; }
-        .btn-primary { background-color: #003580; border: none; }
-        .btn-primary:hover { background-color: #00224f; }
-        .bg-primary-subtle { background-color: #e7f0ff !important; }
-        .bg-success-subtle { background-color: #e6f9f0 !important; }
-        .wishlist-btn:hover i { color: #dc3545 !important; } 
+        .flight-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .flight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+            border-color: #003580;
+        }
+
+        .btn-primary {
+            background-color: #003580;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #00224f;
+        }
+
+        .bg-primary-subtle {
+            background-color: #e7f0ff !important;
+        }
+
+        .bg-success-subtle {
+            background-color: #e6f9f0 !important;
+        }
+
+        .wishlist-btn:hover i {
+            color: #dc3545 !important;
+        }
+
         @media (min-width: 768px) {
-            .border-start-md { border-left: 1px solid #eee; padding-left: 20px; }
+            .border-start-md {
+                border-left: 1px solid #eee;
+                padding-left: 20px;
+            }
         }
     </style>
 </body>
+
 </html>

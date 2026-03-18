@@ -168,9 +168,16 @@
                     </div>
                     <div class="d-flex justify-content-between px-2 text-muted small">
                         <span>都市を選択</span>
-                        <span>宿を選択</span>
                         <span>詳細設定</span>
+                        <span>宿を選択</span>
                         <span>生成中</span>
+                    </div>
+
+                    <!-- Error Alert -->
+                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span th:text="${error}">エラーメッセージ</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 </div>
             </div>
@@ -179,6 +186,7 @@
                 <!-- Step 1: City Selection -->
                 <div class="wizard-step active" id="step-1">
                     <h4 class="text-center mb-4">どちらへご旅行ですか？</h4>
+                    <input type="hidden" name="region" id="region-input" th:value="${region}" required>
                     <div class="row g-3">
                         <div class="col-6 col-md-3">
                             <div class="card city-card" onclick="selectCity('東京', this)">
@@ -253,66 +261,15 @@
                             </div>
                         </div>
                     </div>
-                    <input type="hidden" name="region" id="region-input" required>
                     <div class="text-center mt-5">
                         <button type="button" class="btn jroute-btn-primary px-5" onclick="nextStep(2)">次へ <i
                                 class="bi bi-arrow-right"></i></button>
                     </div>
                 </div>
 
-                <!-- Step 2: Hotel Selection (List View) -->
+                <!-- Step 2: Details (Formerly Step 3) -->
                 <div class="wizard-step" id="step-2">
-                    <h4 class="text-center mb-4">ご滞在予定のエリア・宿を選択してください</h4>
-
-                    <!-- Dynamic Hotel Grid -->
-                    <div id="hotel-grid" class="row g-3 mb-4">
-                        <!-- Hotels injected by JS -->
-                    </div>
-
-                    <div id="selected-hotel-info" class="hotel-info-card">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1 fw-bold" id="display-hotel-name">宿泊施設名</h6>
-                                <div class="d-flex flex-wrap gap-x-4 gap-y-1 small mt-1 mb-2">
-                                    <span id="display-hotel-rating" class="text-secondary"><i
-                                            class="bi bi-star-fill text-warning me-1"></i>評価: -</span>
-                                    <span id="display-hotel-reviews" class="text-secondary"><i
-                                            class="bi bi-chat-left-text me-1"></i>口コミ: -</span>
-                                    <span id="display-hotel-price" class="text-danger fw-bold"><i
-                                            class="bi bi-currency-yen me-1"></i>価格帯: -</span>
-                                    <span id="display-hotel-languages" class="text-secondary"><i
-                                            class="bi bi-translate me-1"></i>対応言語: -</span>
-                                </div>
-                                <p class="mb-0 text-muted small"><i class="bi bi-geo-alt-fill me-1"></i><span
-                                        id="display-hotel-address-full">住所情報なし</span></p>
-                            </div>
-                            <span class="badge bg-success ms-3">選択済み</span>
-                        </div>
-                    </div>
-
-                    <!-- Fallback / Custom Hotel Input (Optional) -->
-                    <div class="mt-4 p-3 bg-light rounded text-center">
-                        <p class="text-muted small mb-2">リストにご希望の宿がない場合は直接入力してください。</p>
-                        <div class="input-group input-group-sm w-75 mx-auto">
-                            <input type="text" class="form-control" id="custom-hotel-name"
-                                placeholder="ホテル名 (例: 帝国ホテル)">
-                            <button class="btn btn-outline-danger" type="button" onclick="setCustomHotel()">適用</button>
-                        </div>
-                    </div>
-
-                    <input type="hidden" name="accommodationName" id="hotel-name-input">
-                    <input type="hidden" name="accommodationAddress" id="hotel-address-input">
-
-                    <div class="d-flex justify-content-between mt-4">
-                        <button type="button" class="btn btn-outline-secondary px-4" onclick="prevStep(1)">戻る</button>
-                        <button type="button" class="btn jroute-btn-primary px-5" onclick="nextStep(3)">次へ <i
-                                class="bi bi-arrow-right"></i></button>
-                    </div>
-                </div>
-
-                <!-- Step 3: Details -->
-                <div class="wizard-step" id="step-3">
-                    <h4 class="text-center mb-4">最後に、旅行の詳細を教えてください</h4>
+                    <h4 class="text-center mb-4">旅行の詳細・日程を教えてください</h4>
                     <div class="row g-4 justify-content-center">
                         <div class="col-md-6">
                             <div class="card jroute-card p-4">
@@ -325,11 +282,25 @@
                                         <input type="date" name="endDate" class="form-control" required id="endDate">
                                     </div>
                                 </div>
+                                <!-- Flight Times -->
+                                <div class="row mb-3" id="flight-times-row">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold text-muted">到着時間 (任意)</label>
+                                        <input type="time" name="flightArrival" class="form-control form-control-sm"
+                                            placeholder="10:00">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold text-muted">出発時間 (任意)</label>
+                                        <input type="time" name="flightDeparture" class="form-control form-control-sm"
+                                            placeholder="18:00">
+                                    </div>
+                                </div>
                                 <div class="row">
                                     <div class="col-6">
                                         <div class="mb-3">
                                             <label class="form-label fw-bold">大人</label>
-                                            <input type="number" name="adults" class="form-control" value="2" min="1">
+                                            <input type="number" name="adults" class="form-control" value="2" min="1"
+                                                id="adultsCount">
                                         </div>
                                     </div>
                                     <div class="col-6">
@@ -360,25 +331,122 @@
 
                                 <!-- AI Insights / Notices -->
                                 <div class="mb-3">
-                                    <div class="ai-insight-box">
-                                        <i class="bi bi-info-circle-fill"></i>
-                                        <span>🏠 宿泊先を拠点とし、各日程の開始と終了が宿泊施設となるよう最適化されます。</span>
-                                    </div>
                                     <div id="long-trip-notice" class="ai-insight-box ai-dynamic-notice">
                                         <i class="bi bi-lightbulb-fill"></i>
-                                        <span>💡 5日以上の旅行スケジュールですね！周辺都市（京都、神戸、奈良など）への日帰りプランも考慮して作成します。</span>
+                                        <span>💡 5日以上の旅行スケジュールですね！周辺都市（京都、神戸、奈良など）への日帰りプラン도 고려하여 작성합니다.</span>
                                     </div>
                                 </div>
 
-                                <button type="submit" class="btn jroute-btn-primary w-100 py-3 fw-bold">
-                                    AI旅行プランナーを起動する <i class="bi bi-lightning-fill"></i>
-                                </button>
+                                <!-- Premium Wishlist Picking UI -->
+                                <div th:if="${wishlist != null and !wishlist.isEmpty()}" class="mb-4">
+                                    <label class="form-label fw-bold d-block mb-3">
+                                        <i class="bi bi-heart-fill text-danger me-1"></i>お気に入りの場所・航空券
+                                    </label>
+
+                                    <div class="d-grid mb-3">
+                                        <button type="button"
+                                            class="btn btn-outline-danger btn-lg rounded-4 py-3 shadow-sm d-flex align-items-center justify-content-center gap-2"
+                                            data-bs-toggle="modal" data-bs-target="#plannerWishlistModal">
+                                            <i class="bi bi-plus-circle-dotted fs-4"></i>
+                                            <span class="fw-bold">お気に入りから選ぶ</span>
+                                        </button>
+                                    </div>
+
+                                    <div id="selected-wishlist-pills" class="d-flex flex-wrap gap-2">
+                                        <!-- Selected items will appear here as badges/pills -->
+                                        <p id="no-favs-msg" class="text-muted small mb-0">※
+                                            選択された項目はありません。上のボタンから追加してください。</p>
+                                    </div>
+
+                                    <!-- Hidden inputs for form submission -->
+                                    <div id="wishlist-hidden-inputs"></div>
+                                </div>
+
+                                <div class="d-flex justify-content-between mt-4">
+                                    <button type="button" class="btn btn-outline-secondary px-4"
+                                        onclick="prevStep(1)">戻る</button>
+                                    <button type="button" class="btn jroute-btn-primary px-5"
+                                        onclick="nextStep(3)">宿の選択へ <i class="bi bi-arrow-right"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="text-center mt-4">
-                        <button type="button" class="btn btn-link text-decoration-none text-muted"
-                            onclick="prevStep(2)">前のステップへ</button>
+                </div>
+
+                <!-- Step 3: Hotel Selection -->
+                <div class="wizard-step" id="step-3">
+                    <h4 class="text-center mb-4">ご滞在予定のエリア・宿を選択してください</h4>
+
+                    <!-- Hotel Source Tabs -->
+                    <ul class="nav nav-pills nav-fill mb-4 bg-light rounded p-1" id="hotel-tabs" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active py-2" id="recommend-hotels-tab" data-bs-toggle="pill"
+                                type="button" onclick="renderHotelGrid()">おすすめ宿</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link py-2" id="wishlist-hotels-tab" data-bs-toggle="pill" type="button"
+                                onclick="renderWishlistHotels()">ブックマーク済み</button>
+                        </li>
+                    </ul>
+
+                    <!-- Search Results Header (Hidden by default) -->
+                    <div id="search-status" class="mb-3 d-none">
+                        <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded">
+                            <span class="fw-bold text-danger"><i class="bi bi-search me-2"></i>「<span
+                                    id="search-keyword-display"></span>」の検索結果</span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                onclick="clearSearch()">検索解除</button>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Hotel Grid -->
+                    <div id="hotel-grid" class="row g-3 mb-4">
+                        <!-- Hotels injected by JS -->
+                    </div>
+
+                    <div id="selected-hotel-info" class="hotel-info-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1 fw-bold" id="display-hotel-name">宿泊施設名</h6>
+                                <div class="d-flex flex-wrap gap-x-4 gap-y-1 small mt-1 mb-2">
+                                    <span id="display-hotel-rating" class="text-secondary"><i
+                                            class="bi bi-star-fill text-warning me-1"></i>評価: -</span>
+                                    <span id="display-hotel-reviews" class="text-secondary"><i
+                                            class="bi bi-chat-left-text me-1"></i>口コミ: -</span>
+                                    <span id="display-hotel-price" class="text-danger fw-bold"><i
+                                            class="bi bi-currency-yen me-1"></i>価格帯: -</span>
+                                    <span id="display-hotel-languages" class="text-secondary"><i
+                                            class="bi bi-translate me-1"></i>対応言語: -</span>
+                                </div>
+                                <p class="mb-0 text-muted small"><i class="bi bi-geo-alt-fill me-1"></i><span
+                                        id="display-hotel-address-full">住所情報なし</span></p>
+                            </div>
+                            <span class="badge bg-success ms-3">選択済み</span>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Custom Hotel Search -->
+                    <div class="mt-4 p-3 bg-light rounded text-center">
+                        <p class="text-muted small mb-2">リストにご希望の宿がない場合は検索してください。</p>
+                        <div class="input-group input-group-sm w-75 mx-auto">
+                            <input type="text" class="form-control" id="custom-hotel-name" placeholder="ホテル名 (例: 帝国ホテル)"
+                                onkeydown="if(event.key === 'Enter') { event.preventDefault(); searchCustomHotel(); }">
+                            <button class="btn btn-outline-danger" type="button" onclick="searchCustomHotel()"><i
+                                    class="bi bi-search"></i> 検索</button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="accommodationName" id="hotel-name-input" th:value="${accommodationName}">
+                    <input type="hidden" name="accommodationAddress" id="hotel-address-input"
+                        th:value="${accommodationAddress}">
+                    <input type="hidden" name="arrivalAirport" id="arrival-airport-input">
+                    <input type="hidden" name="departureAirport" id="departure-airport-input">
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-outline-secondary px-4" onclick="prevStep(2)">戻る</button>
+                        <button type="submit" class="btn jroute-btn-primary px-5 py-2 fw-bold">
+                            AI旅行プランナーを起動する <i class="bi bi-lightning-fill"></i>
+                        </button>
                     </div>
                 </div>
             </form>
@@ -401,7 +469,7 @@
 
     <script th:inline="javascript">
         let currentStep = 1;
-        let selectedRegion = '';
+        let selectedRegion = /*[[${region ?: ''}]]*/ '';
 
 
 
@@ -431,7 +499,7 @@
                 else node.className = 'step-node';
             });
 
-            if (step === 2) {
+            if (step === 3) {
                 renderHotelGrid();
             }
 
@@ -453,18 +521,42 @@
             window.scrollTo(0, 0);
         }
 
-        function renderHotelGrid() {
+        function renderHotelGrid(searchKeyword = null) {
             const grid = document.getElementById('hotel-grid');
+            const searchStatus = document.getElementById('search-status');
+            const searchKeywordDisplay = document.getElementById('search-keyword-display');
             if (!grid) return;
+
+            const checkin = document.getElementById('startDate').value;
+            const checkout = document.getElementById('endDate').value;
+            const adults = document.getElementById('adultsCount').value;
+
+            const queryCity = selectedRegion;
+
+            // Show/Hide search header
+            if (searchKeyword) {
+                searchKeywordDisplay.innerText = searchKeyword;
+                searchStatus.classList.remove('d-none');
+            } else {
+                searchStatus.classList.add('d-none');
+                document.getElementById('custom-hotel-name').value = '';
+            }
+
+            const loadingText = searchKeyword ? `「${searchKeyword}」を${queryCity}で検索中です...` : `「${queryCity}」の宿泊施設を検索中です...`;
 
             grid.innerHTML = `
                 <div class="col-12 text-center py-5">
                     <div class="spinner-border text-danger" role="status"></div>
-                    <p class="mt-2 text-muted">「${selectedRegion}」周辺の宿泊施設を検索中です...</p>
+                    <p class="mt-2 text-muted">${loadingText}</p>
                 </div>
             `;
 
-            fetch(`/api/hotels/search?city=${encodeURIComponent(selectedRegion)}`)
+            let url = `/api/hotels/search?city=${encodeURIComponent(queryCity)}&checkin=${encodeURIComponent(checkin)}&checkout=${encodeURIComponent(checkout)}&adults=${encodeURIComponent(adults)}`;
+            if (searchKeyword) {
+                url += `&keyword=${encodeURIComponent(searchKeyword)}`;
+            }
+
+            fetch(url)
                 .then(response => {
                     if (!response.ok) throw new Error('Network response was not ok');
                     return response.json();
@@ -472,13 +564,23 @@
                 .then(data => {
                     grid.innerHTML = '';
 
-                    if (data.error || !data.data || !data.data.hotels || data.data.hotels.length === 0) {
-                        const errorMsg = data.error || "宿泊施設情報を取得できませんでした。";
-                        grid.innerHTML = `<div class="col-11 text-center py-4 alert alert-warning mx-auto">${errorMsg}<br>別の都市を選択するか、直接入力してください。</div>`;
+                    if (data.error) {
+                        grid.innerHTML = `
+                            <div class="col-12 text-center py-5">
+                                <i class="bi bi-info-circle text-warning mb-3" style="font-size: 3rem;"></i>
+                                <h5 class="text-muted mb-3">${data.error}</h5>
+                                <p class="small text-muted">別の検索ワードを試すか、都市のリストから選択してください。</p>
+                                <button class="btn btn-outline-danger btn-sm mt-3" onclick="renderHotelGrid()">デフォルトのリストに戻る</button>
+                            </div>
+                        `;
                         return;
                     }
 
-                    const hotels = data.data.hotels.slice(0, 8); // 최대 8개 표시
+                    const hotels = data.data && data.data.hotels ? data.data.hotels.slice(0, 8) : [];
+                    if (hotels.length === 0) {
+                        grid.innerHTML = `<div class="col-12 text-center py-5 text-muted">検索結果が見つかりませんでした。別の検索ワードをお試しください。</div>`;
+                        return;
+                    }
 
                     hotels.forEach(hotel => {
                         const prop = hotel.property;
@@ -520,6 +622,70 @@
                 });
         }
 
+        function renderWishlistHotels() {
+            const grid = document.getElementById('hotel-grid');
+            const searchStatus = document.getElementById('search-status');
+            if (!grid) return;
+
+            searchStatus.classList.add('d-none');
+            grid.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-danger" role="status"></div>
+                    <p class="mt-2 text-muted">ブックマーク済みの宿を読み込み中です...</p>
+                </div>
+            `;
+
+            // Wishlist is passed from server as [[wishlist]]
+            let wishlistItems = [];
+            /*[# th:if="${wishlist != null}"]*/
+            wishlistItems = /*[[${wishlist}]]*/[];
+            /*[/]*/
+
+            const hotels = wishlistItems.filter(item => item.category === 'HOTEL');
+
+            setTimeout(() => {
+                grid.innerHTML = '';
+                if (hotels.length === 0) {
+                    grid.innerHTML = `
+                        <div class="col-12 text-center py-5">
+                            <i class="bi bi-heart text-muted mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="text-muted">ブックマーク済みの宿がありません。</h5>
+                            <p class="small text-muted">お気に入りの宿をハートマークで保存してください。</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                hotels.forEach(item => {
+                    const hotelName = item.placeName;
+                    const photoUrl = item.imageUrl || 'https://placehold.co/300x200/e9ecef/6c757d?text=No+Image';
+                    const address = item.placeRegion || selectedRegion;
+                    const rating = "9.0"; // Default or from wishlist if available
+
+                    const col = document.createElement('div');
+                    col.className = 'col-6 col-md-3';
+                    col.innerHTML = `
+                        <div class="card city-card" onclick="selectHotel('${hotelName.replace(/'/g, "\\'")}', '${address.replace(/'/g, "\\'")}', this, '${rating}')">
+                            <img src="${photoUrl}" class="card-img-top" alt="${hotelName}" style="height: 100px; object-fit: cover;">
+                            <div class="card-body p-2 text-center">
+                                <h6 class="mb-1 text-truncate" style="font-size: 0.9rem;" title="${hotelName}">${hotelName}</h6>
+                                <div class="small text-warning mb-1">
+                                    <i class="bi bi-star-fill"></i> ${rating}
+                                </div>
+                                <small class="text-muted d-block text-truncate">${address}</small>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(col);
+                });
+            }, 300);
+        }
+
+        function clearSearch() {
+            document.getElementById('custom-hotel-name').value = '';
+            renderHotelGrid();
+        }
+
         function selectHotel(name, address, element, rating = "-", reviews = "-", price = "-", fullAddress = "-", languages = "-") {
             document.getElementById('hotel-name-input').value = name;
             document.getElementById('hotel-address-input').value = fullAddress !== "-" ? fullAddress : address;
@@ -542,11 +708,10 @@
             }
         }
 
-        function setCustomHotel() {
+        function searchCustomHotel() {
             const name = document.getElementById('custom-hotel-name').value;
             if (!name) return;
-            selectHotel(name, 'カスタム入力', null);
-            document.querySelectorAll('#hotel-grid .city-card').forEach(card => card.classList.remove('selected'));
+            renderHotelGrid(name);
         }
 
         document.getElementById('planner-form').addEventListener('submit', function (e) {
@@ -564,15 +729,17 @@
             document.getElementById('node-3').className = 'step-node completed';
         });
 
-        // Set default dates
-        const today = new Date();
-        const nextWeek = new Date(today);
-        nextWeek.setDate(today.getDate() + 7);
-        const dayAfter = new Date(nextWeek);
-        dayAfter.setDate(nextWeek.getDate() + 2);
+        // Set default dates only if not provided by model
+        if (!document.getElementById('startDate').value) {
+            const today = new Date();
+            const nextWeek = new Date(today);
+            nextWeek.setDate(today.getDate() + 7);
+            const dayAfter = new Date(nextWeek);
+            dayAfter.setDate(nextWeek.getDate() + 2);
 
-        document.getElementById('startDate').valueAsDate = nextWeek;
-        document.getElementById('endDate').valueAsDate = dayAfter;
+            document.getElementById('startDate').valueAsDate = nextWeek;
+            document.getElementById('endDate').valueAsDate = dayAfter;
+        }
 
         // Logic to toggle AI dynamic notice
         function checkDuration() {
@@ -595,6 +762,331 @@
 
         // Initial check
         checkDuration();
+    </script>
+
+    <!-- Premium Wishlist Selection Modal -->
+    <div class="modal fade" id="plannerWishlistModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-danger bg-opacity-10 border-0 p-4 pb-3">
+                    <h5 class="modal-title fw-bold text-danger">
+                        <i class="bi bi-heart-fill me-2"></i>お気に入りからプランに追加
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body p-4 pt-0">
+                    <ul class="nav nav-pills nav-fill mb-4 p-1 bg-light rounded-pill" id="plannerWishTabs">
+                        <li class="nav-item">
+                            <button class="nav-link active rounded-pill fw-bold"
+                                onclick="filterPlannerWishlist('PLACE', this)">
+                                <i class="bi bi-geo-alt me-1"></i>観光・グルメ
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link text-muted rounded-pill fw-bold"
+                                onclick="filterPlannerWishlist('FLIGHT', this)">
+                                <i class="bi bi-airplane-engines me-1"></i>航空券
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div id="plannerWishContainer" style="max-height: 400px; overflow-y: auto; overflow-x: hidden;"
+                        class="pe-2">
+                        <div th:if="${wishlist == null or wishlist.isEmpty()}" class="text-center text-muted py-5">
+                            お気に入りに登録された項目がありません。
+                        </div>
+
+                        <div th:if="${wishlist != null and !wishlist.isEmpty()}" class="list-group list-group-flush">
+                            <div th:each="wish : ${wishlist}"
+                                class="list-group-item d-flex align-items-center gap-3 py-3 border-0 shadow-sm mb-2 rounded-4 planner-wish-item"
+                                th:data-category="${wish.category}" th:data-api-id="${wish.apiId}"
+                                th:data-name="${wish.placeName}" style="cursor: pointer; transition: background 0.2s;"
+                                onclick="toggleSelectionFromList(this)">
+
+                                <div class="form-check flex-shrink-0">
+                                    <input class="form-check-input fs-5 planner-wish-check" type="checkbox"
+                                        th:id="'planner-wish-' + ${wish.wishlistId}" th:value="${wish.placeName}"
+                                        th:data-category="${wish.category}" onclick="event.stopPropagation()">
+                                </div>
+
+                                <img th:src="${wish.imageUrl != null ? wish.imageUrl : 'https://placehold.co/100x100?text=No+Image'}"
+                                    class="rounded-3 shadow-sm border flex-shrink-0"
+                                    style="width: 60px; height: 60px; object-fit: cover;" alt="image">
+
+                                <div class="flex-grow-1 min-width-0">
+                                    <div class="fw-bold text-dark text-truncate" th:text="${wish.placeName}">項目명</div>
+                                    <div class="small text-muted"
+                                        th:text="${wish.placeRegion != null ? wish.placeRegion : '地域情報なし'}">地域</div>
+
+                                    <!-- Flight Info Extra Details -->
+                                    <div th:if="${wish.category == 'FLIGHT'}" class="mt-1 flight-time-info">
+                                        <div class="small fw-bold text-primary mb-1 flight-times-display"></div>
+                                        <span
+                                            class="badge bg-primary-subtle text-primary border border-primary-subtle px-2">
+                                            <i class="bi bi-airplane-fill me-1"></i>フライト情報を自動入力
+                                        </span>
+                                    </div>
+                                </div>
+                                <i class="bi bi-plus-circle text-muted fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light p-3 rounded-bottom-4">
+                    <button type="button" class="btn btn-secondary rounded-pill fw-bold px-4"
+                        data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-danger rounded-pill fw-bold px-4 shadow-sm"
+                        onclick="applyPlannerWishlistSelections()">
+                        <i class="bi bi-check2-circle me-1"></i>選択した項目を反映
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // Global state for selected wishlist items
+        let selectedPlannerWishes = new Set();
+
+        function filterPlannerWishlist(category, btnElement) {
+            const links = document.querySelectorAll('#plannerWishTabs .nav-link');
+            links.forEach(link => { link.classList.remove('active', 'text-white'); link.classList.add('text-muted'); });
+            if (btnElement) { btnElement.classList.remove('text-muted'); btnElement.classList.add('active', 'text-white'); }
+
+            const items = document.querySelectorAll('.planner-wish-item');
+            items.forEach(item => {
+                const itemCat = item.getAttribute('data-category');
+                if (category === 'PLACE') {
+                    if (itemCat === 'PLACE' || itemCat === 'GOURMET') item.classList.remove('d-none');
+                    else item.classList.add('d-none');
+                } else if (itemCat === category) {
+                    item.classList.remove('d-none');
+                } else {
+                    item.classList.add('d-none');
+                }
+            });
+        }
+
+        function toggleSelectionFromList(itemEl) {
+            const checkbox = itemEl.querySelector('.planner-wish-check');
+            checkbox.checked = !checkbox.checked;
+            updateItemSelectionStyle(itemEl, checkbox.checked);
+        }
+
+        function updateItemSelectionStyle(el, isSelected) {
+            const icon = el.querySelector('.bi');
+            if (isSelected) {
+                el.classList.add('bg-danger', 'bg-opacity-10', 'border', 'border-danger');
+                if (icon) icon.className = 'bi bi-check-circle-fill text-danger fs-4';
+            } else {
+                el.classList.remove('bg-danger', 'bg-opacity-10', 'border', 'border-danger');
+                if (icon) icon.className = 'bi bi-plus-circle text-muted fs-4';
+            }
+        }
+
+        // Initialize modal events
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalEl = document.getElementById('plannerWishlistModal');
+            if (modalEl) {
+                modalEl.addEventListener('show.bs.modal', function () {
+                    const firstTab = document.querySelector('#plannerWishTabs button');
+                    if (firstTab) filterPlannerWishlist('PLACE', firstTab);
+
+                    // Inject flight times and force flight icons
+                    const flightItems = document.querySelectorAll('.planner-wish-item[data-category="FLIGHT"]');
+                    flightItems.forEach(item => {
+                        // Force icon change (fix existing fire icons)
+                        const img = item.querySelector('img');
+                        if (img) {
+                            img.src = 'https://cdn-icons-png.flaticon.com/512/3125/3125713.png';
+                        }
+
+                        // Parse times
+                        const apiId = item.getAttribute('data-api-id');
+                        const timeDisplay = item.querySelector('.flight-times-display');
+                        if (apiId && timeDisplay && !timeDisplay.innerText) {
+                            try {
+                                const urlParams = new URL(apiId, window.location.origin).searchParams;
+                                const depTime = urlParams.get('depTime');
+                                const arrTime = urlParams.get('arrTime');
+                                if (depTime && arrTime) {
+                                    let timeText = `<i class="bi bi-clock me-1"></i> ${depTime} ➔ ${arrTime}`;
+
+                                    // Extract Dates
+                                    const checkin = urlParams.get('checkin');
+                                    const returnDate = urlParams.get('returnDate');
+                                    if (checkin && checkin !== 'null') {
+                                        let dateText = checkin;
+                                        if (returnDate && returnDate !== 'null' && returnDate !== '') {
+                                            dateText += ` ~ ${returnDate}`;
+                                        }
+                                        timeText += ` <span class="ms-2 text-muted fw-normal"><i class="bi bi-calendar3 me-1"></i> ${dateText}</span>`;
+                                    }
+
+                                    timeDisplay.innerHTML = timeText;
+                                }
+                            } catch (e) {
+                                console.warn("Failed to parse times for flight item:", apiId);
+                            }
+                        }
+                    });
+                });
+            }
+
+            // Sync scroll and highlight
+            const items = document.querySelectorAll('.planner-wish-item');
+            items.forEach(item => {
+                const cb = item.querySelector('.planner-wish-check');
+                if (cb) {
+                    cb.addEventListener('change', function () {
+                        updateItemSelectionStyle(item, this.checked);
+                    });
+                }
+            });
+        });
+
+        function applyPlannerWishlistSelections() {
+            const checkboxes = document.querySelectorAll('.planner-wish-check:checked');
+            const pillsContainer = document.getElementById('selected-wishlist-pills');
+            const hiddenInputsContainer = document.getElementById('wishlist-hidden-inputs');
+
+            pillsContainer.innerHTML = '';
+            hiddenInputsContainer.innerHTML = '';
+
+            if (checkboxes.length === 0) {
+                pillsContainer.innerHTML = '<p id="no-favs-msg" class="text-muted small mb-0">※ 選択された項目はありません。上のボタンから追加してください。</p>';
+            }
+
+            checkboxes.forEach(cb => {
+                const name = cb.value;
+                const category = cb.getAttribute('data-category');
+                const itemEl = cb.closest('.planner-wish-item');
+                const apiId = itemEl ? itemEl.getAttribute('data-api-id') : null;
+
+                // Add Pill
+                const pill = document.createElement('div');
+                pill.className = 'badge rounded-pill bg-white text-dark border p-2 px-3 fw-bold d-flex align-items-center gap-2 shadow-sm';
+                let iconClass = 'bi-geo-alt';
+                if (category === 'FLIGHT') iconClass = 'bi-airplane-fill';
+                else if (category === 'GOURMET') iconClass = 'bi-cup-hot';
+
+                pill.innerHTML = `
+                    <i class="bi ${iconClass} text-danger"></i>
+                    ${name}
+                `;
+                pillsContainer.appendChild(pill);
+
+                // Add Hidden Input (Only for PLACE/GOURMET to be sent to API)
+                if (category === 'PLACE' || category === 'GOURMET') {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'wishlistPlaces';
+                    input.value = name;
+                    hiddenInputsContainer.appendChild(input);
+                }
+
+                // HOTEL selection logic
+                if (category === 'HOTEL') {
+                    document.getElementById('hotel-name-input').value = name;
+                    document.getElementById('hotel-address-input').value = name;
+
+                    // Update Step 3 UI
+                    const hotelNameDisplay = document.getElementById('display-hotel-name');
+                    if (hotelNameDisplay) hotelNameDisplay.innerText = name;
+
+                    const hotelAddrDisplay = document.getElementById('display-hotel-address-full');
+                    if (hotelAddrDisplay) hotelAddrDisplay.innerText = name;
+
+                    const hotelInfoCard = document.getElementById('selected-hotel-info');
+                    if (hotelInfoCard) hotelInfoCard.classList.add('active');
+
+                    // Auto-jump to Step 3 to show selection
+                    setTimeout(() => nextStep(3), 300);
+                }
+
+                // Auto-fill flight times, dates and AIRPORTS if it's a flight
+                if (category === 'FLIGHT' && apiId) {
+                    try {
+                        const url = new URL(apiId, window.location.origin);
+                        const urlParams = url.searchParams;
+                        const depTime = urlParams.get('depTime');
+                        const arrTime = urlParams.get('arrTime');
+                        const checkin = urlParams.get('checkin');
+                        const returnDateParam = urlParams.get('returnDate');
+                        const toId = urlParams.get('toId');
+
+                        // Set times
+                        if (depTime) {
+                            const arrInput = document.querySelector('input[name="flightArrival"]');
+                            if (arrInput) arrInput.value = depTime;
+                        }
+                        if (arrTime) {
+                            const depInput = document.querySelector('input[name="flightDeparture"]');
+                            if (depInput) depInput.value = arrTime;
+                        }
+
+                        // Set airport codes (Destination airport)
+                        if (toId) {
+                            const arrAir = document.getElementById('arrival-airport-input');
+                            const depAir = document.getElementById('departure-airport-input');
+                            if (arrAir) arrAir.value = toId;
+                            if (depAir) depAir.value = toId;
+                            console.log("Set airports to:", toId);
+                        }
+
+                        // Set dates
+                        console.log("Extracted dates from flight:", { checkin, returnDateParam });
+
+                        if (checkin && checkin !== 'null' && checkin !== '') {
+                            const startInput = document.getElementById('startDate');
+                            if (startInput) {
+                                startInput.value = checkin;
+                                startInput.dispatchEvent(new Event('change', { bubbles: true }));
+                                startInput.dispatchEvent(new Event('input', { bubbles: true }));
+                            }
+                        }
+                        if (returnDateParam && returnDateParam.trim() !== '' && returnDateParam !== 'null') {
+                            const endInput = document.getElementById('endDate');
+                            if (endInput) {
+                                endInput.value = returnDateParam;
+                                endInput.dispatchEvent(new Event('change', { bubbles: true }));
+                                endInput.dispatchEvent(new Event('input', { bubbles: true }));
+                            }
+                        }
+
+                        // Show info notice
+                        const insightBox = document.getElementById('long-trip-notice');
+                        if (insightBox) {
+                            const originalHtml = insightBox.innerHTML;
+                            insightBox.innerHTML = `<i class="bi bi-airplane-fill text-primary"></i> <span>✈️ フライト情報を読み込みました。期間, 時間 및 공항 정보를 동기화했습니다。</span>`;
+                            insightBox.classList.add('bg-primary', 'bg-opacity-10', 'border-primary');
+                            setTimeout(() => {
+                                insightBox.innerHTML = originalHtml;
+                                insightBox.classList.remove('bg-primary', 'bg-opacity-10', 'border-primary');
+                            }, 5000);
+                        }
+                    } catch (e) {
+                        console.error("Failed to parse flight data from apiId:", apiId, e);
+                    }
+                }
+            });
+
+            // Close Modal using Bootstrap instance
+            const modalEl = document.getElementById('plannerWishlistModal');
+            let modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (!modalInstance) {
+                modalInstance = new bootstrap.Modal(modalEl);
+            }
+            modalInstance.hide();
+        }
+
+        // If error exists, jump to the last step (Step 3)
+        /*[[${error != null}]]*/
+        if (/*[[${error != null}]]*/ false) {
+            nextStep(2); // Jump to step 2 first to set region context if needed
+            setTimeout(() => nextStep(3), 500); // Then jump to step 3
+        }
     </script>
 </body>
 

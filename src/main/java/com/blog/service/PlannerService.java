@@ -38,9 +38,12 @@ public class PlannerService {
 	 * AI 코스 생성 (Google Gemini 연동)
 	 */
 	public String generatePlan(String region, String startDate, String endDate, int adults, int children, String style,
-			String companion, String accommodationName, String accommodationAddress) {
+			String companion, String accommodationName, String accommodationAddress, List<String> wishlistPlaces,
+			String flightArrival, String flightDeparture, String arrivalAirport, String departureAirport,
+			List<com.blog.dto.WeatherDto> weatherForecast) {
 		return geminiService.getPlan(region, startDate, endDate, adults, children, style, companion, accommodationName,
-				accommodationAddress);
+				accommodationAddress, wishlistPlaces, flightArrival, flightDeparture, arrivalAirport, departureAirport,
+				weatherForecast);
 	}
 
 	@Transactional

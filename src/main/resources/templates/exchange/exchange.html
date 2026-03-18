@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{fragments/head :: headFragment}">
     <title>為替＆予算 - J-Route</title>
 </head>
+
 <body class="d-flex flex-column min-vh-100 bg-light">
     <header th:replace="~{fragments/header :: headerFragment}"></header>
 
@@ -18,7 +20,8 @@
                         <i class="bi bi-currency-exchange text-primary me-2"></i>為替＆旅行予算プランナー
                     </h3>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-sm" onclick="resetMyBudget()">
+                        <button class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-sm"
+                            onclick="resetMyBudget()">
                             <i class="bi bi-arrow-counterclockwise me-1"></i> リセット
                         </button>
                         <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" onclick="saveMyBudget()">
@@ -27,15 +30,17 @@
                     </div>
                 </div>
 
-                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-primary text-white" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0);">
+                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-primary text-white"
+                    style="background: linear-gradient(135deg, #0d6efd, #0dcaf0);">
                     <div class="card-body p-4 d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="text-white-50 mb-1">現在の為替レート (100円 基準)</h6>
                             <h2 class="fw-bold mb-0">
-                                100円 = <span th:text="${exchange.jpy100ToKrw}">895.00</span>ウォン
+                                100円 = <span th:text="${exchange.jpy100ToKrw}">895.00</span>￦
                             </h2>
                             <small class="text-white-50 mt-2 d-block">
-                                <i class="bi bi-clock me-1"></i>最終更新: <span th:text="${exchange.lastUpdateTime}">2026-03-15</span>
+                                <i class="bi bi-clock me-1"></i>最終更新: <span
+                                    th:text="${exchange.lastUpdateTime}">2026-03-15</span>
                             </small>
                         </div>
                         <i class="bi bi-graph-up-arrow opacity-50" style="font-size: 4rem;"></i>
@@ -43,47 +48,57 @@
                 </div>
 
                 <div class="d-flex flex-wrap gap-2 mb-4">
-                    <button class="btn btn-outline-primary fw-bold rounded-pill px-4 shadow-sm" onclick="importReservations()">
+                    <button class="btn btn-outline-primary fw-bold rounded-pill px-4 shadow-sm"
+                        onclick="importReservations()">
                         <i class="bi bi-check-circle me-1"></i> 予約・決済内訳を読込
                     </button>
-                    <button class="btn btn-outline-danger fw-bold rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#wishlistModal">
+                    <button class="btn btn-outline-danger fw-bold rounded-pill px-4 shadow-sm" data-bs-toggle="modal"
+                        data-bs-target="#wishlistModal">
                         <i class="bi bi-heart-fill me-1"></i> お気に入りから追加
                     </button>
-                    <button class="btn btn-info text-white fw-bold rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#addedItemsModal">
+                    <button class="btn btn-info text-white fw-bold rounded-pill px-4 shadow-sm" data-bs-toggle="modal"
+                        data-bs-target="#addedItemsModal">
                         <i class="bi bi-list-stars me-1"></i> 予算に含まれた項目を見る
                     </button>
                 </div>
 
                 <div class="card border-0 shadow-sm rounded-4 mb-4 p-4">
                     <h5 class="fw-bold text-dark mb-4">予算シミュレーション</h5>
-                    
+
                     <div class="row">
                         <div class="col-md-7">
                             <div class="row g-3 mb-3 align-items-center">
-                                <div class="col-md-5 fw-bold text-muted"><i class="bi bi-airplane-engines text-primary me-2"></i>航空・交通</div>
+                                <div class="col-md-5 fw-bold text-muted"><i
+                                        class="bi bi-airplane-engines text-primary me-2"></i>航空・交通</div>
                                 <div class="col-md-7">
                                     <div class="input-group">
-                                        <input type="number" id="budgetTransport" class="form-control bg-light budget-input" placeholder="0" value="0">
-                                        <span class="input-group-text bg-white">円</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="row g-3 mb-3 align-items-center">
-                                <div class="col-md-5 fw-bold text-muted"><i class="bi bi-building text-success me-2"></i>宿泊費</div>
-                                <div class="col-md-7">
-                                    <div class="input-group">
-                                        <input type="number" id="budgetHotel" class="form-control bg-light budget-input" placeholder="0" value="0">
+                                        <input type="number" id="budgetTransport"
+                                            class="form-control bg-light budget-input" placeholder="0" value="0"
+                                            min="0">
                                         <span class="input-group-text bg-white">円</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="row g-3 mb-3 align-items-center">
-                                <div class="col-md-5 fw-bold text-muted"><i class="bi bi-cup-hot text-warning me-2"></i>食費 (グルメ)</div>
+                                <div class="col-md-5 fw-bold text-muted"><i
+                                        class="bi bi-building text-success me-2"></i>宿泊費</div>
                                 <div class="col-md-7">
                                     <div class="input-group">
-                                        <input type="number" id="budgetFood" class="form-control bg-light budget-input" placeholder="0" value="0">
+                                        <input type="number" id="budgetHotel" class="form-control bg-light budget-input"
+                                            placeholder="0" value="0" min="0">
+                                        <span class="input-group-text bg-white">円</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3 align-items-center">
+                                <div class="col-md-5 fw-bold text-muted"><i
+                                        class="bi bi-cup-hot text-warning me-2"></i>食費 (グルメ)</div>
+                                <div class="col-md-7">
+                                    <div class="input-group">
+                                        <input type="number" id="budgetFood" class="form-control bg-light budget-input"
+                                            placeholder="0" value="0" min="0">
                                         <span class="input-group-text bg-white">円</span>
                                     </div>
                                 </div>
@@ -102,7 +117,7 @@
                     <div class="bg-primary bg-opacity-10 rounded-4 p-4 text-center">
                         <h6 class="text-primary fw-bold mb-2">総予想経費</h6>
                         <h2 class="fw-bold text-dark mb-1"><span id="totalJpy">0</span> 円</h2>
-                        <h5 class="fw-bold text-muted">約 <span id="totalKrw" class="text-danger">0</span> ウォン</h5>
+                        <h5 class="fw-bold text-muted">約 <span id="totalKrw" class="text-danger">0</span> ￦</h5>
                     </div>
                 </div>
             </div>
@@ -118,28 +133,33 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                
+
                 <div class="modal-body p-4 pt-0">
                     <ul class="nav nav-pills nav-fill mb-4 p-1 bg-light rounded-pill" id="wishlistTabs">
                         <li class="nav-item">
-                            <button class="nav-link active rounded-pill fw-bold" onclick="filterWishlist('HOTEL', this)">
+                            <button class="nav-link active rounded-pill fw-bold"
+                                onclick="filterWishlist('HOTEL', this)">
                                 <i class="bi bi-building me-1"></i>宿泊
                             </button>
                         </li>
                         <li class="nav-item">
-                            <button class="nav-link text-muted rounded-pill fw-bold" onclick="filterWishlist('FLIGHT', this)">
+                            <button class="nav-link text-muted rounded-pill fw-bold"
+                                onclick="filterWishlist('FLIGHT', this)">
                                 <i class="bi bi-airplane-engines me-1"></i>航空券
                             </button>
                         </li>
                         <li class="nav-item">
-                            <button class="nav-link text-muted rounded-pill fw-bold" onclick="filterWishlist('GOURMET', this)">
+                            <button class="nav-link text-muted rounded-pill fw-bold"
+                                onclick="filterWishlist('GOURMET', this)">
                                 <i class="bi bi-cup-hot me-1"></i>グルメ
                             </button>
                         </li>
                     </ul>
 
-                    <div id="wishlistContainer" style="max-height: 400px; overflow-y: auto; overflow-x: hidden;" class="pe-2">
-                        <div th:if="${myWishlists == null or myWishlists.isEmpty()}" class="text-center text-muted py-5">
+                    <div id="wishlistContainer" style="max-height: 400px; overflow-y: auto; overflow-x: hidden;"
+                        class="pe-2">
+                        <div th:if="${myWishlists == null or myWishlists.isEmpty()}"
+                            class="text-center text-muted py-5">
                             お気に入りに登録された項目がありません。
                         </div>
                         <div id="emptyCategoryMsg" class="text-center text-muted py-5" style="display: none;">
@@ -147,32 +167,36 @@
                         </div>
 
                         <div th:if="${myWishlists != null and !myWishlists.isEmpty()}" class="list-group">
-                            <div th:each="wish : ${myWishlists}" 
-                                 class="list-group-item list-group-item-action align-items-center gap-3 py-3 border-0 shadow-sm mb-3 rounded-4 wish-item"
-                                 th:data-wish-category="${wish.category}" style="display: flex; transition: opacity 0.3s;">
+                            <div th:each="wish : ${myWishlists}"
+                                class="list-group-item list-group-item-action align-items-center gap-3 py-3 border-0 shadow-sm mb-3 rounded-4 wish-item"
+                                th:data-wish-category="${wish.category}"
+                                style="display: flex; transition: opacity 0.3s;">
 
-                                <input class="form-check-input fs-4 wish-checkbox flex-shrink-0" type="checkbox" 
-                                       th:data-wish-id="${wish.wishlistId}"
-                                       th:data-category="${wish.category}" 
-                                       th:data-price="${wish.price != null ? wish.price : 0}"
-                                       th:data-api-id="${wish.apiId}"
-                                       th:data-place-name="${wish.placeName}"
-                                       th:data-image-url="${wish.imageUrl}">
-                                
-                                <img th:src="${wish.imageUrl}" class="rounded-3 shadow-sm border" style="width: 70px; height: 70px; object-fit: cover;" alt="image">
-                                
+                                <input class="form-check-input fs-4 wish-checkbox flex-shrink-0" type="checkbox"
+                                    th:data-wish-id="${wish.wishlistId}" th:data-category="${wish.category}"
+                                    th:data-price="${wish.price != null ? wish.price : 0}"
+                                    th:data-api-id="${wish.apiId}" th:data-place-name="${wish.placeName}"
+                                    th:data-image-url="${wish.imageUrl}">
+
+                                <img th:src="${wish.imageUrl}" class="rounded-3 shadow-sm border"
+                                    style="width: 70px; height: 70px; object-fit: cover;" alt="image">
+
                                 <div class="flex-grow-1">
                                     <div class="mb-1 d-flex align-items-center">
                                         <strong class="text-dark fs-6 me-2" th:text="${wish.placeName}">項目名</strong>
                                         <span class="badge bg-secondary added-badge d-none">追加済み</span>
                                     </div>
-                                    <div th:if="${wish.category == 'FLIGHT' or wish.category == 'HOTEL'}" class="text-danger fw-bold fs-5">
-                                        ¥<span th:text="${#numbers.formatInteger(wish.price != null ? wish.price : 0, 0, 'COMMA')}">0</span>
+                                    <div th:if="${wish.category == 'FLIGHT' or wish.category == 'HOTEL'}"
+                                        class="text-danger fw-bold fs-5">
+                                        ¥<span
+                                            th:text="${#numbers.formatInteger(wish.price != null ? wish.price : 0, 0, 'COMMA')}">0</span>
                                     </div>
                                     <div th:if="${wish.category == 'GOURMET'}" class="mt-2">
                                         <div class="input-group input-group-sm" style="max-width: 200px;">
-                                            <span class="input-group-text bg-light text-muted" style="font-size: 0.8rem;">予想経費</span>
-                                            <input type="number" class="form-control gourmet-price-input" value="3000" min="0">
+                                            <span class="input-group-text bg-light text-muted"
+                                                style="font-size: 0.8rem;">予想経費</span>
+                                            <input type="number" class="form-control gourmet-price-input" value="3000"
+                                                min="0">
                                             <span class="input-group-text bg-light text-muted">円</span>
                                         </div>
                                     </div>
@@ -182,8 +206,10 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 bg-light rounded-bottom-4 p-3">
-                    <button type="button" class="btn btn-secondary rounded-pill fw-bold px-4" data-bs-dismiss="modal">キャンセル</button>
-                    <button type="button" class="btn btn-danger rounded-pill fw-bold px-4 shadow-sm" onclick="applySelectedWishlist()">
+                    <button type="button" class="btn btn-secondary rounded-pill fw-bold px-4"
+                        data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-danger rounded-pill fw-bold px-4 shadow-sm"
+                        onclick="applySelectedWishlist()">
                         <i class="bi bi-check2-circle me-1"></i>選択した項目を反映
                     </button>
                 </div>
@@ -200,36 +226,41 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                
+
                 <div class="modal-body p-4 pt-0">
                     <ul class="nav nav-pills nav-fill mb-4 p-1 bg-light rounded-pill" id="addedTabs">
                         <li class="nav-item">
-                            <button class="nav-link active rounded-pill fw-bold" onclick="filterAddedItems('HOTEL', this)">
+                            <button class="nav-link active rounded-pill fw-bold"
+                                onclick="filterAddedItems('HOTEL', this)">
                                 <i class="bi bi-building me-1"></i>宿泊
                             </button>
                         </li>
                         <li class="nav-item">
-                            <button class="nav-link text-muted rounded-pill fw-bold" onclick="filterAddedItems('FLIGHT', this)">
+                            <button class="nav-link text-muted rounded-pill fw-bold"
+                                onclick="filterAddedItems('FLIGHT', this)">
                                 <i class="bi bi-airplane-engines me-1"></i>航空券
                             </button>
                         </li>
                         <li class="nav-item">
-                            <button class="nav-link text-muted rounded-pill fw-bold" onclick="filterAddedItems('GOURMET', this)">
+                            <button class="nav-link text-muted rounded-pill fw-bold"
+                                onclick="filterAddedItems('GOURMET', this)">
                                 <i class="bi bi-cup-hot me-1"></i>グルメ
                             </button>
                         </li>
                     </ul>
 
-                    <div id="addedItemsContainer" style="max-height: 400px; overflow-y: auto; overflow-x: hidden;" class="pe-2">
+                    <div id="addedItemsContainer" style="max-height: 400px; overflow-y: auto; overflow-x: hidden;"
+                        class="pe-2">
                         <div id="noAddedItemsMsg" class="text-center text-muted py-5">
                             <i class="bi bi-cart-x fs-1 text-light mb-2 d-block"></i> このカテゴリに追加された項目はありません。
                         </div>
                         <div id="addedItemsList" class="list-group">
-                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 bg-light rounded-bottom-4 p-3">
-                    <button type="button" class="btn btn-secondary rounded-pill fw-bold px-4" data-bs-dismiss="modal">閉じる</button>
+                    <button type="button" class="btn btn-secondary rounded-pill fw-bold px-4"
+                        data-bs-dismiss="modal">閉じる</button>
                 </div>
             </div>
         </div>
@@ -246,11 +277,11 @@
         const savedBudget = /*[[${myBudget}]]*/ null;
 
         let appliedWishIds = new Set();
-        let addedItemsData = []; 
+        let addedItemsData = [];
 
         const storedItems = localStorage.getItem('jroute_addedItems');
         const storedIds = localStorage.getItem('jroute_appliedIds');
-        if(storedItems && savedBudget) { 
+        if (storedItems && savedBudget) {
             addedItemsData = JSON.parse(storedItems);
             appliedWishIds = new Set(JSON.parse(storedIds));
         }
@@ -260,7 +291,7 @@
         const hotelInput = document.getElementById('budgetHotel');
         const foodInput = document.getElementById('budgetFood');
 
-        if(savedBudget) {
+        if (savedBudget) {
             transportInput.value = savedBudget.transportCost;
             hotelInput.value = savedBudget.hotelCost;
             foodInput.value = savedBudget.foodCost;
@@ -281,7 +312,7 @@
             let hCost = Number(hotelInput.value) || 0;
             let fCost = Number(foodInput.value) || 0;
             let totalJpy = tCost + hCost + fCost;
-            
+
             document.getElementById('totalJpy').innerText = totalJpy.toLocaleString();
             document.getElementById('totalKrw').innerText = Math.round(totalJpy * currentRate).toLocaleString();
 
@@ -289,11 +320,16 @@
             budgetChart.update();
         }
 
-        inputs.forEach(input => input.addEventListener('input', calculateTotal));
-        calculateTotal(); 
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                if (input.value < 0) input.value = 0;
+                calculateTotal();
+            });
+        });
+        calculateTotal();
 
         function importReservations() {
-            if(resFlightCost === 0 && resHotelCost === 0) {
+            if (resFlightCost === 0 && resHotelCost === 0) {
                 alert("マイページに予約・決済済みの内訳がありません！"); return;
             }
             if (confirm("予約・決済済みの金額を予算に反映しますか？")) {
@@ -306,59 +342,59 @@
         function filterWishlist(category, btnElement) {
             const links = document.querySelectorAll('#wishlistTabs .nav-link');
             links.forEach(link => { link.classList.remove('active', 'text-white'); link.classList.add('text-muted'); });
-            if(btnElement) { btnElement.classList.remove('text-muted'); btnElement.classList.add('active', 'text-white'); }
+            if (btnElement) { btnElement.classList.remove('text-muted'); btnElement.classList.add('active', 'text-white'); }
 
             const items = document.querySelectorAll('.wish-item');
             let visibleCount = 0;
             items.forEach(item => {
-                if(item.getAttribute('data-wish-category') === category) {
+                if (item.getAttribute('data-wish-category') === category) {
                     item.style.display = 'flex'; item.classList.add('d-flex'); item.classList.remove('d-none'); visibleCount++;
                 } else {
                     item.style.display = 'none'; item.classList.remove('d-flex'); item.classList.add('d-none');
                 }
             });
             const emptyMsg = document.getElementById('emptyCategoryMsg');
-            if(emptyMsg) emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+            if (emptyMsg) emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
         }
 
         document.addEventListener('DOMContentLoaded', function () {
             appliedWishIds.forEach(id => {
                 const cb = document.querySelector(`.wish-checkbox[data-wish-id="${id}"]`);
-                if(cb) {
+                if (cb) {
                     const listItem = cb.closest('.wish-item');
                     cb.checked = false; cb.disabled = true;
-                    if(listItem) {
+                    if (listItem) {
                         listItem.style.opacity = '0.5'; listItem.style.pointerEvents = 'none';
                         const badge = listItem.querySelector('.added-badge');
-                        if(badge) badge.classList.remove('d-none');
+                        if (badge) badge.classList.remove('d-none');
                     }
                 }
             });
 
             const wishlistModal = document.getElementById('wishlistModal');
-            if(wishlistModal) {
+            if (wishlistModal) {
                 wishlistModal.addEventListener('show.bs.modal', function () {
                     const hotelTab = document.querySelector('#wishlistTabs button[onclick*="HOTEL"]');
-                    if(hotelTab) filterWishlist('HOTEL', hotelTab);
+                    if (hotelTab) filterWishlist('HOTEL', hotelTab);
                 });
             }
-            
+
             const addedItemsModal = document.getElementById('addedItemsModal');
-            if(addedItemsModal) {
+            if (addedItemsModal) {
                 addedItemsModal.addEventListener('show.bs.modal', function () {
                     const hotelTab = document.querySelector('#addedTabs button[onclick*="HOTEL"]');
-                    if(hotelTab) filterAddedItems('HOTEL', hotelTab);
+                    if (hotelTab) filterAddedItems('HOTEL', hotelTab);
                 });
             }
         });
 
         function applySelectedWishlist() {
             const checkboxes = document.querySelectorAll('.wish-checkbox:checked');
-            if(checkboxes.length === 0) {
+            if (checkboxes.length === 0) {
                 alert("追加する項目を選択してください。"); return;
             }
 
-            let flightSum = 0; let hotelSum = 0; let foodSum = 0; 
+            let flightSum = 0; let hotelSum = 0; let foodSum = 0;
 
             checkboxes.forEach(cb => {
                 const category = cb.getAttribute('data-category');
@@ -366,16 +402,16 @@
                 const apiId = cb.getAttribute('data-api-id');
                 const placeName = cb.getAttribute('data-place-name');
                 const imageUrl = cb.getAttribute('data-image-url');
-                const listItem = cb.closest('.wish-item'); 
-                
+                const listItem = cb.closest('.wish-item');
+
                 let appliedPrice = 0;
 
-                if(category === 'FLIGHT' || category === 'HOTEL') {
+                if (category === 'FLIGHT' || category === 'HOTEL') {
                     appliedPrice = Number(cb.getAttribute('data-price')) || 0;
-                    if(category === 'FLIGHT') flightSum += appliedPrice;
+                    if (category === 'FLIGHT') flightSum += appliedPrice;
                     else hotelSum += appliedPrice;
-                } 
-                else if(category === 'GOURMET') {
+                }
+                else if (category === 'GOURMET') {
                     const priceInput = listItem.querySelector('.gourmet-price-input');
                     appliedPrice = Number(priceInput.value) || 0;
                     foodSum += appliedPrice;
@@ -391,17 +427,17 @@
                 });
 
                 appliedWishIds.add(wishId);
-                cb.checked = false; cb.disabled = true; 
+                cb.checked = false; cb.disabled = true;
                 listItem.style.opacity = '0.5'; listItem.style.pointerEvents = 'none';
                 const badge = listItem.querySelector('.added-badge');
-                if(badge) badge.classList.remove('d-none');
+                if (badge) badge.classList.remove('d-none');
             });
 
-            if(flightSum > 0) transportInput.value = Number(transportInput.value) + flightSum;
-            if(hotelSum > 0) hotelInput.value = Number(hotelInput.value) + hotelSum;
-            if(foodSum > 0) foodInput.value = Number(foodInput.value) + foodSum;
+            if (flightSum > 0) transportInput.value = Number(transportInput.value) + flightSum;
+            if (hotelSum > 0) hotelInput.value = Number(hotelInput.value) + hotelSum;
+            if (foodSum > 0) foodInput.value = Number(foodInput.value) + foodSum;
 
-            calculateTotal(); 
+            calculateTotal();
 
             const modalEl = document.getElementById('wishlistModal');
             const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -410,10 +446,11 @@
             alert("選択した項目の金額を予算に反映しました！✨");
         }
 
+        // 💡 [수정됨] onclick에서 imageUrl도 같이 전달하도록 반영
         function renderAddedItems(categoryToRender = 'HOTEL') {
             const listContainer = document.getElementById('addedItemsList');
             const emptyMsg = document.getElementById('noAddedItemsMsg');
-            listContainer.innerHTML = ''; 
+            listContainer.innerHTML = '';
 
             const filteredItems = addedItemsData.filter(item => item.category === categoryToRender);
 
@@ -424,14 +461,13 @@
                 filteredItems.forEach(item => {
                     const priceStr = item.price.toLocaleString();
                     const safePlaceName = item.placeName.replace(/['"]/g, "");
-                    // 💡 API ID에 섞여있을 수 있는 따옴표 제거 (버그 방지)
                     const safeApiId = item.apiId ? item.apiId.replace(/['"]/g, "") : '';
-                    
-                    // 💡 클릭 이벤트에 가격(item.price) 정보도 같이 넘겨줍니다!
+                    const safeImageUrl = item.imageUrl ? item.imageUrl.replace(/['"]/g, "") : '';
+
                     const html = `
                         <div class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3 border-0 shadow-sm mb-3 rounded-4"
                              style="cursor: pointer; transition: transform 0.2s;"
-                             onclick="openDetail('${item.category}', '${safeApiId}', '${safePlaceName}', ${item.price})"
+                             onclick="openDetail('${item.category}', '${safeApiId}', '${safePlaceName}', ${item.price}, '${safeImageUrl}')"
                              onmouseover="this.style.transform='translateY(-2px)'"
                              onmouseout="this.style.transform='translateY(0)'">
                             <img src="${item.imageUrl}" class="rounded-3 shadow-sm border" style="width: 70px; height: 70px; object-fit: cover;">
@@ -454,21 +490,19 @@
         function filterAddedItems(category, btnElement) {
             const links = document.querySelectorAll('#addedTabs .nav-link');
             links.forEach(link => { link.classList.remove('active', 'text-white'); link.classList.add('text-muted'); });
-            if(btnElement) { btnElement.classList.remove('text-muted'); btnElement.classList.add('active', 'text-white'); }
-            
+            if (btnElement) { btnElement.classList.remove('text-muted'); btnElement.classList.add('active', 'text-white'); }
+
             renderAddedItems(category);
         }
 
-        // 💡 [버그 완벽 수정] 옛날 데이터(ID만 있는 경우)와 최신 데이터(URL)를 모두 커버하는 궁극의 라우팅 함수!
-        function openDetail(category, apiId, placeName, price) {
+        // 💡 [수정됨] URL 조립 시 photoUrl 및 imageUrl 파라미터 강제 추가
+        function openDetail(category, apiId, placeName, price, imageUrl) {
             if (category === 'GOURMET') {
-                // 구글 맵 공식 검색 URL 포맷으로 수정
                 const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName)}&query_place_id=${apiId}`;
                 window.open(mapUrl, '_blank');
             } else {
                 let finalUrl = apiId;
 
-                // 1. 단순 ID만 있는 과거 데이터일 경우 기본 URL 뼈대 생성
                 if (!finalUrl || (!finalUrl.startsWith('/') && !finalUrl.startsWith('http'))) {
                     if (category === 'HOTEL') {
                         finalUrl = `/hotel/detail?id=${apiId}&price=${price}&checkinDate=2026-12-31&checkoutDate=2027-01-01&adults=2`;
@@ -477,16 +511,24 @@
                     }
                 }
 
-                // 2. 💡 [핵심] 400 Bad Request 에러 방지! 
-                // DB에 저장된 URL에 '이름' 파라미터가 없으면, 팝업창에서 쓰는 placeName을 강제로 붙여줍니다.
-                if (category === 'HOTEL' && !finalUrl.includes('name=')) {
-                    finalUrl += (finalUrl.includes('?') ? '&' : '?') + `name=${encodeURIComponent(placeName)}`;
-                }
-                if (category === 'FLIGHT' && !finalUrl.includes('itemName=')) {
-                    finalUrl += (finalUrl.includes('?') ? '&' : '?') + `itemName=${encodeURIComponent(placeName)}`;
+                if (category === 'HOTEL') {
+                    if (!finalUrl.includes('name=')) {
+                        finalUrl += (finalUrl.includes('?') ? '&' : '?') + `name=${encodeURIComponent(placeName)}`;
+                    }
+                    if (!finalUrl.includes('photoUrl=')) {
+                        finalUrl += `&photoUrl=${encodeURIComponent(imageUrl)}`;
+                    }
                 }
 
-                // 완벽하게 조립된 URL로 새 창 열기!
+                if (category === 'FLIGHT') {
+                    if (!finalUrl.includes('itemName=')) {
+                        finalUrl += (finalUrl.includes('?') ? '&' : '?') + `itemName=${encodeURIComponent(placeName)}`;
+                    }
+                    if (!finalUrl.includes('imageUrl=')) {
+                        finalUrl += `&imageUrl=${encodeURIComponent(imageUrl)}`;
+                    }
+                }
+
                 window.open(finalUrl, '_blank');
             }
         }
@@ -494,15 +536,15 @@
         function saveMyBudget() {
             const requestData = { transportCost: Number(transportInput.value) || 0, hotelCost: Number(hotelInput.value) || 0, foodCost: Number(foodInput.value) || 0 };
             fetch('/exchange/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestData) })
-            .then(res => { if(res.status === 401) { alert("ログインが必要です。"); window.location.href = '/user/login'; throw new Error("Unauthorized"); } return res.json(); })
-            .then(data => { 
-                if(data.status === 'success') { 
-                    localStorage.setItem('jroute_addedItems', JSON.stringify(addedItemsData));
-                    localStorage.setItem('jroute_appliedIds', JSON.stringify(Array.from(appliedWishIds)));
-                    alert("予算が正常に保存されました！✨"); 
-                } 
-            })
-            .catch(err => console.error(err));
+                .then(res => { if (res.status === 401) { alert("ログインが必要です。"); window.location.href = '/user/login'; throw new Error("Unauthorized"); } return res.json(); })
+                .then(data => {
+                    if (data.status === 'success') {
+                        localStorage.setItem('jroute_addedItems', JSON.stringify(addedItemsData));
+                        localStorage.setItem('jroute_appliedIds', JSON.stringify(Array.from(appliedWishIds)));
+                        alert("予算が正常に保存されました！✨");
+                    }
+                })
+                .catch(err => console.error(err));
         }
 
         function resetMyBudget() {
@@ -511,26 +553,27 @@
                 calculateTotal();
 
                 appliedWishIds.clear();
-                addedItemsData = []; 
-                
+                addedItemsData = [];
+
                 localStorage.removeItem('jroute_addedItems');
                 localStorage.removeItem('jroute_appliedIds');
 
                 document.querySelectorAll('.wish-item').forEach(item => {
                     item.style.opacity = '1'; item.style.pointerEvents = 'auto';
                     const cb = item.querySelector('.wish-checkbox');
-                    if(cb) { cb.disabled = false; cb.checked = false; }
+                    if (cb) { cb.disabled = false; cb.checked = false; }
                     const badge = item.querySelector('.added-badge');
-                    if(badge) badge.classList.add('d-none'); 
+                    if (badge) badge.classList.add('d-none');
                 });
 
                 const requestData = { transportCost: 0, hotelCost: 0, foodCost: 0 };
                 fetch('/exchange/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestData) })
-                .then(res => { if(res.status === 401) { alert("ログインが必要です。"); window.location.href = '/user/login'; throw new Error("Unauthorized"); } return res.json(); })
-                .then(data => { if(data.status === 'success') { alert("予算がリセットされました！新しく計画を立てましょう✨"); } })
-                .catch(err => console.error(err));
+                    .then(res => { if (res.status === 401) { alert("ログインが必要です。"); window.location.href = '/user/login'; throw new Error("Unauthorized"); } return res.json(); })
+                    .then(data => { if (data.status === 'success') { alert("予算がリセットされました！新しく計画を立てましょう✨"); } })
+                    .catch(err => console.error(err));
             }
         }
     </script>
 </body>
+
 </html>

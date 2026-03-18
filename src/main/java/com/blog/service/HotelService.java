@@ -49,8 +49,7 @@ public class HotelService {
                     builder.toUriString(),
                     HttpMethod.GET,
                     entity,
-                    String.class
-            );
+                    String.class);
             return response.getBody();
         } catch (org.springframework.web.client.HttpStatusCodeException e) {
             e.printStackTrace();
@@ -58,7 +57,8 @@ public class HotelService {
                 System.out.println("API Quota exceeded (429) during Destination Search. Returning mock data.");
                 return getMockDestination(query);
             }
-            return createErrorJson("Destination Search API Error (" + e.getStatusCode() + "): " + e.getResponseBodyAsString());
+            return createErrorJson(
+                    "Destination Search API Error (" + e.getStatusCode() + "): " + e.getResponseBodyAsString());
         } catch (Exception e) {
             e.printStackTrace();
             return createErrorJson("Destination Search Error: " + e.getMessage());
@@ -68,17 +68,25 @@ public class HotelService {
     private String getMockDestination(String query) {
         // 간단한 Mock Destination 데이터 (유명 도시에 대해 적절한 dest_id 반환)
         String destId = "-246227"; // 기본값 (Tokyo)
-        if (query.toLowerCase().contains("osaka")) destId = "-240905";
-        else if (query.toLowerCase().contains("fukuoka")) destId = "-238323";
-        else if (query.toLowerCase().contains("sapporo")) destId = "-245745";
-        
-        return "{\"data\": [{\"dest_id\": \"" + destId + "\", \"search_type\": \"CITY\", \"name\": \"" + query + "\"}]}";
+        String lowerQuery = query.toLowerCase();
+        if (lowerQuery.contains("osaka"))
+            destId = "-240905";
+        else if (lowerQuery.contains("fukuoka"))
+            destId = "-238323";
+        else if (lowerQuery.contains("sapporo"))
+            destId = "-245745";
+        else if (lowerQuery.contains("bellustar"))
+            destId = "hotel_bellustar_tokyo";
+
+        return "{\"data\": [{\"dest_id\": \"" + destId + "\", \"search_type\": \"CITY\", \"name\": \"" + query
+                + "\"}]}";
     }
 
     /**
      * 숙소 검색 API 호출 (Booking.com)
      */
-    public String searchHotels(String destId, String searchType, String checkinDate, String checkoutDate, String adults) {
+    public String searchHotels(String destId, String searchType, String checkinDate, String checkoutDate,
+            String adults) {
         // API 키가 없거나 테스트용인 경우 Mock 데이터 반환 (선택 사항)
         if (apiKey == null || apiKey.isEmpty() || apiKey.equals("YOUR_API_KEY")) {
             return getMockHotels(destId);
@@ -106,11 +114,10 @@ public class HotelService {
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                    builder.toUriString(), 
-                    HttpMethod.GET, 
-                    entity, 
-                    String.class
-            );
+                    builder.toUriString(),
+                    HttpMethod.GET,
+                    entity,
+                    String.class);
             return response.getBody();
         } catch (org.springframework.web.client.HttpStatusCodeException e) {
             e.printStackTrace();
@@ -137,9 +144,14 @@ public class HotelService {
 
     private String getMockHotels(String destId) {
         // 간단한 Mock 데이터 생성 (검색 결과가 없을 때나 API 제한 시 사용)
+        String bellustarMock = "{\"property\": {\"name\": \"BELLUSTAR TOKYO Pan Pacific Hotel\", \"reviewScore\": 9.5, \"reviewCount\": 120, \"priceBreakdown\": {\"grossAmount\": {\"value\": 125000}}, \"photoUrls\": [\"https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500\"], \"wishlistName\": \"Shinjuku, Tokyo\", \"address\": \"1-29-1 Kabukicho, Shinjuku-ku, Tokyo\"}, \"languages\": [\"日本語\", \"English\"]}";
+
         return "{\"data\": {\"hotels\": [" +
-                "{\"property\": {\"name\": \"[Mock] Hotel Sunroute Plaza Shinjuku\", \"reviewScore\": 8.5, \"reviewCount\": 12450, \"priceBreakdown\": {\"grossAmount\": {\"value\": 18500}}, \"photoUrls\": [\"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500\"], \"wishlistName\": \"Shinjuku, Tokyo\", \"address\": \"2-2-1 Yoyogi, Shibuya-ku, Tokyo\"}, \"languages\": [\"日本語\", \"English\"]}," +
-                "{\"property\": {\"name\": \"[Mock] Park Hyatt Tokyo\", \"reviewScore\": 9.2, \"reviewCount\": 3500, \"priceBreakdown\": {\"grossAmount\": {\"value\": 85000}}, \"photoUrls\": [\"https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500\"], \"wishlistName\": \"Shinjuku, Tokyo\", \"address\": \"3-7-1-2 Nishi Shinjuku, Shinjuku-ku, Tokyo\"}, \"languages\": [\"日本語\", \"English\", \"French\"]}" +
+                "{\"property\": {\"name\": \"[Mock] Hotel Sunroute Plaza Shinjuku\", \"reviewScore\": 8.5, \"reviewCount\": 12450, \"priceBreakdown\": {\"grossAmount\": {\"value\": 18500}}, \"photoUrls\": [\"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500\"], \"wishlistName\": \"Shinjuku, Tokyo\", \"address\": \"2-2-1 Yoyogi, Shibuya-ku, Tokyo\"}, \"languages\": [\"日本語\", \"English\"]},"
+                +
+                "{\"property\": {\"name\": \"[Mock] Park Hyatt Tokyo\", \"reviewScore\": 9.2, \"reviewCount\": 3500, \"priceBreakdown\": {\"grossAmount\": {\"value\": 85000}}, \"photoUrls\": [\"https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500\"], \"wishlistName\": \"Shinjuku, Tokyo\", \"address\": \"3-7-1-2 Nishi Shinjuku, Shinjuku-ku, Tokyo\"}, \"languages\": [\"日本語\", \"English\", \"French\"]},"
+                +
+                bellustarMock +
                 "]}}";
     }
 
@@ -147,4 +159,4 @@ public class HotelService {
     public String searchHotels(String destId, String checkinDate, String checkoutDate, String adults) {
         return searchHotels(destId, "CITY", checkinDate, checkoutDate, adults);
     }
-}
+}
