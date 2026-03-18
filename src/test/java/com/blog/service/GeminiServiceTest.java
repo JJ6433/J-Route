@@ -20,7 +20,8 @@ public class GeminiServiceTest {
     @Test
     public void testShortTripPrompt() {
         // 3 days trip
-        String prompt = geminiService.buildPrompt("大阪", "2026-04-01", "2026-04-03", 2, 0, "観光", "友達", "帝国ホテル", "大阪府");
+        String prompt = geminiService.buildPrompt("大阪", "2026-04-01", "2026-04-03", 2, 0, "観光", "友達", "帝国ホテル", "大阪府",
+                null, null, null, null, null, null);
 
         // Should contain hotel info
         assertTrue(prompt.contains("帝国ホテル"));
@@ -36,7 +37,8 @@ public class GeminiServiceTest {
     @Test
     public void testLongTripPrompt() {
         // 7 days trip
-        String prompt = geminiService.buildPrompt("大阪", "2026-04-01", "2026-04-07", 2, 0, "観光", "友達", "제국호텔", "오사카부");
+        String prompt = geminiService.buildPrompt("大阪", "2026-04-01", "2026-04-07", 2, 0, "観光", "友達", "제국호텔", "오사카부",
+                null, null, null, null, null, null);
 
         // Should contain hotel info
         assertTrue(prompt.contains("제국호텔"));
