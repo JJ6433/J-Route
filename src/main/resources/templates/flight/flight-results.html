@@ -277,7 +277,7 @@
                 .then(data => {
                     if (data.status === 'error') {
                         const errMsg = data.message || '';
-                        alert('즐겨찾기 저장 중 오류가 발생했습니다.\n' + (errMsg ? '사유: ' + errMsg : ''));
+                        alert('お気に入りのセーブの途中エラーが発生しました。\n' + (errMsg ? '理由: ' + errMsg : ''));
                         revertHeartUI(icon, isCurrentlySaved);
                     } else if (data.status === 'success') {
                         if (data.wished) {
@@ -292,7 +292,7 @@
                 .catch(error => {
                     if (error.message !== 'Unauthorized') {
                         console.error('Error:', error);
-                        alert('통신 오류가 발생했습니다. 다시 시도해 주세요.');
+                        alert('通信エラーが発生しました。 もう一度お試しください。');
                         revertHeartUI(icon, isCurrentlySaved);
                     }
                 });

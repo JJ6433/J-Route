@@ -72,9 +72,9 @@ public class HotelController {
             else if ("京都".equals(city))
                 searchQuery = "Kyoto";
 
-            // 키워드가 있으면 도시 이름 뒤에 붙여서 검색 (예: "APA Hotel Tokyo")
+            // [개선] 키워드가 있으면 도시 이름 앞에 붙여서 구체적으로 검색
             if (keyword != null && !keyword.trim().isEmpty()) {
-                searchQuery = keyword + " " + searchQuery + " Japan";
+                searchQuery = keyword + " " + searchQuery;
             }
 
             System.out.println("Starting hotel search for query: " + searchQuery + " (Original City: " + city
@@ -83,21 +83,67 @@ public class HotelController {
             String destData = hotelService.searchDestination(searchQuery);
             com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(destData);
 
-            // [수정] 만약 키워드 검색 결과가 없으면, 키워드만으로 재시도 (도시 정보 제외하고 광범위하게)
+            // [수정] 만약 키워드 검색 결과가 없으면, 키워드만으로 재시도 (일본 한정)
             if ((!root.has("data") || root.get("data").size() == 0) && keyword != null && !keyword.trim().isEmpty()) {
                 System.out.println(
-                        "[Search] No results for combined query: " + searchQuery + ". Trying keyword only: " + keyword);
-                destData = hotelService.searchDestination(keyword);
+                        "[Search] No results for combined query: " + searchQuery + ". Trying keyword + Japan: "
+                                + keyword);
+                destData = hotelService.searchDestination(keyword + " Japan");
                 root = mapper.readTree(destData);
             }
 
             if (root.has("data") && root.get("data").isArray() && root.get("data").size() > 0) {
-                com.fasterxml.jackson.databind.JsonNode firstDest = root.get("data").get(0);
+                com.fasterxml.jackson.databind.JsonNode firstDest = null;
+                String cityJp = city;
+                // [수정] searchQuery가 "InterContinental Tokyo"인 경우 cityEn을 정확히 추출 (마지막 단어가 대개
+                // 도시/국가)
+                String[] queryParts = searchQuery.split(" ");
+                String cityEn = queryParts[queryParts.length - 1];
+                String lowerCityJp = cityJp.toLowerCase();
+                String lowerCityEn = cityEn.toLowerCase();
+                String lowerKeyword = (keyword != null) ? keyword.toLowerCase() : "";
+
+                // 1순위: 키워드가 포함된 PROPERTY (정확한 호텔 매칭)
+                if (!lowerKeyword.isEmpty()) {
+                    for (com.fasterxml.jackson.databind.JsonNode dest : root.get("data")) {
+                        String type = dest.path("search_type").asText("");
+                        String name = dest.path("name").asText("").toLowerCase();
+                        String label = dest.path("label").asText("").toLowerCase();
+
+                        if (("PROPERTY".equals(type) || "hotel".equals(type.toLowerCase())) &&
+                                (name.contains(lowerKeyword) || label.contains(lowerKeyword))) {
+                            // [수정] 키워드 일치 시 도시 이름이 없더라도 우선 채택 (이미 searchQuery에 포함되었음)
+                            firstDest = dest;
+                            break;
+                        }
+                    }
+                }
+
+                // 2순위: 도시와 일본 조건이 맞는 결과 찾기
+                if (firstDest == null) {
+                    for (com.fasterxml.jackson.databind.JsonNode dest : root.get("data")) {
+                        String label = dest.path("label").asText("").toLowerCase();
+                        String name = dest.path("name").asText("").toLowerCase();
+                        boolean isJapan = label.contains("japan") || label.contains("日本") || label.isEmpty();
+                        boolean isTargetCity = label.contains(lowerCityJp) || label.contains(lowerCityEn) ||
+                                name.contains(lowerCityJp) || name.contains(lowerCityEn);
+
+                        if (isJapan && isTargetCity) {
+                            firstDest = dest;
+                            break;
+                        }
+                    }
+                }
+
+                // 마땅한 결과가 없으면 첫 번째 결과 사용
+                if (firstDest == null)
+                    firstDest = root.get("data").get(0);
+
                 String destId = firstDest.get("dest_id").asText();
                 String searchType = firstDest.has("search_type") ? firstDest.get("search_type").asText() : "CITY";
 
-                System.out.println("[Search] Found destination: " + destId + " (" + firstDest.get("name").asText()
-                        + ") with type: " + searchType);
+                System.out.println("[Search] Selected destination: " + destId + " (" + firstDest.get("name").asText()
+                        + ") for city: " + city);
 
                 // 2. 전달받은 조건이 있으면 사용, 없으면 기본 날짜 적용
                 java.time.LocalDate today = java.time.LocalDate.now();
@@ -112,40 +158,52 @@ public class HotelController {
 
                 String hotelsData = hotelService.searchHotels(destId, searchType, checkin, checkout, adults);
 
-                // [추가] 키워드가 있는 경우, 결과 리스트에서 키워드가 포함된 숙소만 필터링
-                if (keyword != null && !keyword.trim().isEmpty()) {
-                    try {
-                        com.fasterxml.jackson.databind.JsonNode hotelsRoot = mapper.readTree(hotelsData);
-                        if (hotelsRoot.has("data") && hotelsRoot.get("data").has("hotels")) {
-                            com.fasterxml.jackson.databind.node.ObjectNode dataNode = (com.fasterxml.jackson.databind.node.ObjectNode) hotelsRoot
-                                    .get("data");
-                            com.fasterxml.jackson.databind.node.ArrayNode hotelsArray = (com.fasterxml.jackson.databind.node.ArrayNode) dataNode
-                                    .get("hotels");
-                            com.fasterxml.jackson.databind.node.ArrayNode filteredArray = mapper.createArrayNode();
+                // [추가] 결과 리스트에서도 주소 및 도시 필터링 (선택된 도시 숙소만 허용)
+                try {
+                    com.fasterxml.jackson.databind.JsonNode hotelsRoot = mapper.readTree(hotelsData);
+                    if (hotelsRoot.has("data") && hotelsRoot.get("data").has("hotels")) {
+                        com.fasterxml.jackson.databind.node.ObjectNode dataNode = (com.fasterxml.jackson.databind.node.ObjectNode) hotelsRoot
+                                .get("data");
+                        com.fasterxml.jackson.databind.node.ArrayNode hotelsArray = (com.fasterxml.jackson.databind.node.ArrayNode) dataNode
+                                .get("hotels");
+                        com.fasterxml.jackson.databind.node.ArrayNode filteredArray = mapper.createArrayNode();
 
-                            String lowerKeyword = keyword.toLowerCase();
-                            for (com.fasterxml.jackson.databind.JsonNode hotel : hotelsArray) {
-                                String hotelName = hotel.path("property").path("name").asText("").toLowerCase();
-                                if (hotelName.contains(lowerKeyword)) {
-                                    filteredArray.add(hotel);
-                                }
-                            }
+                        // 상단에 정의된 변수 재사용 (lowerKeyword, lowerCityJp, lowerCityEn)
 
-                            // 필터링된 결과가 있으면 교체
-                            if (filteredArray.size() > 0) {
-                                dataNode.set("hotels", filteredArray);
-                                return mapper.writeValueAsString(hotelsRoot);
-                            } else {
-                                // 필터링 결과가 하나도 없는 경우 에러 메시지 반환
-                                com.fasterxml.jackson.databind.node.ObjectNode errorNode = mapper.createObjectNode();
-                                errorNode.put("error", "「" + keyword + "」に一致する宿が見つかりませんでした。");
-                                return mapper.writeValueAsString(errorNode);
+                        for (com.fasterxml.jackson.databind.JsonNode hotel : hotelsArray) {
+                            String hotelName = hotel.path("property").path("name").asText("").toLowerCase();
+                            String address = hotel.path("property").path("address").asText("").toLowerCase();
+                            String wishlistName = hotel.path("property").path("wishlistName").asText("").toLowerCase();
+
+                            // 1. 일본 내 숙소인지 확인
+                            boolean isJapan = address.contains("japan") || address.contains("日本");
+
+                            // 2. 선택한 도시 내 숙소인지 확인 (도시 이름 포함 여부)
+                            boolean isTargetCity = address.contains(lowerCityJp) || address.contains(lowerCityEn) ||
+                                    wishlistName.contains(lowerCityJp) || wishlistName.contains(lowerCityEn);
+
+                            // 3. 키워드가 있는 경우 키워드 포함 확인
+                            boolean matchesKeyword = lowerKeyword.isEmpty() || hotelName.contains(lowerKeyword);
+
+                            if (isJapan && isTargetCity && matchesKeyword) {
+                                filteredArray.add(hotel);
                             }
                         }
-                    } catch (Exception e) {
-                        System.err.println("[Search] Filtering error: " + e.getMessage());
-                        // 필터링 중 에러 나면 그냥 원본 데이터 반환 (차선책)
+
+                        // 필터링된 결과가 있으면 교체
+                        if (filteredArray.size() > 0) {
+                            dataNode.set("hotels", filteredArray);
+                            return mapper.writeValueAsString(hotelsRoot);
+                        } else if (!lowerKeyword.isEmpty()) {
+                            // 키워드 검색 결과가 없는 경우
+                            com.fasterxml.jackson.databind.node.ObjectNode errorNode = mapper.createObjectNode();
+                            errorNode.put("error", "日本国内で「" + keyword + "」に一致する宿泊施設が見つかりませんでした。");
+                            return mapper.writeValueAsString(errorNode);
+                        }
                     }
+                } catch (Exception e) {
+                    System.err.println("[Search] Filtering error: " + e.getMessage());
+                    // 필터링 중 에러 나면 그냥 원본 데이터 반환 (차선책)
                 }
 
                 return hotelsData;
