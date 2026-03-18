@@ -25,7 +25,7 @@
             </div>
         </div>
 
-        <div class="d-flex justify-content-end gap-2 mb-4" sec:authorize="isAuthenticated()" th:if="${#authentication.name == board.authorNickname}">
+        <div class="d-flex justify-content-end gap-2 mb-4" sec:authorize="isAuthenticated()" th:if="${#authentication.name == board.authorNickname or #authorization.expression('hasAnyAuthority(''ROLE_ADMIN'', ''ADMIN'')')}">
             <a th:href="@{/board/edit(id=${board.boardId})}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil me-1"></i> 修正</a>
             <a th:href="@{/board/delete(id=${board.boardId})}" class="btn btn-outline-danger btn-sm" onclick="return confirm('本当に削除しますか？');"><i class="bi bi-trash me-1"></i> 削除</a>
         </div>
@@ -56,7 +56,7 @@
                         </div>
                         <div class="text-muted small">
                             <span th:text="${#temporals.format(c.createdAt, 'yyyy.MM.dd HH:mm')}">時間</span>
-                            <a sec:authorize="isAuthenticated()" th:if="${#authentication.name == c.authorNickname}" th:href="@{/board/comment/delete(cId=${c.commentId}, bId=${board.boardId})}" class="text-danger ms-2 text-decoration-none" onclick="return confirm('コメントを削除しますか？');"><i class="bi bi-x-circle"></i></a>
+                            <a sec:authorize="isAuthenticated()" th:if="${#authentication.name == c.authorNickname or #authorization.expression('hasAnyAuthority(''ROLE_ADMIN'', ''ADMIN'')')}" th:href="@{/board/comment/delete(cId=${c.commentId}, bId=${board.boardId})}" class="text-danger ms-2 text-decoration-none" onclick="return confirm('コメントを削除しますか？');"><i class="bi bi-x-circle"></i></a>
                         </div>
                     </div>
                     
@@ -97,7 +97,7 @@
     <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 
     <script>
-        // 返信フォーム
+        // 返信フォームのトグル
         function toggleReply(formId) {
             var form = document.getElementById(formId);
             form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
