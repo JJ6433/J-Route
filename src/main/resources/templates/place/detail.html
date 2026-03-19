@@ -102,7 +102,7 @@
                                 <div class="d-flex align-items-center">
                                     <form th:if="${currentUserId != null and r.userId == currentUserId}"
                                         th:action="@{/review/delete}" method="post" class="d-inline"
-                                        onsubmit="return confirm('レビューを削除しますか？\n(리뷰를 삭제하시겠습니까?)');">
+                                        onsubmit="return confirm('レビューを削除しますか？');">
                                         <input type="hidden" name="reviewId" th:value="${r.reviewId}" />
                                         <input type="hidden" name="placeId" th:value="${place.placeId}" />
                                         <button type="submit" class="btn btn-link btn-sm text-danger p-0" title="削除">
@@ -113,7 +113,7 @@
                                     <form sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ADMIN')" 
                                           th:if="${currentUserId == null or r.userId != currentUserId}"
                                         th:action="@{/review/delete}" method="post" class="d-inline"
-                                        onsubmit="return confirm('【管理者権限】このレビューを強制削除しますか？\n(【관리자 권한】 이 리뷰를 강제 삭제하시겠습니까?)');">
+                                        onsubmit="return confirm('【管理者権限】このレビューを強制削除しますか？');">
                                         <input type="hidden" name="reviewId" th:value="${r.reviewId}" />
                                         <input type="hidden" name="placeId" th:value="${place.placeId}" />
                                         <button type="submit" class="btn btn-link btn-sm text-danger p-0" title="管理者として削除">

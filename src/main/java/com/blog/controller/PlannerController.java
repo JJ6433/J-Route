@@ -77,7 +77,7 @@ public class PlannerController {
 		System.out.println("Hotel: " + accommodationName + " (" + accommodationAddress + ")");
 		System.out.println("Airports: arrival=" + arrivalAirport + ", departure=" + departureAirport);
 
-		// Fetch weather forecast
+		// 天気予報取得
 		String cityKey = weatherService.getCityKey(region);
 		List<com.blog.dto.WeatherDto> weatherForecast = weatherService.getWeatherForRange(cityKey, region, startDate,
 				endDate);
@@ -121,7 +121,7 @@ public class PlannerController {
 		model.addAttribute("apiKey", googleMapsApiKey);
 		model.addAttribute("title", region + " 旅行");
 
-		// Enrich planData with passed parameters before saving/viewing
+		// planDataデータ強化
 		try {
 			JsonNode root = objectMapper.readTree(result);
 			if (root instanceof ObjectNode) {
@@ -134,13 +134,13 @@ public class PlannerController {
 				tripInfo.put("children", children);
 				tripInfo.put("accommodation", accommodationName);
 				result = objectMapper.writeValueAsString(rootNode);
-				model.addAttribute("planData", result); // Update model with enriched data
+				model.addAttribute("planData", result); // 強化データモデル反映
 			}
 		} catch (Exception e) {
 			System.err.println("Failed to enrich plan data: " + e.getMessage());
 		}
 
-		// 로그인 상태라면 자동 저장 후 상세 페이지로 리다이렉트
+		// ログイン時自動保存・リダイレクト
 		if (userDetails != null) {
 			UserDto loginUser = userService.findByUsername(userDetails.getUsername()).orElseThrow();
 			Long plannerId = plannerService.savePlan(loginUser.getUserId(), region + " 旅行", result);
@@ -199,7 +199,7 @@ public class PlannerController {
 		model.addAttribute("title", planner.getTitle());
 		model.addAttribute("apiKey", googleMapsApiKey);
 
-		// result.html에서 사용하는 추가 속성들 (일단 기본값 혹은 데이터 파싱 필요할 수 있음)
+		// result.html追加属性設定
 		try {
 			JsonNode root = objectMapper.readTree(planner.getPlanData());
 			if (root.has("trip_info")) {

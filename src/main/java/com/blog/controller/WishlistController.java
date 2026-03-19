@@ -17,8 +17,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 /**
- * 찜하기 컨트롤러
- * 찜 추가/삭제, 마이페이지 찜 목록
+ * お気に入りコントローラー
+ * お気に入り追加/削除, マイページお気に入り一覧
  */
 @Controller
 @RequestMapping("/wishlist")

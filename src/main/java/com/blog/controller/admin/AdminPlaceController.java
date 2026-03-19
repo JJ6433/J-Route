@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * 관리자 여행지 CRUD
- * 목록, 등록/수정 폼, 이미지 업로드
+ * 管理者旅行先 CRUD
+ * 一覧, 登録/修正フォーム, 画像アップロード
  */
 @Controller
 @RequestMapping("/admin/place")
@@ -26,7 +26,7 @@ public class AdminPlaceController {
 
     private final PlaceService placeService;
 
-    // WebConfig와 맞추기 위해 "upload" (슬래시 뺌) 로 변경
+    // WebConfig合わせ"upload"へ変更
     private static final String UPLOAD_DIR = "upload";
 
     public AdminPlaceController(PlaceService placeService) {
@@ -73,7 +73,7 @@ public class AdminPlaceController {
         if (imageFile != null && !imageFile.isEmpty()) {
             String savedPath = saveUploadFile(imageFile);
             if (savedPath != null) {
-                // DB에는 "/upload/파일명.jpg" 형태로 예쁘게 저장됨
+                // DBへ"/upload/ファイル名.jpg"形式保存
                 dto.setImageUrl("/" + UPLOAD_DIR + "/" + savedPath);
             }
         } else if (placeId != null) {
@@ -101,20 +101,20 @@ public class AdminPlaceController {
                 : "";
         String filename = UUID.randomUUID() + ext;
         
-        // ⭐️ 핵심 수정 부분: 절대 경로로 멱살(?) 잡고 정확한 위치에 저장시킴
+        // ⭐️ 絶対パス指定保存
         String projectPath = System.getProperty("user.dir") + "/" + UPLOAD_DIR;
         File dir = new File(projectPath);
         
         if (!dir.exists()) {
-            dir.mkdirs(); // 폴더 없으면 생성
+            dir.mkdirs(); // フォルダ不在時生成
         }
         
         File target = new File(dir, filename);
         try {
-            file.transferTo(target); // 진짜로 파일 복사
+            file.transferTo(target); // ファイル実体コピー
             return filename;
         } catch (IOException e) {
-            e.printStackTrace(); // 혹시라도 에러나면 콘솔에 빨간 글씨로 띄워줌
+            e.printStackTrace(); // エラー時コンソール表示
             return null;
         }
     }

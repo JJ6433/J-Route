@@ -35,7 +35,7 @@ public class PlannerService {
 	}
 
 	/**
-	 * AI 코스 생성 (Google Gemini 연동)
+	 * AI コース生成 (Google Gemini 連携)
 	 */
 	public String generatePlan(String region, String startDate, String endDate, int adults, int children, String style,
 			String companion, String accommodationName, String accommodationAddress, List<String> wishlistPlaces,

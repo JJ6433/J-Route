@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 public class WeatherService {
 
-    // 💡 Open-Meteo는 API 키가 필요 없습니다!
+    // Open-Meteo APIキー不要
 
     public String getCityKey(String region) {
         if (region == null)
@@ -37,7 +37,7 @@ public class WeatherService {
         return "Tokyo";
     }
 
-    // 💡 도시별 위도(Latitude)와 경도(Longitude) 세팅
+    // 緯度・経度設定
     private double[] getCoordinates(String city) {
         switch (city) {
             case "Tokyo":
@@ -61,13 +61,13 @@ public class WeatherService {
         }
     }
 
-    // 1️⃣ 전국 날씨 (현재 시간 기준 16일 치 검색 가능)
+    // 全国天気照会（16日間）
     public WeatherDto getWeather(String city, String cityNameJa, String targetDate) {
         if (targetDate == null || targetDate.isEmpty())
             targetDate = LocalDate.now().toString();
 
         double[] coords = getCoordinates(city);
-        // 💡 16일치 예보 데이터를 요청합니다! (forecast_days=16)
+        // 16日間予報データリクエスト
         String url = String.format(
                 "https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&hourly=temperature_2m,weather_code&timezone=Asia/Tokyo&forecast_days=16",
                 coords[0], coords[1]);
@@ -85,7 +85,7 @@ public class WeatherService {
                 JsonNode temps = hourly.path("temperature_2m");
                 JsonNode codes = hourly.path("weather_code");
 
-                // 현재 시간 찾기 (예: "15:00")
+                // 現在時刻検索
                 int currentHour = LocalTime.now().getHour();
                 String targetPrefix = targetDate + "T" + String.format("%02d:00", currentHour);
 
@@ -97,7 +97,7 @@ public class WeatherService {
                     }
                 }
 
-                // 만약 정확한 시간이 없으면 해당 날짜의 12시로 임시 처리
+                // 見つからない場合は12時として処理
                 if (targetIndex == -1) {
                     String fallbackPrefix = targetDate + "T12:00";
                     for (int i = 0; i < times.size(); i++) {
@@ -111,7 +111,7 @@ public class WeatherService {
                 if (targetIndex != -1) {
                     dto.setTemperature(temps.get(targetIndex).asDouble());
                     int weatherCode = codes.get(targetIndex).asInt();
-                    boolean isNight = currentHour < 6 || currentHour > 18; // 밤낮 구분
+                    boolean isNight = currentHour < 6 || currentHour > 18; // 昼夜区分
                     String[] weatherInfo = interpretWmoCode(weatherCode, isNight);
 
                     dto.setDescription(weatherInfo[0]);
@@ -120,12 +120,12 @@ public class WeatherService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("❌ [" + city + "] Open-Meteo API 에러: " + e.getMessage());
+            System.err.println("❌ [" + city + "] Open-Meteo API エラー: " + e.getMessage());
         }
         return dto;
     }
 
-    // 2️⃣ 상세 시간별 날씨
+    // 時間別天気照会
     public List<WeatherDto> getHourlyWeather(String city, String cityNameJa, String targetDate) {
         double[] coords = getCoordinates(city);
         String url = String.format(
@@ -149,7 +149,7 @@ public class WeatherService {
                     if (dtTxt.startsWith(targetDate)) {
                         int hour = Integer.parseInt(dtTxt.substring(11, 13));
 
-                        // 💡 차트가 너무 붐비지 않도록 3시간 간격으로 추출!
+                        // 3時間間隔抽出
                         if (hour % 3 == 0) {
                             WeatherDto dto = new WeatherDto();
                             dto.setCity(city);
@@ -171,12 +171,12 @@ public class WeatherService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("❌ [" + city + "] 시간별 날씨 API 에러: " + e.getMessage());
+            System.err.println("❌ [" + city + "] 時間別天気 API エラー: " + e.getMessage());
         }
         return hourlyList;
     }
 
-    // 3️⃣ 특정 날짜 범위의 날씨 가져오기 (Gemini용)
+    // 特定期間天気照会（Gemini用）
     public List<WeatherDto> getWeatherForRange(String city, String cityNameJa, String startDate, String endDate) {
         double[] coords = getCoordinates(city);
         // forecast_days=16 matches the API limit
@@ -222,12 +222,12 @@ public class WeatherService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("❌ [" + city + "] 범위 날씨 API 에러: " + e.getMessage());
+            System.err.println("❌ [" + city + "] 期間天気 API エラー: " + e.getMessage());
         }
         return dailyList;
     }
 
-    // 💡 WMO(세계기상기구) 날씨 코드를 일본어 설명과 예쁜 이모지로 변환!
+    // WMO天気コード変換
     private String[] interpretWmoCode(int code, boolean isNight) {
         if (code == 0)
             return new String[] { "快晴", isNight ? "🌙" : "☀️" };

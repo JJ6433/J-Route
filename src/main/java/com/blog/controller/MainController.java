@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 메인 페이지 컨트롤러
- * "/" 요청 시 추천(인기) 여행지 카드 표시
+ * メインページコントローラー
+ * "/" リクエスト時に推奨(人気)旅行先カードを表示
  */
 @Controller
 public class MainController {
@@ -27,7 +27,7 @@ public class MainController {
 
 	@GetMapping("/")
 	public String index(Model model) {
-		// 인기 여행지 상위 9건 (TOP 3는 별도 표시, 나머지는 추천 목록)
+		// 人気旅行先TOP9照会
 		List<PlaceDto> allPlaces = placeService.getTopPlaces(9);
 
 		if (allPlaces == null || allPlaces.isEmpty()) {

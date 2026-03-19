@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 찜하기 서비스
- * 찜 목록 조회, 추가, 삭제, 이미 찜 여부 확인 (여행지 및 API 상품 공통)
+ * お気に入りサービス
+ * お気に入りリスト照会、追加、削除、重複確認（旅行先及びAPI商品共通）
  */
 @Service
 public class WishlistService {
@@ -22,7 +22,7 @@ public class WishlistService {
 	}
 
 	// ==========================================
-	// 1. 공통 기능
+	// 共通機能
 	// ==========================================
 	@Transactional(readOnly = true)
 	public List<WishlistDto> getWishlistByUserId(Long userId) {
@@ -30,7 +30,7 @@ public class WishlistService {
 	}
 
 	// ==========================================
-	// 2. 기존: '여행지(Place)' 전용 메서드
+	// 旅行先(Place)専用メソッド
 	// ==========================================
 	@Transactional(readOnly = true)
 	public boolean isWished(Long userId, Long placeId) {
@@ -40,12 +40,12 @@ public class WishlistService {
 	@Transactional
 	public void addWish(Long userId, Long placeId) {
 		if (wishlistMapper.findByUserAndPlace(userId, placeId).isPresent()) {
-			return; // 이미 찜함
+			return; // 登録済み
 		}
 		WishlistDto dto = new WishlistDto();
 		dto.setUserId(userId);
 		dto.setPlaceId(placeId);
-		dto.setCategory("PLACE"); // 💡 기존 여행지도 카테고리를 명시하도록 한 줄 추가!
+		dto.setCategory("PLACE"); // カテゴリ明示
 		wishlistMapper.insertWishlist(dto);
 	}
 
@@ -55,7 +55,7 @@ public class WishlistService {
 	}
 
 	// ==========================================
-	// 3. 신규: '숙소/항공권(API)' 전용 메서드
+	// 宿泊/航空券(API)専用メソッド
 	// ==========================================
 	@Transactional(readOnly = true)
 	public boolean isApiWishlisted(Long userId, String apiId, String category) {
@@ -64,9 +64,9 @@ public class WishlistService {
 
 	@Transactional
 	public void addWishlist(WishlistDto dto) {
-		// 💡 중복 방지: 이미 찜한 API 상품인지 먼저 확인합니다.
+		// 重複登録確認
 		if (wishlistMapper.findByUserAndApi(dto.getUserId(), dto.getApiId(), dto.getCategory()).isPresent()) {
-			return; // 이미 찜함
+			return; // 登録済み
 		}
 		wishlistMapper.insertWishlist(dto);
 	}

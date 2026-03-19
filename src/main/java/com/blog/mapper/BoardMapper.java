@@ -9,11 +9,11 @@ import java.util.List;
 public interface BoardMapper {
     void insertBoard(BoardDto board);
     
-    // 検索条件（地域、日数）を追加したリスト取得
+    // 検索条件付きリスト取得
     List<BoardDto> getBoardList(@Param("limit") int limit, @Param("offset") int offset, 
                                 @Param("region") String region, @Param("duration") String duration);
     
-    // 検索条件を適用した全体件数の取得
+    // 総件数取得
     int getTotalCount(@Param("region") String region, @Param("duration") String duration);
     
     BoardDto getBoardById(Integer boardId);

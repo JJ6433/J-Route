@@ -69,11 +69,11 @@
                                                 <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
                                                     <i class="bi bi-person text-secondary"></i>
                                                 </div>
-                                                <span class="fw-medium text-dark" th:text="${res.nickname != null ? res.nickname : '不明なユーザー'}">닉네임</span>
+                                                <span class="fw-medium text-dark" th:text="${res.nickname != null ? res.nickname : '不明なユーザー'}">ニックネーム</span>
                                             </div>
                                         </td>
                                         <td>
-                                            <div class="text-dark fw-bold text-truncate" style="max-width: 250px;" th:text="${res.itemName}">상품명</div>
+                                            <div class="text-dark fw-bold text-truncate" style="max-width: 250px;" th:text="${res.itemName}">商品名</div>
                                         </td>
                                         <td>
                                             <span class="text-danger fw-bold" th:text="'¥' + ${#numbers.formatInteger(res.amount, 3, 'COMMA')}">¥0</span>

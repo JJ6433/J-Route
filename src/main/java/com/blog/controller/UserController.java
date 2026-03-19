@@ -16,8 +16,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Optional;
 
 /**
- * 회원 컨트롤러
- * 회원가입, 로그인 폼, 마이페이지, 정보 수정, 비밀번호 변경, 탈퇴
+ * 会員コントローラー
+ * 会員登録, ログインフォーム, マイページ, 情報修正, パスワード変更, 退会
  */
 @Controller
 @RequestMapping("/user")
@@ -44,7 +44,7 @@ public class UserController {
 			model.addAttribute("errorMessage", e.getMessage());
 			return "user/signup";
 		} catch (Exception e) {
-			// DB 연결 실패 등 기타 오류 시 메시지 표시
+			// DB接続失敗等エラー表示
 			model.addAttribute("userDto", userDto);
 			String msg = e.getMessage() != null ? e.getMessage() : "登録に失敗しました。データベースの接続を確認してください。";
 			model.addAttribute("errorMessage", msg);
@@ -61,7 +61,7 @@ public class UserController {
 		return "user/login";
 	}
 
-	/** 마이페이지: 로그인 사용자만 */
+	/** マイページ: ログインユーザー専用 */
 	@GetMapping("/mypage")
 	public String mypage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
 		if (userDetails == null) {

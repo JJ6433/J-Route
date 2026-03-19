@@ -12,7 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 public class FlightService {
 
-    // application.properties에서 값을 읽어옵니다.
+    // propertiesから値読込
     @Value("${rapidapi.key}")
     private String apiKey;
 
@@ -20,29 +20,29 @@ public class FlightService {
     private String apiHost;
 
     /**
-     * 항공권 검색 API 호출
-     * @param fromId 출발지 IATA 코드 (예: SEL.AA1)
-     * @param toId 도착지 IATA 코드 (예: TYO.AA1)
-     * @param departDate 출발일 (YYYY-MM-DD)
-     * @return API 응답 JSON 문자열
+     * 航空券検索 API 呼び出し
+     * @param fromId 出発地 IATA コード (例: SEL.AA1)
+     * @param toId 到着地 IATA コード (例: TYO.AA1)
+     * @param departDate 出発日 (YYYY-MM-DD)
+     * @return API 応答 JSON 文字列
      */
     public String searchFlights(String fromId, String toId, String departDate, String returnDate) {
         RestTemplate restTemplate = new RestTemplate();
         String url = "https://booking-com15.p.rapidapi.com/api/v1/flights/searchFlights";
         
-        // 왕복 여부 판단 (returnDate가 있으면 ROUND_TRIP, 없으면 ONE_WAY)
+        // 往復判定 (returnDate有無)
         String itineraryType = (returnDate != null && !returnDate.isEmpty()) ? "ROUND_TRIP" : "ONE_WAY";
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("fromId", fromId)
                 .queryParam("toId", toId)
                 .queryParam("departDate", departDate)
-                .queryParam("itinerary_type", itineraryType) // 동적으로 설정
+                .queryParam("itinerary_type", itineraryType) // 動的設定
                 .queryParam("pageNo", "1")
                 .queryParam("adults", "1")
                 .queryParam("currency_code", "JPY");
 
-        // 왕복일 경우 returnDate 파라미터 추가
+        // 往復時returnDate追加
         if ("ROUND_TRIP".equals(itineraryType)) {
             builder.queryParam("returnDate", returnDate);
         }
@@ -63,7 +63,7 @@ public class FlightService {
             return response.getBody();
         } catch (Exception e) {
             e.printStackTrace();
-            return "{\"error\": \"API 호출 중 오류 발생\"}";
+            return "{\"error\": \"API呼び出し中にエラーが発生\"}";
         }
     }
     
@@ -73,7 +73,7 @@ public class FlightService {
         String url = "https://booking-com15.p.rapidapi.com/api/v1/flights/searchDestination"; 
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("query", query); // 여기서 파라미터를 자동으로 붙여줍니다.
+                .queryParam("query", query); // パラメータ自動付加
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("x-rapidapi-key", apiKey);
@@ -86,7 +86,7 @@ public class FlightService {
                     builder.toUriString(), HttpMethod.GET, entity, String.class);
             return response.getBody();
         } catch (Exception e) {
-            return "{\"error\": \"위치 검색 중 오류 발생: " + e.getMessage() + "\"}";
+            return "{\"error\": \"位置検索中にエラーが発生: " + e.getMessage() + "\"}";
         }
     }
 }

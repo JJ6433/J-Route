@@ -463,7 +463,7 @@
                     const safePlaceName = item.placeName.replace(/['"]/g, "");
                     const safeApiId = item.apiId ? item.apiId.replace(/['"]/g, "") : '';
                     
-                    // 💡 [수정] 항공권일 경우 무조건 예쁜 비행기 아이콘으로 출력되도록 강제 설정!
+                    // 💡 [修正] 航空券時強制的に飛行機アイコン出力
                     let safeImageUrl = item.imageUrl ? item.imageUrl.replace(/['"]/g, "") : '';
                     if (item.category === 'FLIGHT') {
                         safeImageUrl = 'https://cdn-icons-png.flaticon.com/512/3125/3125713.png';

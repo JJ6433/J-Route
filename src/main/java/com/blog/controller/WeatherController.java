@@ -30,7 +30,7 @@ public class WeatherController {
         
         model.addAttribute("activeMenu", "weather");
 
-        // 날짜 & 지역 기본값 설정
+        // 日付・地域初期値設定
         String selectedDate = (date != null && !date.isEmpty()) ? date : LocalDate.now().toString();
         model.addAttribute("selectedDate", selectedDate);
         model.addAttribute("selectedCity", cityId);
@@ -45,9 +45,9 @@ public class WeatherController {
         cities.put("Hiroshima", "広島");
         cities.put("Okinawa", "沖縄");
 
-        // 💡 분기 처리: 전국을 골랐을 때 vs 특정 도시를 골랐을 때
+        // 全国/都市別分岐処理
         if ("ALL".equals(cityId)) {
-            // 전국 모드: 8대 도시의 낮 12시 날씨 (기존 화면)
+            // 全国モード: 8大都市12時天気
             List<WeatherDto> weatherList = new ArrayList<>();
             cities.forEach((eng, kor) -> {
                 weatherList.add(weatherService.getWeather(eng, kor, selectedDate));
@@ -55,7 +55,7 @@ public class WeatherController {
             model.addAttribute("weatherList", weatherList);
             model.addAttribute("viewMode", "ALL");
         } else {
-            // 상세 모드: 선택한 지역의 하루치 시간별 날씨 리스트
+            // 詳細モード: 選択地域時間別天気
             String cityNameJa = cities.get(cityId);
             List<WeatherDto> hourlyList = weatherService.getHourlyWeather(cityId, cityNameJa, selectedDate);
             model.addAttribute("hourlyList", hourlyList);

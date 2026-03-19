@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * 掲示板用 DTO
- * Lombok 대신 명시적인 Get/Set 사용으로 안정성 확보
+ * Lombok の代わりに明示的な Get/Set 使用で安定性確保
  */
 @Data
 public class BoardDto {

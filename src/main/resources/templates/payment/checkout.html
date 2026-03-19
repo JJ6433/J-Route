@@ -136,7 +136,7 @@
         });
 
         async function toggleCheckoutWishlist() {
-            // (위시리스트 기존 코드 동일)
+            // (ウィッシュリスト既存コードと同一)
             const btn = document.getElementById('checkout-wishlist-btn');
             const icon = btn.querySelector('i');
             const isCurrentlySaved = icon.classList.contains('bi-heart-fill');
@@ -223,28 +223,28 @@
             const urlParams = new URLSearchParams(window.location.search);
             const currentCategory = urlParams.get('category') || /*[[${category}]]*/ 'HOTEL';
 
-            // 💡 [궁극의 해결책] Java(Controller)를 믿지 않고, 브라우저 주소창(URL)에서 데이터를 직접 싹 다 긁어옵니다!
+            // 💡 URLからデータ直接取得（最終手段）
             let finalCheckIn = urlParams.get('checkin') || /*[[${checkin}]]*/ '';
             let finalCheckOut = urlParams.get('checkOut') || urlParams.get('checkoutDate') || /*[[${checkOut}]]*/ '';
             let finalAddress = urlParams.get('address') || /*[[${address}]]*/ '現地にて確認';
             let finalDetails = urlParams.get('details') || /*[[${details}]]*/ '';
             let finalImageUrl = urlParams.get('imageUrl') || /*[[${imageUrl}]]*/ '';
 
-            // 🏨 호텔일 경우: 날짜만 있고 시간이 없다면 여기서 완벽하게 조립해 줍니다!
+            // 🏨 ホテルの場合: 日付のみ・時間なしデータ組立
             if (currentCategory === 'HOTEL') {
                 if (finalCheckIn && !finalCheckIn.includes(':')) {
                     finalCheckIn = finalCheckIn + ' 15:00';
                 }
 
-                // 만약 finalCheckOut이 시간만 있거나(예: " 11:00") 비어있는 경우를 대비해
-                // URL 파라미터에서 명시적으로 다시 가져오거나, checkin 날짜라도 활용하는 로직 추가
+                // finalCheckOutが時間のみ、または空の場合に備える
+                // URLパラメータから再取得・checkin日付活用ロジック
                 const paramCheckOut = urlParams.get('checkOut');
                 if (paramCheckOut) {
                     finalCheckOut = paramCheckOut;
                 }
 
                 if (finalCheckOut && !finalCheckOut.includes('-')) {
-                    // 날짜 형태(YYYY-MM-DD)가 없고 시간만 있다면, checkin의 날짜 부분이라도 붙여줌 (최후의 보루)
+                    // 日付(YYYY-MM-DD)なし・時間のみの場合、checkinの日付部分を付加（最終手段）
                     if (finalCheckIn && finalCheckIn.includes('-')) {
                         const datePart = finalCheckIn.split(' ')[0];
                         finalCheckOut = datePart + (finalCheckOut.startsWith(' ') ? finalCheckOut : ' ' + finalCheckOut);
@@ -255,7 +255,7 @@
                     finalCheckOut = finalCheckOut + ' 11:00';
                 }
             }
-            // ✈️ 항공권일 경우
+            // ✈️ 航空券の場合
             else if (currentCategory === 'FLIGHT') {
                 const depTime = urlParams.get('depTime') || '--:--';
                 const arrTime = urlParams.get('arrTime') || '--:--';
@@ -280,7 +280,7 @@
                     fetch('/api/payment/complete', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        // 💡 조립이 끝난 완벽한 데이터를 서버로 쏩니다!
+                        // 💡 組立完了データ送信
                         body: JSON.stringify({
                             orderId: rsp.merchant_uid,
                             itemName: itemName,
@@ -305,7 +305,7 @@
                                     allowOutsideClick: false
                                 }).then((result) => {
                                     if (result.isConfirmed) {
-                                        window.location.href = "/mypage/reservations"; // 💡 결제 완료 후 마이페이지 예약 내역으로 이동!
+                                        window.location.href = "/mypage/reservations"; // 💡 決済完了後マイページ予約内訳へ移動
                                     }
                                 });
                             } else {
@@ -328,7 +328,7 @@
                         });
                 } else {
                     let errorMsg = rsp.error_msg;
-                    if (errorMsg.includes('사용자가 결제를 취소하셨습니다')) {
+                    if (errorMsg.includes('사용자가 결제를 취소하셨습니다') || errorMsg.includes('ユーザーにより決済がキャンセルされました')) {
                         errorMsg = 'ユーザーにより決済がキャンセルされました。';
                     }
                     Swal.fire({

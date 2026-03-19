@@ -13,8 +13,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 /**
- * 관리자 회원 관리
- * 전체 회원 목록, 강제 탈퇴
+ * 管理者会員管理
+ * 全会員一覧, 強制退会
  */
 @Controller
 @RequestMapping("/admin/user")

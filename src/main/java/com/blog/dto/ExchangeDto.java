@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ExchangeDto {
-    private double jpyToKrw;       // 1엔당 원화 환율 (예: 8.95)
-    private double jpy100ToKrw;    // 100엔당 원화 환율 (예: 895.00 - 한국인에게 가장 익숙한 표기법!)
-    private String lastUpdateTime; // 환율 기준 시간
+    private double jpyToKrw;       // 1円対KRW為替レート
+    private double jpy100ToKrw;    // 100円対KRW為替レート
+    private String lastUpdateTime; // 為替レート基準時間
 }

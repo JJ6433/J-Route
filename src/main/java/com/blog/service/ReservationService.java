@@ -22,27 +22,27 @@ public class ReservationService {
         reservationMapper.insertReservation(dto);
     }
     
-    // 유저별 총 예약 건수 반환
+    // ユーザー別総予約数照会
     public int getReservationCount(Long userId) {
         return reservationMapper.countReservationsByUserId(userId);
     }
 
-    // 유저별 최근 예약 목록 5건 반환
+    // 最近予約リスト照会（ダッシュボード等）
     public List<ReservationDto> getRecentReservations(Long userId) {
         return reservationMapper.findRecentReservationsByUserId(userId);
     }
     
-    // 유저별 '모든' 예약 목록 반환
+    // 全予約リスト照会
     public List<ReservationDto> getAllReservations(Long userId) {
         return reservationMapper.findAllReservationsByUserId(userId);
     }
 
-    // 관리자용: 모든 유저의 예약 목록 반환
+    // 管理者: 全予約照会
     public List<ReservationDto> getAllReservationsForAdmin() {
         return reservationMapper.findAllWithUser();
     }
 
-    // 주문 번호(orderId)로 특정 예약 상세 정보 가져오기
+    // 予約単一照会
     public ReservationDto getReservationByOrderId(String orderId) {
         return reservationMapper.findByOrderId(orderId);
     }

@@ -6,19 +6,19 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 /**
- * 찜하기 DTO (wishlists 테이블)
- * 사용자가 저장한 관심 여행지 및 API 상품(숙소/항공권)
+ * お気に入り DTO (wishlists テーブル)
+ * ユーザーが保存した関心の旅行先及び API 商品(宿泊/航空券)
  */
-@Data // Getter, Setter가 자동으로 생성
+@Data // Getter, Setter自動生成
 public class WishlistDto {
     private Long wishlistId;
     private Long userId;
     
-    private Long placeId; // 기존 자체 DB 여행지 고유 번호
+    private Long placeId; // 既存独自DB旅行地固有番号
     
-    // 새롭게 추가된 2개의 핵심 필드
-    private String category; // 카테고리 ('PLACE', 'HOTEL', 'FLIGHT', 'AI')
-    private String apiId;    // 외부 API 데이터의 고유 ID (문자열)
+    // 新規追加主要フィールド
+    private String category; // カテゴリ ('PLACE', 'HOTEL', 'FLIGHT', 'AI')
+    private String apiId;    // 外部APIデータ固有ID
     
     private LocalDateTime createdAt;
     private String placeName;

@@ -6,18 +6,18 @@ import java.util.List;
 
 @Mapper
 public interface TransportMapper {
-    // パス券リストを取得
+    // パス券リスト取得
     List<TransportDto> getAllPasses();
     
-    // パス券詳細を取得
+    // パス券詳細取得
     TransportDto getPassById(Long id);
     
-    // パス券を登録
+    // パス券登録
     void insertPass(TransportDto pass);
     
-    // パス券を修正
+    // パス券修正
     void updatePass(TransportDto pass);
     
-    // パス券を削除
+    // パス券削除
     void deletePass(Long id);
 }

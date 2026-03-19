@@ -46,25 +46,25 @@ public class ExchangeController {
         ExchangeDto exchangeRate = exchangeService.getLatestExchangeRate();
         model.addAttribute("exchange", exchangeRate);
         
-        // 💡 찜목록 총합 변수들은 지웠습니다. (화면에서 선택할 거니까요!)
+        // 💡 画面選択のためウィッシュリスト合算変数削除
         int resFlightTotal = 0; 
         int resHotelTotal = 0;  
         
         BudgetDto myBudget = null; 
-        List<WishlistDto> myWishlists = new ArrayList<>(); // 💡 찜목록을 통째로 담을 리스트
+        List<WishlistDto> myWishlists = new ArrayList<>(); // 💡 ウィッシュリスト保持用リスト
 
         if (userDetails != null) {
             UserDto user = userService.findByUsername(userDetails.getUsername()).orElse(null);
             if (user != null) {
                 Long userId = user.getUserId();
 
-                // 1. DB에서 이전에 저장해둔 내 예산 불러오기!
+                // 1. DBから保存済み予算読み込み
                 myBudget = budgetService.getMyBudget(userId);
 
-                // 💡 2. 찜목록 데이터 합산 로직 삭제 -> 리스트 통째로 가져오기
+                // 💡 2. ウィッシュリスト合算ロジック削除 -> リスト直接取得
                 myWishlists = wishlistService.getWishlistByUserId(userId);
 
-                // 3. 예약/결제 내역 데이터 합산 (이미 결제한 건 모두 합산)
+                // 3. 予約・決済内訳データ合算 (決済済全合算)
                 List<ReservationDto> myReservations = reservationService.getAllReservations(userId);
                 for (ReservationDto res : myReservations) {
                     if ("FLIGHT".equals(res.getCategory())) {
@@ -76,16 +76,16 @@ public class ExchangeController {
             }
         }
 
-        // 화면으로 데이터 넘기기
+        // 画面データ伝達
         model.addAttribute("myBudget", myBudget); 
-        model.addAttribute("myWishlists", myWishlists); // 💡 찜목록 전체 리스트 전송!
+        model.addAttribute("myWishlists", myWishlists); // 💡 ウィッシュリスト全体データ転送
         model.addAttribute("resFlightTotal", resFlightTotal);
         model.addAttribute("resHotelTotal", resHotelTotal);
 
         return "exchange/exchange"; 
     }
 
-    // 💡 화면에서 [저장] 버튼을 누를 때 통신할 API 주소!
+    // 💡 [保存]ボタン通信用API
     @PostMapping("/save")
     @ResponseBody
     public ResponseEntity<?> saveBudget(@AuthenticationPrincipal UserDetails userDetails, @RequestBody BudgetDto budgetDto) {

@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 여행지 서비스
- * 목록/상세/필터, 인기 목록, 관리자 CRUD
+ * 旅行先サービス
+ * リスト/詳細/フィルタ、人気リスト、管理者 CRUD
  */
 @Service
 public class PlaceService {
@@ -25,7 +25,7 @@ public class PlaceService {
 		return placeMapper.findAll();
 	}
 
-	/** 필터·정렬 적용 목록 (region, category, keyword, sort: latest|popular|rating) */
+	/** フィルター・ソート適用リスト (region, category, keyword, sort: latest|popular|rating) */
 	@Transactional(readOnly = true)
 	public List<PlaceDto> getList(String region, String category, String keyword, String sort) {
 		if (sort == null || sort.isEmpty())
@@ -38,7 +38,7 @@ public class PlaceService {
 		return placeMapper.findById(placeId);
 	}
 
-	/** 메인/대시보드용 인기 여행지 상위 N건 */
+	/** メイン用人気旅行地TopN */
 	@Transactional(readOnly = true)
 	public List<PlaceDto> getTopPlaces(int limit) {
 		return placeMapper.findTopPlaces(limit);

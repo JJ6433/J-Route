@@ -3,13 +3,13 @@ package com.blog.dto;
 import lombok.Data;
 import java.sql.Timestamp;
 
-@Data // Getter, Setter 등 모든 메서드가 자동 생성됩니다.
+@Data // Getter, Setter等自動生成
 public class ReservationDto {
     private int id;
     private String orderId;    
     private Long userId;     
     private String itemName;   
-    private String category;   // 카테고리 (HOTEL 또는 FLIGHT)
+    private String category;   // カテゴリ (HOTEL, FLIGHT)
     private int amount;        
     private String status;     
     private Timestamp createdAt;
@@ -19,6 +19,6 @@ public class ReservationDto {
     private String address;
     private String details;
 
-    // 관리자 화면용 추가 필드
-    private String nickname; // 예약자 닉네임
+    // 管理者画面用追加フィールド
+    private String nickname; // 予約者ニックネーム
 }
