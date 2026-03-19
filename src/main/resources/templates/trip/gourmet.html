@@ -17,11 +17,27 @@
             <div class="col-lg-9">
                 <!-- Hero Section -->
                 <div class="row mb-5">
-                    <div class="col-12 text-center">
-                        <h1 class="display-4 fw-bold mb-3 text-dark">
-                            <span class="text-danger">J-Route</span> グルメ＆カフェ
-                        </h1>
-                        <p class="lead text-muted">AIとGoogleが提供する、日本で最も美味しい体験を見つけましょう。</p>
+                    <div class="col-12 p-0 overflow-hidden rounded-4 shadow-lg position-relative"
+                        style="height: 250px; background: linear-gradient(135deg, #fff5f5 0%, #fff0f5 100%);">
+                        <!-- Background Image -->
+                        <div class="position-absolute w-100 h-100" style="background-image: url('https://images.pexels.com/photos/2144112/pexels-photo-2144112.jpeg?auto=compress&cs=tinysrgb&w=1200'); 
+                                    background-size: cover; 
+                                    background-position: center 35%; 
+                                    filter: brightness(0.9);">
+                        </div>
+
+                        <!-- Light Overlay for Text -->
+                        <div class="position-absolute w-100 h-100 d-flex flex-column justify-content-center align-items-center text-center px-4"
+                            style="background: rgba(0,0,0,0.15); top: 0; left: 0;">
+                            <h1 class="display-3 fw-bold mb-1 text-white"
+                                style="text-shadow: 2px 2px 12px rgba(0,0,0,0.6);">
+                                <span class="text-danger">J-Route</span> グルメ＆カフェ
+                            </h1>
+                            <p class="lead text-white fw-bold mb-0"
+                                style="text-shadow: 1px 1px 8px rgba(0,0,0,0.7); font-size: 1.4rem;">
+                                日本の至福、いちごケーキと香り立つ珈琲。<br class="d-md-none">最高の「美味しい」を見つけましょう。
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -174,6 +190,23 @@
         #locationInput:focus {
             border-color: #ff4d4f;
             box-shadow: none;
+        }
+
+        .hero-bg {
+            transition: transform 0.5s ease;
+        }
+
+        .hero-bg:hover {
+            transform: scale(1.05);
+        }
+
+        .display-3 {
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .text-white-50 {
+            font-size: 1.25rem;
+            letter-spacing: 0.5px;
         }
     </style>
 
