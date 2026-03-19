@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 /**
- * API 호출 로그 DTO
+ * API 呼び出しログ DTO
  */
 @Data
 public class ApiLogDto {

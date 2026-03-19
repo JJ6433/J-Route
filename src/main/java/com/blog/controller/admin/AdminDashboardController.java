@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
 
 /**
- * 관리자 대시보드
- * 가입자 수, 여행지 수, 인기 여행지 통계
+ * 管理者ダッシュボード
+ * 加入者数, 旅行先数, 人気旅行先統計
  */
 @Controller
 @RequestMapping("/admin")

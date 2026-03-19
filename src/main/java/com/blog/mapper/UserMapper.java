@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 회원 MyBatis Mapper
- * 회원가입, 로그인 조회, 마이페이지 수정/탈퇴
+ * 会員 MyBatis Mapper
+ * 会員登録、ログイン照会、マイページ修正/退会
  */
 @Mapper
 public interface UserMapper {
@@ -23,24 +23,24 @@ public interface UserMapper {
 			"FROM users WHERE username = #{username}")
 	Optional<UserDto> findByUsername(String username);
 
-	/** 회원 한 명 조회 (마이페이지용) */
+	/** 会員情報照会 */
 	@Select("SELECT user_id AS userId, username, password, nickname, role, created_at AS createdAt " +
 			"FROM users WHERE user_id = #{userId}")
 	Optional<UserDto> findById(@Param("userId") Long userId);
 
-	/** 닉네임 등 정보 수정 (비밀번호 제외) */
+	/** 情報修正（PW除く） */
 	@Update("UPDATE users SET nickname = #{nickname} WHERE user_id = #{userId}")
 	int updateUser(UserDto userDto);
 
-	/** 비밀번호만 변경 */
+	/** PW変更 */
 	@Update("UPDATE users SET password = #{encodedPassword} WHERE user_id = #{userId}")
 	int updatePassword(@Param("userId") Long userId, @Param("encodedPassword") String encodedPassword);
 
-	/** 회원 탈퇴 (삭제) */
+	/** 退会処理 */
 	@Delete("DELETE FROM users WHERE user_id = #{userId}")
 	int deleteById(@Param("userId") Long userId);
 
-	/** 관리자: 필터 및 일반 회원 목록 */
+	/** 管理者: 会員リスト照会 */
 	@Select("SELECT user_id AS userId, username, nickname, role, created_at AS createdAt " +
 			"FROM users ORDER BY created_at DESC")
 	List<UserDto> findAll();
@@ -66,11 +66,11 @@ public interface UserMapper {
 	List<UserDto> findWithFilters(@Param("keyword") String keyword, @Param("role") String role,
 			@Param("startDate") String startDate, @Param("endDate") String endDate);
 
-	/** 회원 수 (대시보드) */
+	/** 会員数 */
 	@Select("SELECT COUNT(*) FROM users")
 	int count();
 
-	/** 최근 7일간 신규 가입자 통계 */
+	/** 新規加入者統計 */
 	@Select("SELECT DATE_FORMAT(created_at, '%Y-%m-%d') as date, COUNT(*) as count " +
 			"FROM users " +
 			"WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) " +

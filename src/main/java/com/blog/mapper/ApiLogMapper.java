@@ -25,7 +25,7 @@ public interface ApiLogMapper {
     @Delete("DELETE FROM api_logs")
     void deleteAll();
 
-    /** 최근 7일간 API 호출 통계 */
+    /** API統計照会 */
     @Select("SELECT DATE_FORMAT(created_at, '%Y-%m-%d') as date, " +
             "COUNT(*) as total, " +
             "SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) as success, " +

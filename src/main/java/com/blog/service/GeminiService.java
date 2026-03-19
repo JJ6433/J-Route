@@ -102,18 +102,18 @@ public class GeminiService {
                 || (flightDeparture != null && !flightDeparture.isEmpty())
                 || (arrivalAirport != null && !arrivalAirport.isEmpty())
                 || (departureAirport != null && !departureAirport.isEmpty())) {
-            flightInfo = "**航空便 및 공항 제약 사항: ";
+            flightInfo = "**航空便及び空港制約事項: ";
             if (arrivalAirport != null && !arrivalAirport.isEmpty()) {
-                flightInfo += "첫날(Day 1)의 첫 번째 일정은 반드시 '" + arrivalAirport + "' 공항에서 시작해야 합니다. ";
+                flightInfo += "初日(Day 1)の最初の行程は必ず '" + arrivalAirport + "' 空港から開始してください。 ";
             }
             if (flightArrival != null && !flightArrival.isEmpty()) {
-                flightInfo += "첫날 " + flightArrival + " 에 도착 예정이므로 공항에서부터의 일정을 짜주세요. ";
+                flightInfo += "初日 " + flightArrival + " に到着予定ですので、空港からの行程を組んでください。 ";
             }
             if (departureAirport != null && !departureAirport.isEmpty()) {
-                flightInfo += "마지막 날(Day " + endDate + ")의 최종 목적지는 반드시 '" + departureAirport + "' 공항이어야 합니다. ";
+                flightInfo += "最終日(Day " + endDate + ")の最終目的地は必ず '" + departureAirport + "' 空港である必要があります。 ";
             }
             if (flightDeparture != null && !flightDeparture.isEmpty()) {
-                flightInfo += "마지막 날 " + flightDeparture + " 에 출발 예정이므로 2시간 전까지 공항에 도착하도록 일정을 구성하세요. ";
+                flightInfo += "最終日 " + flightDeparture + " に出発予定ですので、2時間前までに空港に到着するよう行程を構成してください。 ";
             }
             flightInfo += "** ";
         }
@@ -128,7 +128,7 @@ public class GeminiService {
                         + "市内だけでなく、周辺の都市（例：大阪なら京都、神戸、奈良など）への日帰り旅行も1〜2日程度含めた魅力的なコースを作成してください。";
             }
         } catch (Exception e) {
-            // 날짜 파싱 실패 시 기본적으로 짧은 여행으로 간주하거나 무시
+            // 日付パース失敗時デフォルト処理
         }
 
         String weatherInfo = "";

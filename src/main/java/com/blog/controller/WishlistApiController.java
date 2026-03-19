@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestController // 일반 @Controller와 달리 화면(HTML)을 반환하지 않고, 데이터(JSON)만 반환합니다.
+@RestController // JSONデータ返却用Controller
 @RequestMapping("/api/wishlist")
 public class WishlistApiController {
 

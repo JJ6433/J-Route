@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 /**
- * 회원 서비스
- * 회원가입, 로그인 조회, 마이페이지 수정/비밀번호 변경/탈퇴
+ * 会員サービス
+ * 会員登録、ログイン照会、マイページ修正/PW変更/退会
  */
 @Service
 public class UserService {
@@ -23,7 +23,7 @@ public class UserService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	/** 회원가입: ID 중복 체크 후 비밀번호 암호화하여 저장 */
+	/** 会員登録（ID重複確認・PW暗号化） */
 	@Transactional
 	public void registerUser(UserDto userDto) {
 		Optional<UserDto> existing = userMapper.findByUsername(userDto.getUsername());
@@ -35,17 +35,17 @@ public class UserService {
 		userMapper.insertUser(userDto);
 	}
 
-	/** username으로 회원 조회 (로그인용) */
+	/** ログイン用会員照会 */
 	public Optional<UserDto> findByUsername(String username) {
 		return userMapper.findByUsername(username);
 	}
 
-	/** userId로 회원 조회 (마이페이지) */
+	/** マイページ用会員照会 */
 	public Optional<UserDto> findById(Long userId) {
 		return userMapper.findById(userId);
 	}
 
-	/** 닉네임 수정 */
+	/** ニックネーム修正 */
 	@Transactional
 	public void updateUser(Long userId, String nickname) {
 		UserDto dto = userMapper.findById(userId).orElseThrow(() -> new IllegalArgumentException("会員が見つかりません。"));
@@ -53,7 +53,7 @@ public class UserService {
 		userMapper.updateUser(dto);
 	}
 
-	/** 비밀번호 변경: 현재 비밀번호 확인 후 새 비밀번호 암호화 저장 */
+	/** PW変更（現在PW確認・新PW暗号化） */
 	@Transactional
 	public void changePassword(Long userId, String currentRawPassword, String newRawPassword) {
 		UserDto dto = userMapper.findById(userId).orElseThrow(() -> new IllegalArgumentException("会員が見つかりません。"));
@@ -63,31 +63,31 @@ public class UserService {
 		userMapper.updatePassword(userId, passwordEncoder.encode(newRawPassword));
 	}
 
-	/** 회원 탈퇴 */
+	/** 会員退会 */
 	@Transactional
 	public void withdraw(Long userId) {
 		userMapper.deleteById(userId);
 	}
 
-	/** 관리자: 전체 회원 목록 */
+	/** 管理者: 全会員リスト */
 	@Transactional(readOnly = true)
 	public java.util.List<UserDto> findAll() {
 		return userMapper.findAll();
 	}
 
-	/** 회원 수 */
+	/** 会員数照会 */
 	@Transactional(readOnly = true)
 	public int count() {
 		return userMapper.count();
 	}
 
-	/** 관리자: 필터링된 회원 목록 */
+	/** 管理者: フィルタ適用会員リスト */
 	@Transactional(readOnly = true)
 	public java.util.List<UserDto> findWithFilters(String keyword, String role, String startDate, String endDate) {
 		return userMapper.findWithFilters(keyword, role, startDate, endDate);
 	}
 
-	/** 최근 7일간 신규 가입자 통계 */
+	/** 新規加入者統計 */
 	@Transactional(readOnly = true)
 	public java.util.List<java.util.Map<String, Object>> getDailyRegistrationStats() {
 		return userMapper.getDailyRegistrationStats();

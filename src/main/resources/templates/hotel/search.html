@@ -93,20 +93,20 @@
         const checkinInput = document.getElementById('checkinDate');
         const checkoutInput = document.getElementById('checkoutDate');
 
-        // 1. 체크인은 오늘부터 가능
+        // 1. チェックインは本日から可能
         const today = new Date().toISOString().split('T')[0];
         checkinInput.min = today;
 
-        // 2. 체크인이 변경되면 체크아웃 최소 날짜를 체크인 '다음 날'로 고정
+        // 2. チェックアウト最小日を翌日へ固定
         checkinInput.addEventListener('change', function() {
             if (this.value) {
                 const checkinDate = new Date(this.value);
-                checkinDate.setDate(checkinDate.getDate() + 1); // 다음 날 계산
+                checkinDate.setDate(checkinDate.getDate() + 1); // 翌日計算
                 
                 const nextDay = checkinDate.toISOString().split('T')[0];
                 checkoutInput.min = nextDay;
 
-                // 이미 선택된 체크아웃 날짜가 체크인 날짜와 같거나 이전이면 자동 초기화
+                // 選択済チェックアウト日が前日等の場合自動初期化
                 if (checkoutInput.value && checkoutInput.value <= this.value) {
                     checkoutInput.value = nextDay;
                 }

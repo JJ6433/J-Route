@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 앱 기동 시 시드 데이터를 관리합니다.
- * - 여행지가 하나도 없으면 시드 데이터를 삽입
- * - 기존 데이터가 있으면 이미지 URL만 로컬 경로로 업데이트
+ * アプリ起動時のシードデータを管理します。
+ * - 観光地が一つもない場合はシードデータを挿入
+ * - 既存データがある場合は画像URLのみローカルパスにアップデート
  */
 @Component
 @Order(1)
@@ -25,7 +25,7 @@ public class DataLoader implements ApplicationRunner {
         this.placeService = placeService;
     }
 
-    // 이름 → 로컬 이미지 경로 매핑
+    // 名前→ローカル画像パス制御
     private static final Map<String, String> IMAGE_MAP = Map.ofEntries(
             Map.entry("浅草寺", "sensoji"),
             Map.entry("渋谷スクランブル交差点", "shibuya"),
@@ -45,7 +45,7 @@ public class DataLoader implements ApplicationRunner {
         List<PlaceDto> existing = placeService.getAllPlaces();
 
         if (existing.isEmpty()) {
-            // 데이터가 없으면 시드 삽입
+            // データ不在時シード挿入
             List<PlaceDto> seeds = List.of(
                     place("浅草寺", "観光", "東京", "東京を代表するお寺。雷門と仲見世通りが人気。", "東京都台東区浅草1-3-1", resolvePath("sensoji")),
                     place("渋谷スクランブル交差点", "観光", "東京", "世界有数の歩行者量を誇る交差点。", "東京都渋谷区道玄坂2-1", resolvePath("shibuya")),
@@ -65,12 +65,12 @@ public class DataLoader implements ApplicationRunner {
                 placeService.savePlace(p);
             }
         } else {
-            // 기존 데이터가 있으면 이미지 URL만 로컬 경로로 업데이트
+            // 既存データ存在時画像URLアップデート
             for (PlaceDto p : existing) {
                 String baseName = IMAGE_MAP.get(p.getName());
                 if (baseName != null) {
                     String newPath = resolvePath(baseName);
-                    // 기존 경로와 다르면 (예: svg -> png 교체 등) 업데이트
+                    // 既存パス非一至時アップデート
                     if (!newPath.equals(p.getImageUrl())) {
                         p.setImageUrl(newPath);
                         placeService.savePlace(p);
@@ -95,12 +95,12 @@ public class DataLoader implements ApplicationRunner {
     private String resolvePath(String baseName) {
         String[] extensions = { ".png", ".jpg", ".jpeg", ".svg", ".gif" };
         for (String ext : extensions) {
-            // src/main/resources/static/images/ + baseName + ext 존재 확인
+            // 画像存在確認
             if (new org.springframework.core.io.ClassPathResource("static/images/" + baseName + ext).exists()) {
                 return "/images/" + baseName + ext;
             }
         }
-        // 기본값: 없어도 png로 설정 (추후 추가될 것을 대비)
+        // デフォルト: png設定
         return "/images/" + baseName + ".png";
     }
 }

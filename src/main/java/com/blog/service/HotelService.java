@@ -19,15 +19,15 @@ public class HotelService {
     private String apiHost;
 
     /**
-     * 도시명으로 dest_id 검색 (Booking.com)
+     * 都市名で dest_id 検索 (Booking.com)
      */
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
     /**
-     * 도시명으로 dest_id 검색 (Booking.com)
+     * 都市名で dest_id 検索 (Booking.com)
      */
     public String searchDestination(String query) {
-        // API 키가 없거나 테스트용인 경우 Mock 데이터 반환
+        // APIキーなし/テスト時Mockデータ返却
         if (apiKey == null || apiKey.isEmpty() || apiKey.equals("YOUR_API_KEY")) {
             return getMockDestination(query);
         }
@@ -66,8 +66,8 @@ public class HotelService {
     }
 
     private String getMockDestination(String query) {
-        // 간단한 Mock Destination 데이터 (유명 도시에 대해 적절한 dest_id 반환)
-        String destId = "-246227"; // 기본값 (Tokyo)
+        // 簡易Mock Destinationデータ返却
+        String destId = "-246227"; // デフォルト値 (Tokyo)
         String lowerQuery = query.toLowerCase();
         if (lowerQuery.contains("osaka"))
             destId = "-240905";
@@ -86,11 +86,11 @@ public class HotelService {
     }
 
     /**
-     * 숙소 검색 API 호출 (Booking.com)
+     * 宿泊施設検索 API 呼び出し (Booking.com)
      */
     public String searchHotels(String destId, String searchType, String checkinDate, String checkoutDate,
             String adults) {
-        // API 키가 없거나 테스트용인 경우 Mock 데이터 반환 (선택 사항)
+        // テスト時Mockデータ返却
         if (apiKey == null || apiKey.isEmpty() || apiKey.equals("YOUR_API_KEY")) {
             return getMockHotels(destId);
         }
@@ -146,7 +146,7 @@ public class HotelService {
     }
 
     private String getMockHotels(String destId) {
-        // 간단한 Mock 데이터 생성 (검색 결과가 없을 때나 API 제한 시 사용)
+        // 簡易Mockデータ生成
         String bellustarMock = "{\"property\": {\"name\": \"BELLUSTAR TOKYO Pan Pacific Hotel\", \"reviewScore\": 9.5, \"reviewCount\": 120, \"priceBreakdown\": {\"grossAmount\": {\"value\": 125000}}, \"photoUrls\": [\"https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500\"], \"wishlistName\": \"Shinjuku, Tokyo\", \"address\": \"1-29-1 Kabukicho, Shinjuku-ku, Tokyo, Japan\"}, \"languages\": [\"日本語\", \"English\"]}";
         String icMock = "{\"property\": {\"name\": \"ANA InterContinental Tokyo\", \"reviewScore\": 8.8, \"reviewCount\": 2100, \"priceBreakdown\": {\"grossAmount\": {\"value\": 45000}}, \"photoUrls\": [\"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500\"], \"wishlistName\": \"Minato, Tokyo\", \"address\": \"1-12-33 Akasaka, Minato-ku, Tokyo, Japan\"}, \"languages\": [\"日本語\", \"English\"]}";
 
@@ -159,7 +159,7 @@ public class HotelService {
                 "]}}";
     }
 
-    // 기존 호출 방식을 유지하기 위한 오버로딩 (searchType 기본값 CITY)
+    // 既存呼出方式維持用オーバーロード
     public String searchHotels(String destId, String checkinDate, String checkoutDate, String adults) {
         return searchHotels(destId, "CITY", checkinDate, checkoutDate, adults);
     }

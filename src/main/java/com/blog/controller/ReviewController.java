@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * 리뷰 컨트롤러
- * 리뷰 등록/수정/삭제 (로그인 사용자)
+ * レビューコントローラー
+ * レビュー登録/修正/削除 (ログインユーザー)
  */
 @Controller
 @RequestMapping("/review")

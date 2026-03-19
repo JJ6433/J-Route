@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 /**
- * 리뷰 DTO (reviews 테이블)
- * 여행지별 별점 및 코멘트
+ * レビュー DTO (reviews テーブル)
+ * 旅行先別評価及びコメント
  */
 @Data
 public class ReviewDto {

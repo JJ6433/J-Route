@@ -4,16 +4,16 @@ import lombok.Data;
 import java.sql.Timestamp;
 
 /**
- * 여행 예산 저장용 DTO (budgets 테이블)
+ * 旅行予算保存用 DTO (budgets テーブル)
  */
-@Data // Getter, Setter, toString 등 자동 생성
+@Data // Getter, Setter等自動生成
 public class BudgetDto {
     private Long budgetId;
-    private Long userId;          // 로그인한 유저 ID
+    private Long userId;          // ログインユーザーID
     
-    private int transportCost;    // 항공/교통비
-    private int hotelCost;        // 숙박비
-    private int foodCost;         // 식비(맛집/카페)
+    private int transportCost;    // 航空/交通費
+    private int hotelCost;        // 宿泊費
+    private int foodCost;         // 食費
     
-    private Timestamp updatedAt;  // 마지막 저장 시간
+    private Timestamp updatedAt;  // 最終保存時間
 }

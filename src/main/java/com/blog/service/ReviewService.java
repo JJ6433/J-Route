@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 리뷰 서비스
- * 여행지별 리뷰 조회/등록/수정/삭제, 평균 별점
+ * レビューサービス
+ * 旅行先別レビュー照会/登録/修正/削除、平均評価
  */
 @Service
 public class ReviewService {
@@ -68,19 +68,19 @@ public class ReviewService {
 		return reviewMapper.countByUserId(userId);
 	}
 
-	/** 관리자: 모든 리뷰 조회 */
+	/** 管理者: 全レビュー照会 */
 	@Transactional(readOnly = true)
 	public List<ReviewDto> getAllReviewsForAdmin() {
 		return reviewMapper.findAllForAdmin();
 	}
 
-	/** 관리자: 리뷰 삭제 */
+	/** 管理者: レビュー削除 */
 	@Transactional
 	public void deleteReviewByAdmin(Long reviewId) {
 		reviewMapper.deleteByIdAdmin(reviewId);
 	}
 
-	/** 관리자: 필터링된 리뷰 목록 조회 */
+	/** 管理者: フィルタ適用レビュー照会 */
 	@Transactional(readOnly = true)
 	public List<ReviewDto> findWithFilters(String keyword, Integer rating, String startDate, String endDate) {
 		return reviewMapper.findWithFilters(keyword, rating, startDate, endDate);

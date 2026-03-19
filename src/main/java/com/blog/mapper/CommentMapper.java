@@ -7,12 +7,12 @@ import java.util.List;
 
 @Mapper
 public interface CommentMapper {
-    // コメントの登録
+    // コメント登録
     void insertComment(CommentDto comment);
     // リスト取得
     List<CommentDto> getCommentsByBoardId(Integer boardId);
-    // 単一コメント照会
+    // コメント詳細照会
     CommentDto getCommentById(Integer commentId);
-    // コメントの削除
+    // コメント削除
     void deleteComment(Integer commentId);
 }

@@ -200,7 +200,7 @@
                 const detailUrl = `/hotel/detail?id=${apiId}&name=${encodeURIComponent(hotelName)}&price=${purePrice}&photoUrl=${encodeURIComponent(photoUrl)}&checkinDate=${checkinDate}&checkoutDate=${checkoutDate}&adults=${adults}`;
                 const saveApiId = `/hotel/detail?id=${apiId}&price=${purePrice}&checkinDate=${checkinDate}&checkoutDate=${checkoutDate}&adults=${adults}`;
 
-                // 💡 [수정됨] button 태그 안에 data-price="${purePrice}" 가 추가되었습니다.
+                // 💡 [修正済] buttonタグにdata-price属性追加
                 const cardHtml = `
                     <div class="card border-0 shadow-sm mb-4 hotel-card overflow-hidden position-relative" 
                          style="border-radius: 15px; cursor: pointer;"
@@ -249,7 +249,7 @@
             });
         }
 
-        // 💡 [수정됨] data-price에서 가격을 꺼내와 requestData에 담아 보냅니다.
+        // 💡 [修正済] data-priceから価格を抽出・送信
         async function toggleWishlist(button, event) {
             event.preventDefault();
             event.stopPropagation();

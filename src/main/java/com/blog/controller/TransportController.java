@@ -18,22 +18,22 @@ public class TransportController {
     @Autowired
     private TransportService transportService;
 
-    // APIキーを読み込む
+    // APIキー読込
     @Value("${maps.api.key}")
     private String mapsApiKey;
 
-    // 交通・パス画面を表示
+    // パス画面表示
     @GetMapping
     public String transportMain(Model model) {
         
         // サイドバー活性化
         model.addAttribute("activeMenu", "transport");
         
-        // パス券データを取得
+        // パスデータ取得
         List<TransportDto> passList = transportService.getAllPasses();
         model.addAttribute("passList", passList);
 
-        // APIキーをビューに渡す
+        // APIキービュー伝達
         model.addAttribute("googleMapsApiKey", mapsApiKey);
         
         return "transport/main";

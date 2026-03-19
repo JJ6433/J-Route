@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 /**
- * 여행지 정보 DTO (places 테이블)
- * 관광지, 맛집, 숙소 정보
+ * 旅行先情報 DTO (places テーブル)
+ * 観光地、グルメ、宿泊情報
  */
 @Data
 public class PlaceDto {

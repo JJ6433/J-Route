@@ -225,10 +225,10 @@
                 </div>
             </div>
 
-            <!-- 일정 추가 모달 -->
+            <!-- 日程追加モーダル -->
             <!-- ... (AddItemModal remains same but should be disabled if !canEdit) ... -->
 
-            <!-- 공유 및 협업 모달 -->
+            <!-- 共有・協業モーダル -->
             <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content border-0 shadow">
@@ -416,9 +416,9 @@
         function translationCleanup() {
             if (plan.weather) {
                 plan.weather.forEach(w => {
-                    if (w.desc === '맑음') w.desc = '晴れ';
-                    if (w.desc === '흐림' || w.desc === '흐름') w.desc = '曇り';
-                    if (w.desc === '비') w.desc = '雨';
+                    if (w.desc === '晴れ') w.desc = '晴れ';
+                    if (w.desc === '曇り' || w.desc === '曇') w.desc = '曇り';
+                    if (w.desc === '雨') w.desc = '雨';
                 });
             }
         }
@@ -443,7 +443,7 @@
                             if (data === 'OK' || data.startsWith('OK')) { alert('保存しました！'); window.location.href = '/planner/list'; }
                             else { alert('エラー: ' + data); }
                         })
-                        .catch(err => { console.error('Save failed:', err); alert('保存中にエラーが発生했습니다。'); });
+                        .catch(err => { console.error('Save failed:', err); alert('保存中にエラーが発生しました。'); });
                 };
             }
         }
@@ -498,7 +498,7 @@
                         msgEl.className = 'small mt-2 text-success';
                         msgEl.classList.remove('d-none');
                         usernameInput.value = '';
-                        // 실제로는 리스트에 즉시 추가하거나 새로고침 필요할 수 있지만, "작성된 것처럼" 보여주기에 충분함
+                        // 実際にはリスト即時追加や更新が必要だが、「作成済み」として表示可能
                     } else {
                         msgEl.textContent = '招待に失敗しました。ユーザーIDを確認してください。';
                         msgEl.className = 'small mt-2 text-danger';
@@ -519,7 +519,7 @@
             if (!container || !plan) return;
             container.innerHTML = '';
             var titleEl = document.querySelector('.jroute-section-title');
-            if (titleEl) contextCity = titleEl.textContent.replace('旅行', '').replace('의 여행', '').trim();
+            if (titleEl) contextCity = titleEl.textContent.replace('旅行', '').replace('の旅行', '').trim();
 
             if (window.google && window.google.maps && window.google.maps.places) {
                 if (!placesService) placesService = new google.maps.places.PlacesService(document.createElement('div'));

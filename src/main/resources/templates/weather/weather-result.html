@@ -133,7 +133,7 @@
         const today = new Date();
         const maxDate = new Date();
 
-        // 💡 오늘 포함 최대 16일!
+        // 💡 今日を含め最大16日
         maxDate.setDate(today.getDate() + 15);
 
         const formatYYYYMMDD = (d) => d.toISOString().split('T')[0];

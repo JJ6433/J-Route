@@ -6,13 +6,13 @@
         p.place_id AS placeId, p.name, p.category, p.region, p.description, p.address, p.image_url AS imageUrl, p.created_at AS createdAt
     </sql>
 
-    <!-- 전체 목록 (최신순) -->
+    <!-- 全体一覧 (最新順) -->
     <select id="findAll" resultType="PlaceDto">
         SELECT place_id AS placeId, name, category, region, description, address, image_url AS imageUrl, created_at AS createdAt
         FROM places ORDER BY created_at DESC
     </select>
 
-    <!-- 필터/정렬 목록: 지역·카테고리·키워드·정렬 옵션 -->
+    <!-- フィルタ/ソート一覧: 地域・カテゴリ・キーワード・ソートオプション -->
     <select id="findList" resultType="PlaceDto">
         SELECT p.place_id AS placeId, p.name, p.category, p.region, p.description, p.address, p.image_url AS imageUrl, p.created_at AS createdAt,
                (SELECT ROUND(AVG(r.rating), 1) FROM reviews r WHERE r.place_id = p.place_id) AS avgRating,
@@ -42,31 +42,31 @@
         </choose>
     </select>
 
-    <!-- 상세 조회 -->
+    <!-- 詳細照会 -->
     <select id="findById" resultType="PlaceDto">
         SELECT place_id AS placeId, name, category, region, description, address, image_url AS imageUrl, created_at AS createdAt
         FROM places WHERE place_id = #{placeId}
     </select>
 
-    <!-- 여행지 등록 (관리자) -->
+    <!-- 旅行先登録 (管理者) -->
     <insert id="insertPlace" parameterType="PlaceDto" useGeneratedKeys="true" keyProperty="placeId">
         INSERT INTO places (name, category, region, description, address, image_url)
         VALUES (#{name}, #{category}, #{region}, #{description}, #{address}, #{imageUrl})
     </insert>
 
-    <!-- 여행지 수정 -->
+    <!-- 旅行先修正 -->
     <update id="updatePlace" parameterType="PlaceDto">
         UPDATE places SET name = #{name}, category = #{category}, region = #{region},
                          description = #{description}, address = #{address}, image_url = #{imageUrl}
         WHERE place_id = #{placeId}
     </update>
 
-    <!-- 여행지 삭제 -->
+    <!-- 旅行先削除 -->
     <delete id="deleteById">
         DELETE FROM places WHERE place_id = #{placeId}
     </delete>
 
-    <!-- 인기 여행지 (리뷰 많은 순 상위 N건, MySQL 호환) -->
+    <!-- 人気の旅行先 (レビューが多い順上位N件, MySQL互換) -->
     <select id="findTopPlaces" resultType="PlaceDto">
         SELECT p.place_id AS placeId, p.name, p.category, p.region, p.description, p.address, p.image_url AS imageUrl, p.created_at AS createdAt,
                (SELECT ROUND(AVG(r.rating), 1) FROM reviews r WHERE r.place_id = p.place_id) AS avgRating,

@@ -14,12 +14,12 @@ public class BudgetService {
         this.budgetMapper = budgetMapper;
     }
 
-    // 내 예산 가져오기
+    // 予算照会
     public BudgetDto getMyBudget(Long userId) {
         return budgetMapper.getBudgetByUserId(userId);
     }
 
-    // 예산 저장하기
+    // 予算保存
     @Transactional
     public void saveMyBudget(BudgetDto budgetDto) {
         budgetMapper.saveOrUpdateBudget(budgetDto);

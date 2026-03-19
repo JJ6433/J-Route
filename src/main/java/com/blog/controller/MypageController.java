@@ -138,7 +138,7 @@ public class MypageController {
         return "redirect:/mypage/profile";
     }
     
-    // 예약 내역 전체 보기 페이지
+    // 予約内訳全体表示
     @GetMapping("/reservations")
     public String reservations(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         UserDto user = getAuthenticatedUser(userDetails);
@@ -151,7 +151,7 @@ public class MypageController {
         return "user/reservations"; 
     }
 
-    // 예약 상세 내역 보기 페이지
+    // 予約詳細内訳表示
     @GetMapping("/reservation/detail")
     public String reservationDetail(@AuthenticationPrincipal UserDetails userDetails, 
                                     @RequestParam("orderId") String orderId, 
@@ -161,13 +161,13 @@ public class MypageController {
             return "redirect:/login";
         }
 
-        // DB에서 orderId를 기반으로 상세 예약 정보를 가져옵니다.
+        // orderId基盤詳細情報照会
         ReservationDto reservation = reservationService.getReservationByOrderId(orderId);
         
-        // 가져온 정보를 화면(HTML)에 넘겨줍니다.
+        // 取得情報画面転送
         model.addAttribute("res", reservation);
         
-        // user/reservation-detail.html 로 이동
+        // 詳細ページ遷移
         return "user/reservation-detail"; 
     }
 }

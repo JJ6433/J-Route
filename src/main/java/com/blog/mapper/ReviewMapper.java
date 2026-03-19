@@ -7,8 +7,8 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 리뷰 MyBatis Mapper
- * 여행지별 리뷰 조회/등록/수정/삭제, 평균 별점
+ * レビュー MyBatis Mapper
+ * 旅行先別レビュー照会/登録/修正/削除、平均評価
  */
 @Mapper
 public interface ReviewMapper {
@@ -21,10 +21,10 @@ public interface ReviewMapper {
 
 	int deleteById(@Param("reviewId") Long reviewId, @Param("userId") Long userId);
 
-	/** 여행지 평균 별점 */
+	/** 平均評価照会 */
 	Double getAvgRatingByPlaceId(Long placeId);
 
-	/** 여행지 리뷰 개수 */
+	/** レビュー数照会 */
 	int countByPlaceId(Long placeId);
 
 	ReviewDto findById(Long reviewId);
@@ -33,12 +33,12 @@ public interface ReviewMapper {
 
 	int countByUserId(Long userId);
 
-	/** 관리자용 모든 리뷰 조회 */
+	/** 管理者: 全レビュー照会 */
 	List<ReviewDto> findAllForAdmin();
 
 	List<ReviewDto> findWithFilters(@Param("keyword") String keyword, @Param("rating") Integer rating,
 			@Param("startDate") String startDate, @Param("endDate") String endDate);
 
-	/** 관리자 전용 리뷰 삭제 */
+	/** 管理者: レビュー削除 */
 	int deleteByIdAdmin(Long reviewId);
 }

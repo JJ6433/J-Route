@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 /**
- * 여행지 사용자 페이지
- * 목록(필터/정렬), 상세(지도·리뷰·찜 표시)
+ * 旅行先ユーザーページ
+ * 一覧(フィルタ/ソート), 詳細(地図・レビュー・お気に入り表示)
  */
 @Controller
 @RequestMapping("/place")

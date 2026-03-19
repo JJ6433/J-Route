@@ -589,11 +589,11 @@
                         let hotelName = prop.name || "宿泊施設";
                         const photoUrl = (prop.photoUrls && prop.photoUrls.length > 0) ? prop.photoUrls[0] : 'https://placehold.co/300x200/e9ecef/6c757d?text=No+Image';
                         const address = prop.wishlistName || selectedRegion;
-                        // 상세 주소 및 언어 (API에서 제공하는 경우)
+                        // 詳細住所および言語（API提供時）
                         const fullAddress = prop.address || prop.wishlistName || "住所情報なし";
                         const languages = (hotel.languages && hotel.languages.length > 0) ? hotel.languages.join(', ') : "日本語、英語など";
 
-                        // 추가 정보 추출
+                        // 追加情報抽出
                         const rating = prop.reviewScore || "なし";
                         const reviews = prop.reviewCount || "0";
                         const price = (prop.priceBreakdown && prop.priceBreakdown.grossAmount) ?
@@ -693,7 +693,7 @@
             document.getElementById('display-hotel-name').innerText = name;
             document.getElementById('display-hotel-address-full').innerText = fullAddress !== "-" ? fullAddress : address;
 
-            // 상세 정보 표시
+            // 詳細情報表示
             document.getElementById('display-hotel-rating').innerHTML = `<i class="bi bi-star-fill text-warning me-1"></i>評価: ${rating}`;
             document.getElementById('display-hotel-reviews').innerHTML = `<i class="bi bi-chat-left-text me-1"></i>口コミ: ${reviews}`;
             document.getElementById('display-hotel-price').innerHTML = `<i class="bi bi-currency-yen me-1"></i>価格帯: ${price}`;
@@ -815,7 +815,7 @@
                                     style="width: 60px; height: 60px; object-fit: cover;" alt="image">
 
                                 <div class="flex-grow-1 min-width-0">
-                                    <div class="fw-bold text-dark text-truncate" th:text="${wish.placeName}">項目명</div>
+                                    <div class="fw-bold text-dark text-truncate" th:text="${wish.placeName}">項目名</div>
                                     <div class="small text-muted"
                                         th:text="${wish.placeRegion != null ? wish.placeRegion : '地域情報なし'}">地域</div>
 
@@ -1059,7 +1059,7 @@
                         const insightBox = document.getElementById('long-trip-notice');
                         if (insightBox) {
                             const originalHtml = insightBox.innerHTML;
-                            insightBox.innerHTML = `<i class="bi bi-airplane-fill text-primary"></i> <span>✈️ フライト情報を読み込みました。期間, 時間 및 공항 정보를 동기화했습니다。</span>`;
+                            insightBox.innerHTML = `<i class="bi bi-airplane-fill text-primary"></i> <span>✈️ フライト情報を読み込みました。期間、時間、及び空港情報を同期しました。</span>`;
                             insightBox.classList.add('bg-primary', 'bg-opacity-10', 'border-primary');
                             setTimeout(() => {
                                 insightBox.innerHTML = originalHtml;

@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 /**
- * 掲示판 댓글용 DTO
- * Lombok 대신 명시적인 Get/Set 사용으로 안정성 확보
+ * 掲示板コメント用 DTO
+ * Lombok の代わりに明示的な Get/Set 使用で安定性確保
  */
 @Data
 public class CommentDto {
@@ -17,7 +17,7 @@ public class CommentDto {
     private Integer parentId; // 親コメントID
     private LocalDateTime createdAt;
 
-    // UI의 인데트 처리를 위한 깊이 (0: 일반 댓글, 1~5: 답글)
+    // UIインデント処理用深度 (0: 一般, 1~5: 返信)
     private int depth;
 
 

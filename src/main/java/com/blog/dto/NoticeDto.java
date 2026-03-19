@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 /**
- * 공지사항 DTO
+ * お知らせ DTO
  */
 @Data
 public class NoticeDto {
