@@ -1,0 +1,1679 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J-Route | チーム発表スライド</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        /* ======================================================== */
+        /* BASE & THEME CSS */
+        /* ======================================================== */
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;700&display=swap');
+
+        html { font-size: 19px; }
+
+        :root {
+            --primary: #3B7DE8;
+            --primary-dark: #2563CC;
+            --accent: #E8621A;
+            --accent2: #7C3AED;
+            --success: #059669;
+            --danger: #DC2626;
+            --dark: #F0F4FF;
+            --dark2: #E4EBFF;
+            --dark3: #D8E2FF;
+            --card: rgba(255,255,255,0.97);
+            --card-border: rgba(59,125,232,0.14);
+            --text: #1A1F3C;
+            --text-muted: #5A6A8A;
+            --shadow-lg: 0 20px 60px rgba(59,125,232,0.12), 0 4px 16px rgba(0,0,0,0.06);
+            --glow: 0 0 0 1px rgba(59,125,232,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── PRESENTATION WRAPPER ─────────────────────── */
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background:
+                radial-gradient(ellipse 70% 50% at 0% 0%, rgba(59,125,232,0.10) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 50% at 100% 100%, rgba(124,58,237,0.08) 0%, transparent 55%),
+                radial-gradient(ellipse 40% 40% at 80% 10%, rgba(232,98,26,0.06) 0%, transparent 50%),
+                #F0F4FF;
+        }
+
+        .presentation::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(59,125,232,0.12) 1px, transparent 1px);
+            background-size: 36px 36px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ─── SLIDES ────────────────────────────────────── */
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 60px;
+            opacity: 0;
+            transform: translateX(60px) scale(0.98);
+            transition: all 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+        .slide.previous {
+            opacity: 0;
+            transform: translateX(-60px) scale(0.98);
+        }
+
+        /* ─── CARD ──────────────────────────────────────── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            width: 100%;
+            max-width: 1440px;
+            height: calc(100vh - 80px);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent2), var(--accent));
+            border-radius: 28px 28px 0 0;
+            z-index: 2;
+        }
+
+        /* ─── SLIDE HEADER BAR ──────────────────────────── */
+        .slide-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 26px 44px;
+            border-bottom: 1px solid rgba(59,125,232,0.1);
+            flex-shrink: 0;
+            background: linear-gradient(135deg, rgba(59,125,232,0.04) 0%, rgba(255,255,255,0) 60%);
+        }
+        .part-tag {
+            background: linear-gradient(135deg, var(--primary), var(--accent2));
+            color: white;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 5px 16px;
+            border-radius: 50px;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(59,125,232,0.3);
+        }
+        .slide-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+        .header-accent-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, rgba(59,125,232,0.2), transparent);
+        }
+        .slide-number {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            background: rgba(59,125,232,0.06);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(59,125,232,0.12);
+        }
+
+        /* ─── SLIDE BODY ────────────────────────────────── */
+        .slide-body { flex: 1; display: flex; gap: 0; overflow: hidden; }
+
+        /* ─── INFO PANEL ────────────────────────────────── */
+        .info-panel {
+            width: 340px; flex-shrink: 0; padding: 36px 40px;
+            border-right: 1px solid rgba(59,125,232,0.1); display: flex; flex-direction: column; gap: 22px; overflow-y: auto;
+            background: linear-gradient(180deg, rgba(59,125,232,0.03) 0%, rgba(255,255,255,0) 100%);
+        }
+        .info-panel::-webkit-scrollbar { width: 4px; }
+        .info-panel::-webkit-scrollbar-thumb { background: rgba(59,125,232,0.2); border-radius: 4px; }
+
+        .info-label {
+            font-size: 0.68rem; font-weight: 800; letter-spacing: 0.14em;
+            text-transform: uppercase; color: var(--primary); margin-bottom: 8px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .info-label::before {
+            content: ''; display: inline-block; width: 3px; height: 12px;
+            background: linear-gradient(to bottom, var(--primary), var(--accent2)); border-radius: 2px;
+        }
+        .info-text { font-size: 0.97rem; color: var(--text); line-height: 1.75; }
+        .info-text p { margin-bottom: 10px; }
+        .info-text ul { padding-left: 18px; }
+        .info-text li { margin-bottom: 8px; color: var(--text-muted); font-size: 0.93rem; }
+
+        .badge-tech {
+            display: inline-block; background: linear-gradient(135deg, rgba(59,125,232,0.1), rgba(59,125,232,0.06));
+            border: 1px solid rgba(59,125,232,0.22); color: var(--primary); padding: 4px 12px;
+            border-radius: 6px; font-size: 0.8rem; font-weight: 600; margin: 3px 3px 3px 0;
+        }
+        .badge-danger { background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.04)); border-color: rgba(220,38,38,0.22); color: var(--danger); }
+        .badge-success { background: linear-gradient(135deg, rgba(5,150,105,0.08), rgba(5,150,105,0.04)); border-color: rgba(5,150,105,0.22); color: var(--success); }
+        .badge-accent { background: linear-gradient(135deg, rgba(232,98,26,0.1), rgba(232,98,26,0.05)); border-color: rgba(232,98,26,0.22); color: var(--accent); }
+
+        /* ─── VISUAL PANEL ──────────────────────────────── */
+        .visual-panel {
+            flex: 1; padding: 36px 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .visual-panel img { width: 100%; height: 100%; object-fit: contain; border-radius: 16px; box-shadow: 0 12px 40px rgba(59,125,232,0.12); }
+        .visual-panel-full {
+            flex: 1; padding: 30px 40px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;
+        }
+        .visual-panel-full img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; box-shadow: 0 12px 40px rgba(59,125,232,0.12); }
+        .media-content { box-shadow: 0 10px 30px rgba(59,125,232,0.15); width: 100%; height: 100%; object-fit: cover; border-radius: 16px; background: rgba(0,0,0,0.05); border: 1px solid rgba(59,125,232,0.1); }
+
+        /* ─── GRID LAYOUTS ──────────────────────────────── */
+        .full-pad { flex: 1; padding: 36px 44px; overflow-y: auto; }
+        .full-pad::-webkit-scrollbar { width: 4px; }
+        .full-pad::-webkit-scrollbar-thumb { background: rgba(59,125,232,0.2); border-radius: 4px; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .four-col { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+
+        /* ─── HIGHLIGHT CARD ────────────────────────────── */
+        .h-card {
+            background: #fff; border: 1px solid rgba(59,125,232,0.12); border-radius: 18px; padding: 28px 30px; transition: transform 0.25s, box-shadow 0.25s; box-shadow: 0 2px 12px rgba(59,125,232,0.06); height: 100%;
+        }
+        .h-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(59,125,232,0.14); }
+        .h-card-icon { font-size: 2.2rem; margin-bottom: 14px; display: block; }
+        .h-card h4 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+        .h-card p, .h-card li { font-size: 0.9rem; color: var(--text-muted); line-height: 1.65; }
+        .h-card ul { padding-left: 16px; }
+        .h-card.primary-border { border-color: rgba(59,125,232,0.3); border-left: 3px solid var(--primary); background: rgba(59, 125, 232, 0.08); }
+        .h-card.accent-border { border-color: rgba(232,98,26,0.3); border-left: 3px solid var(--accent); background: rgba(232, 98, 26, 0.08); }
+        .h-card.success-border { border-color: rgba(5,150,105,0.3); border-left: 3px solid var(--success); }
+        .h-card.warning-border { border-color: rgba(217,119,6,0.3); border-left: 3px solid #D97706; }
+
+        /* ─── COVER SLIDE (Clean Theme) ─────────────────── */
+        #slide-1 .card { justify-content: center; align-items: center; background: linear-gradient(135deg, #ffffff 0%, #F0F4FF 100%); }
+        #slide-1 .card::before { display: block; }
+        .cover-content { 
+            position: relative; z-index: 2; text-align: center; padding: 40px; width: 80%; 
+            max-width: 1100px; /* 900px에서 1100px로 넓혀서 카드가 3개 들어갈 자리를 만듭니다 */
+            margin-top: 60px; /* 타이틀(J-Route)을 아래로 살짝 내리기 위해 위쪽 여백을 줍니다 */
+        }
+        .cover-logo { font-size: 5.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary) 0%, var(--accent2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.02em; line-height: 1; margin-bottom: 12px; }
+        .cover-sub { font-size: 1.15rem; color: var(--text-muted); margin-bottom: 40px; font-weight: 400; line-height: 1.6; }
+        .cover-divider { width: 60px; height: 3px; background: linear-gradient(to right, var(--primary), var(--accent)); margin: 0 auto 40px; border-radius: 2px; }
+        .cover-team { 
+            display: flex; justify-content: center; gap: 30px; 
+            flex-wrap: nowrap; /* wrap을 nowrap으로 바꿔서 카드가 밑으로 떨어지지 않게 강제합니다 */
+        }
+        .cover-member { background: #fff; border: 1px solid var(--card-border); border-radius: 16px; padding: 20px 28px; text-align: center; box-shadow: 0 4px 16px rgba(59,125,232,0.06); }
+        .cover-member-name { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+        .cover-member-role { font-size: 0.85rem; color: var(--primary); font-weight: 500; }
+        .cover-member.me { border-color: rgba(232,98,26,0.3); background: rgba(232,98,26,0.04); }
+        .cover-member.me .cover-member-role { color: var(--accent); }
+        
+        .github-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 6px 14px; font-size: 0.8rem; font-weight: 600; color: var(--primary); background: rgba(59,125,232,0.05); border: 1px solid rgba(59,125,232,0.15); border-radius: 8px; text-decoration: none; transition: all 0.3s ease; }
+        .github-btn:hover { background: rgba(59,125,232,0.1); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,125,232,0.1); }
+        .cover-member.me .github-btn { color: var(--accent); background: rgba(232,98,26,0.05); border-color: rgba(232,98,26,0.15); }
+        .cover-member.me .github-btn:hover { background: rgba(232,98,26,0.1); box-shadow: 0 4px 12px rgba(232,98,26,0.1); }
+
+        /* ─── ARCH DIAGRAM & TECH STACK ─────────────────── */
+        .arch-block { background: #F4F7FF; border: 1px solid rgba(59,125,232,0.15); border-radius: 14px; padding: 18px 24px; text-align: center; font-size: 0.9rem; font-weight: 600; color: var(--text); min-width: 110px; box-shadow: 0 2px 8px rgba(59,125,232,0.06); }
+        .arch-block i { font-size: 1.8rem; display: block; margin-bottom: 8px; }
+        .arch-block.primary-bg { background: linear-gradient(135deg, rgba(59,125,232,0.12), rgba(43,100,200,0.07)); border-color: rgba(59,125,232,0.28); }
+        .arch-block.accent-bg { background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(109,40,217,0.07)); border-color: rgba(124,58,237,0.28); }
+        .arch-block.neutral-bg { background: rgba(59,125,232,0.05); }
+        .arch-arrow { color: var(--primary); font-size: 1.8rem; display: flex; align-items: center; }
+        
+        .tech-tag { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, rgba(59,125,232,0.07), rgba(59,125,232,0.03)); border: 1px solid rgba(59,125,232,0.18); border-radius: 8px; padding: 6px 14px; font-size: 0.85rem; font-weight: 600; color: var(--primary); margin: 4px; transition: all 0.2s; }
+        .tech-tag:hover { background: rgba(59,125,232,0.12); box-shadow: 0 2px 8px rgba(59,125,232,0.1); }
+
+        /* ─── DOC BUTTONS ───────────────────────────────── */
+        .doc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 10px; }
+        .doc-btn { background: linear-gradient(135deg, #fff, #F4F7FF); border: 1px solid rgba(59,125,232,0.18); border-radius: 20px; padding: 36px 28px; text-align: center; text-decoration: none; color: var(--text); font-weight: 700; font-size: 1.15rem; display: flex; flex-direction: column; align-items: center; gap: 16px; transition: all 0.3s ease; cursor: pointer; box-shadow: 0 2px 12px rgba(59,125,232,0.06); }
+        .doc-btn i { font-size: 2.8rem; color: var(--primary); transition: transform 0.3s; }
+        .doc-btn:hover { background: linear-gradient(135deg, #EDF2FF, #E0EAFF); border-color: rgba(59,125,232,0.4); transform: translateY(-5px); box-shadow: 0 16px 40px rgba(59,125,232,0.14); }
+        .doc-btn:hover i { transform: scale(1.1); }
+
+        /* ─── TROUBLESHOOTING ───────────────────────────── */
+        .ts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; height: 100%; align-items: start; }
+        .ts-card { border-radius: 18px; padding: 30px; display: flex; flex-direction: column; gap: 14px; }
+        .ts-card h3 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .ts-card p, .ts-card li { font-size: 0.92rem; line-height: 1.7; color: var(--text-muted); }
+        .ts-card ul { padding-left: 18px; }
+        .ts-problem { background: linear-gradient(135deg, rgba(220,38,38,0.05), rgba(220,38,38,0.02)); border: 1px solid rgba(220,38,38,0.18); border-left: 4px solid var(--danger); }
+        .ts-solution { background: linear-gradient(135deg, rgba(5,150,105,0.05), rgba(5,150,105,0.02)); border: 1px solid rgba(5,150,105,0.18); border-left: 4px solid var(--success); }
+        .ts-flow { grid-column: 1 / -1; background: linear-gradient(135deg, #F4F7FF, #fff); border: 1px solid rgba(59,125,232,0.14); border-radius: 18px; padding: 24px 30px; }
+        .ts-flow-steps { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
+        .ts-step { background: linear-gradient(135deg, #EDF2FF, #E0EAFF); border: 1px solid rgba(59,125,232,0.2); border-radius: 10px; padding: 8px 18px; font-size: 0.85rem; font-weight: 600; color: var(--text); white-space: nowrap; }
+        .ts-step-arrow { color: var(--primary); font-size: 1.2rem; padding: 0 8px; }
+
+        /* ─── NAV ───────────────────────────────────────── */
+        .nav-controls { position: fixed; bottom: 28px; right: 44px; display: flex; gap: 12px; z-index: 1000; }
+        .nav-btn { width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); border: 1px solid rgba(59,125,232,0.2); color: var(--primary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; transition: all 0.2s; box-shadow: 0 4px 16px rgba(59,125,232,0.12); }
+        .nav-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 6px 20px rgba(59,125,232,0.3); transform: scale(1.05); }
+        .nav-btn:disabled { opacity: 0.3; cursor: default; transform: none; }
+        .slide-info { position: fixed; bottom: 28px; left: 44px; display: flex; align-items: center; gap: 14px; z-index: 1000; }
+        .slide-num { font-size: 0.88rem; font-weight: 600; color: var(--primary); background: rgba(255,255,255,0.9); padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(59,125,232,0.18); box-shadow: 0 2px 8px rgba(59,125,232,0.08); }
+        .progress-bar { width: 140px; height: 4px; background: rgba(59,125,232,0.1); border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(to right, var(--primary), var(--accent2)); border-radius: 4px; transition: width 0.5s ease; box-shadow: 0 0 6px rgba(59,125,232,0.3); }
+
+        /* アニメーション */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+        .slide.active .card > * { animation: fadeInUp 0.6s ease forwards; }
+        .section-title { font-size: 1.05rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, rgba(59,125,232,0.2), transparent); }
+
+        /* ======================================================== */
+        /* イ・スンウク パート: クリック拡大(Lightbox) 及び ハイライト効果 CSS */
+        /* ======================================================== */
+        .clickable-img {
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .clickable-img:hover {
+            transform: scale(1.01);
+            box-shadow: 0 15px 40px rgba(91,156,246,0.4) !important;
+        }
+        .lightbox-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .lightbox-overlay.active {
+            opacity: 1; pointer-events: auto;
+        }
+        .lightbox-img {
+            max-width: 90vw; max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            object-fit: contain;
+        }
+        .lightbox-overlay.active .lightbox-img {
+            transform: scale(1);
+        }
+        .close-btn {
+            position: absolute; top: 30px; right: 40px;
+            color: white; font-size: 2.5rem;
+            cursor: pointer; background: none; border: none;
+            transition: transform 0.2s;
+        }
+        .close-btn:hover { transform: scale(1.1); color: var(--danger); }
+        .highlight-box {
+            position: absolute; pointer-events: none; opacity: 0.8; z-index: 10;
+        }
+        
+        /* フラグメント（順次表示）アニメーション */
+        .fragment {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: translateY(10px);
+        }
+        .fragment.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="presentation">
+
+        <div class="slide active" id="slide-1">
+            <div class="card">
+                <div class="cover-content">
+                    <div class="cover-logo">J-Route</div>
+                    <p class="cover-sub">
+                        AIベースのカスタマイズ型日本旅行プランナー<br>
+                        <span style="font-size:0.9rem;">生成AIと外部公共APIを融合したインテリジェント・トラベルサービス</span>
+                    </p>
+                    <div class="cover-divider"></div>
+                    <div class="cover-team">
+                        <div class="cover-member">
+                            <div class="cover-member-name">イ・ジュミョン</div>
+                            <div class="cover-member-role">👑 Architecture · AI Core · Security</div>
+                            <a href="https://github.com/lento11260-dotcom" target="_blank" class="github-btn">
+                                <i class="bi bi-github"></i> lento11260-dotcom
+                            </a>
+                        </div>
+                        <div class="cover-member">
+                            <div class="cover-member-name">チョン・ジェファン</div>
+                            <div class="cover-member-role">Business Logic · DB設計</div>
+                            <a href="https://github.com/JJ6433" target="_blank" class="github-btn">
+                                <i class="bi bi-github"></i> JJ6433
+                            </a>
+                        </div>
+                        <div class="cover-member">
+                            <div class="cover-member-name">イ・スンウク</div>
+                            <div class="cover-member-role">UXデザイン · Frontend</div>
+                            <a href="https://github.com/asd4861" target="_blank" class="github-btn">
+                                <i class="bi bi-github"></i> asd4861
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-2">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 1 · 導入及び企画意図</span>
+                    <h2>企画背景 · Pain Point &amp; Solution</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">02 / 26</span>
+                </div>
+                <div class="slide-body">
+                    <div class="info-panel">
+                        <div>
+                            <div class="info-label"><i class="bi bi-exclamation-triangle"></i> 問題の定義</div>
+                            <div class="info-text">
+                                <p>既存の旅行アプリは情報は多いですが、<strong style="color:var(--primary);">「自分だけの日程」</strong>を組んでくれない不便さがあります。</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="info-label"><i class="bi bi-check2-circle"></i> 解決策</div>
+                            <div class="info-text">
+                                <p>AIが最適動線を計画し、リアルタイム気象・Googleマップデータを一箇所で統合提供するワンストッププラットフォーム。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visual-panel" style="padding: 32px 40px; flex-direction: column; gap: 20px; justify-content: flex-start; align-items: stretch; overflow-y: auto;">
+                        <div class="h-card accent-border" style="margin-bottom:0;">
+                            <span class="h-card-icon">😤</span>
+                            <h4>既存の旅行準備における不便さ</h4>
+                            <ul>
+                                <li>Google Maps、天気アプリ、航空券サイトを何度も往復する手間</li>
+                                <li>個人の好みが反映されず、結局手書きでメモを繰り返す不便さ</li>
+                                <li>最適動線なしに組まれた非効率な旅行日程</li>
+                            </ul>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:12px; padding: 0 10px;">
+                            <div style="flex:1; height:1px; background:linear-gradient(to right, transparent, var(--primary));"></div>
+                            <i class="bi bi-arrow-down-circle-fill" style="font-size:1.8rem; color:var(--primary);"></i>
+                            <div style="flex:1; height:1px; background:linear-gradient(to left, transparent, var(--primary));"></div>
+                        </div>
+                        <div class="h-card primary-border" style="margin-bottom:0;">
+                            <span class="h-card-icon">🤖</span>
+                            <h4>J-Routeによる解決策</h4>
+                            <ul>
+                                <li><strong style="color:var(--primary);">Gemini AI</strong>が地域・日付・テーマを分析し、最適化された旅行動線を自動生成</li>
+                                <li><strong style="color:var(--primary);">Open-Meteo</strong>のリアルタイム気象データと天気に基づいた服装ガイドを提供</li>
+                                <li><strong style="color:var(--primary);">Google Maps</strong>で場所・グルメ・観光地情報を地図と共に連動提供</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-3">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 1 · 導入及び企画意図</span>
+                    <h2>プロジェクト目標及び差別化ポイント</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">03 / 26</span>
+                </div>
+                <div class="slide-body">
+                    <div class="full-pad" style="display:flex; flex-direction:column; gap:20px;">
+                        <div class="two-col">
+                            <div class="h-card primary-border">
+                                <span class="h-card-icon">🧠</span>
+                                <h4>Data-Driven &amp; AI-Native サービス</h4>
+                                <p>単なるCRUD掲示板を超え、<strong style="color:var(--primary);">AIが生成したデータをビジネスロジックの中核</strong>に据えた設計。ユーザーの入力がAIを通じて構造化された結果に変換され、DBに永続化されます。</p>
+                            </div>
+                            <div class="h-card accent-border">
+                                <span class="h-card-icon">🔗</span>
+                                <h4>API オーケストレーション</h4>
+                                <p>Google Maps、Open-Meteo、Gemini AIなど、<strong style="color:var(--accent);">3種類以上の異種API</strong>を単一のビジネスロジック内で結合・制御する統合アーキテクチャを実装しました。</p>
+                            </div>
+                        </div>
+                        <div class="three-col">
+                            <div class="h-card success-border" style="text-align:center;">
+                                <span class="h-card-icon" style="text-align:center;">✨</span>
+                                <h4 style="text-align:center;">AI パーソナライズ</h4>
+                                <p style="text-align:center;">ユーザー条件(地域/日付/テーマ)に合わせた完全オーダーメイド日程を自動生成</p>
+                            </div>
+                            <div class="h-card success-border" style="text-align:center;">
+                                <span class="h-card-icon" style="text-align:center;">⛅</span>
+                                <h4 style="text-align:center;">リアルタイム気象連動</h4>
+                                <p style="text-align:center;">16日間の予報に基づいた天気・服装ガイドを視覚化</p>
+                            </div>
+                            <div class="h-card success-border" style="text-align:center;">
+                                <span class="h-card-icon" style="text-align:center;">🗺️</span>
+                                <h4 style="text-align:center;">最適動線の可視化</h4>
+                                <p style="text-align:center;">Googleマップ連動により、名所・グルメを地図上で直感的に探索</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-4">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 1 · 導入及び企画意図</span>
+                    <h2>プロジェクトアーキテクチャ及び技術スタック</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">04 / 26</span>
+                </div>
+                <div class="slide-body">
+                    <div class="full-pad" style="display:flex; flex-direction:column; gap:28px;">
+                        <div>
+                            <div class="section-title"><i class="bi bi-diagram-3"></i> System Architecture</div>
+                            <div style="display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; padding: 10px 0;">
+                                <div class="arch-block primary-bg"><i class="bi bi-person-fill" style="color:var(--primary);"></i>User<br><span style="font-size:0.75rem; color:var(--text-muted);">Browser</span></div>
+                                <div class="arch-arrow"><i class="bi bi-arrow-right"></i></div>
+                                <div class="arch-block primary-bg"><i class="bi bi-display" style="color:var(--primary);"></i>Frontend<br><span style="font-size:0.75rem; color:var(--text-muted);">Thymeleaf / JS</span></div>
+                                <div class="arch-arrow"><i class="bi bi-arrow-left-right"></i></div>
+                                <div class="arch-block accent-bg"><i class="bi bi-server" style="color:var(--accent2);"></i>Spring Boot<br><span style="font-size:0.75rem; color:var(--text-muted);">Backend Server</span></div>
+                                <div class="arch-arrow"><i class="bi bi-arrow-left-right"></i></div>
+                                <div class="arch-block neutral-bg"><i class="bi bi-database" style="color:var(--success);"></i>MySQL<br><span style="font-size:0.75rem; color:var(--text-muted);">Database</span></div>
+                            </div>
+                            <div style="display:flex; align-items:center; justify-content:center; margin-top:8px;">
+                                <div style="width:1px; height:30px; background:linear-gradient(to bottom, var(--card-border), var(--primary)); margin: 0 auto;"></div>
+                            </div>
+                            <div style="display:flex; align-items:center; justify-content:center; gap:20px; padding: 0 60px;">
+                                <div class="arch-block neutral-bg" style="flex:1; max-width:200px;"><i class="bi bi-robot" style="color:#fbbf24;"></i>Gemini AI<br><span style="font-size:0.75rem; color:var(--text-muted);">Google AI API</span></div>
+                                <div class="arch-block neutral-bg" style="flex:1; max-width:200px;"><i class="bi bi-map" style="color:#34d399;"></i>Google Maps<br><span style="font-size:0.75rem; color:var(--text-muted);">Places SDK</span></div>
+                                <div class="arch-block neutral-bg" style="flex:1; max-width:200px;"><i class="bi bi-cloud-sun" style="color:#60a5fa;"></i>Open-Meteo<br><span style="font-size:0.75rem; color:var(--text-muted);">Weather API</span></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="section-title"><i class="bi bi-stack"></i> Technology Stack</div>
+                            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                                <span class="tech-tag"><i class="bi bi-cup-hot-fill" style="color:#f59e0b;"></i> Java 17</span>
+                                <span class="tech-tag"><i class="bi bi-lightning-fill" style="color:#6ee7b7;"></i> Spring Boot 3.2</span>
+                                <span class="tech-tag"><i class="bi bi-shield-fill-check" style="color:#818cf8;"></i> Spring Security</span>
+                                <span class="tech-tag"><i class="bi bi-database-fill" style="color:#f87171;"></i> MySQL</span>
+                                <span class="tech-tag"><i class="bi bi-arrow-repeat" style="color:#60a5fa;"></i> MyBatis 3.x</span>
+                                <span class="tech-tag"><i class="bi bi-layout-text-window" style="color:#a78bfa;"></i> Thymeleaf</span>
+                                <span class="tech-tag"><i class="bi bi-filetype-js" style="color:#fbbf24;"></i> JavaScript / AJAX</span>
+                                <span class="tech-tag"><i class="bi bi-robot" style="color:#34d399;"></i> Gemini API</span>
+                                <span class="tech-tag"><i class="bi bi-map-fill" style="color:#4ade80;"></i> Google Maps SDK</span>
+                                <span class="tech-tag"><i class="bi bi-graph-up" style="color:#60a5fa;"></i> Chart.js</span>
+                                <span class="tech-tag"><i class="bi bi-gear-fill" style="color:#d1d5db;"></i> Gradle</span>
+                                <span class="tech-tag"><i class="bi bi-body-text" style="color:#f472b6;"></i> Lombok</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-5">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 1 · 導入及び企画意図</span>
+                    <h2>核心設計成果物</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">05 / 26</span>
+                </div>
+                <div class="slide-body">
+                    <div class="full-pad" style="display:flex; flex-direction:column; justify-content:center; gap:16px;">
+                        <p style="color:var(--text-muted); font-size:0.95rem; text-align:center;">プロジェクト着手前に策定した4大設計成果物です。ボタンをクリックすると、関連ドキュメントを閲覧できます。</p>
+                        <div class="doc-grid" style="flex:1; max-height: 420px;">
+                            <a href="doc-requirements.html" target="_blank" class="doc-btn">
+                                <i class="bi bi-file-earmark-text-fill"></i>
+                                <div><div style="font-size:1.2rem; margin-bottom:6px;">① 要件事項分析設計図</div><div style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">機能要件 ＆ 非機能要件リスト</div></div>
+                            </a>
+                            <a href="doc-system.html" target="_blank" class="doc-btn">
+                                <i class="bi bi-diagram-3-fill"></i>
+                                <div><div style="font-size:1.2rem; margin-bottom:6px;">② システム設計図</div><div style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">全体アーキテクチャ · クラス図 · シーケンス図</div></div>
+                            </a>
+                            <a href="doc-ux.html" target="_blank" class="doc-btn">
+                                <i class="bi bi-window-sidebar"></i>
+                                <div><div style="font-size:1.2rem; margin-bottom:6px;">③ 画面実装設計図 (UI/UX)</div><div style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">ワイヤーフレーム · 画面遷移図 · コンポーネント設計</div></div>
+                            </a>
+                            <a href="doc-erd.html" target="_blank" class="doc-btn">
+                                <i class="bi bi-database-fill-gear"></i>
+                                <div><div style="font-size:1.2rem; margin-bottom:6px;">④ データベース設計図 (ERD)</div><div style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">実体関連図 (ERD) · テーブル明細書</div></div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-6">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 2 · コア機能 (イ・ジュミョン)</span>
+                    <h2>ユーザーのカスタマイズ型パーソナライズ · ウィッシュリスト ＆ ログイン認証</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">06 / 26</span>
+                </div>
+                <div class="slide-body">
+                    <div class="info-panel">
+                        <div>
+                            <div class="info-label">関連技術</div>
+                            <span class="badge-tech">Spring Security</span>
+                            <span class="badge-tech">Session 管理</span>
+                            <span class="badge-tech">AJAX</span>
+                            <span class="badge-tech">MyBatis</span>
+                        </div>
+                        <div>
+                            <div class="info-label">担当者</div>
+                            <span class="badge-accent fw-bold">イ・ジュミョン</span>
+                        </div>
+                        <div>
+                            <div class="info-label">核心実装</div>
+                            <div class="info-text">
+                                <ul>
+                                    <li>Spring Security ベースのログイン / ログアウト / 会員登録</li>
+                                    <li>BCrypt 暗号化によるパスワードの安全な保存</li>
+                                    <li>認証済みユーザーのみアクセス可能なマイページ（認可処理）</li>
+                                    <li>AJAX ベースの更新なしウィッシュリストトグル（お気に入り登録）</li>
+                                    <li>category カラムによる多様なアイテムタイプを単一テーブルで管理</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visual-panel" style="flex-direction:column; gap:0; padding:24px 40px;">
+                        <div style="width:100%; height:100%; border-radius:12px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.15);">
+                            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/dnGF4DEZuMU?si=09L-mKan-pPhHpsv" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen style="display:block; min-height:340px;"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-7">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 2 · コア機能 (イ・ジュミョン)</span>
+                    <h2>[Core 1] AI 旅行プランナー · Gemini API 連動</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">07 / 26</span>
+                </div>
+                <div class="slide-body">
+                    <div class="info-panel">
+                        <div>
+                            <div class="info-label">関連技術</div>
+                            <span class="badge-tech">Gemini API</span>
+                            <span class="badge-tech">Spring RestClient</span>
+                            <span class="badge-tech">JSON パース</span>
+                            <span class="badge-tech">MyBatis</span>
+                        </div>
+                        <div>
+                            <div class="info-label">核心実装</div>
+                            <div class="info-text">
+                                <ul>
+                                    <li>地域 / 日付 / テーマに基づいた動的プロンプトの構築</li>
+                                    <li>Gemini API 非同期通信及びストリーミング処理</li>
+                                    <li>JSON レスポンスを DTOに 逆シリアル化後 DB 永続化</li>
+                                    <li>2つの AI 関数の連動 (日程生成 + 宿泊先最適化)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="info-label">担当者</div>
+                            <span class="badge-accent fw-bold">イ・ジュミョン</span>
+                        </div>
+                        <div>
+                            <div class="info-label">貢献要約</div>
+                            <div class="info-text" style="font-size:0.88rem;">
+                                <p>本プロジェクトの核心価値である AI 連動全体を設計・実装。単なる API 呼び出しを超え、プロンプトエンジニアリングからデータの永続化まで End-to-End の処理パイプラインを構築。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visual-panel-full" style="flex-direction:column; gap:0; padding:0;">
+                        <div style="display:block; width:100%; height:100%; border-radius:12px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.3); flex:1; min-height:320px;">
+                            <iframe width="560" height="315" src="https://www.youtube.com/embed/VEtEbI3iUTw?si=AI5XbENRbvuPeADz" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen style="display:block; width:100%; height:100%; min-height:320px;"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-8">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 2 · コア機能 (イ・ジュミョン)</span>
+                    <h2>AI 2種オーケストレーション · Dual Gemini 連動設計</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">08 / 26</span>
+                </div>
+                <div class="slide-body">
+                    <div class="full-pad" style="display:flex; flex-direction:column; gap:22px;">
+                        <p style="color:var(--text-muted); font-size:0.92rem; text-align:center;">単一の API 呼び出しではなく、<strong style="color:var(--primary);">2つの Gemini AI を順次連動させ</strong>、精度と品質を段階的に引き上げる独自パイプラインを設計・実装。</p>
+                        <div style="display:flex; align-items:stretch; gap:14px; flex-wrap:wrap; justify-content:center;">
+                            <div style="flex:1; min-width:170px; background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.35); border-radius:14px; padding:18px 16px; display:flex; flex-direction:column; gap:8px;">
+                                <div style="font-size:1.6rem; text-align:center;">📥</div>
+                                <div style="font-weight:700; font-size:0.95rem; color:#a78bfa; text-align:center;">① ユーザー入力</div>
+                                <p style="font-size:0.82rem; color:var(--text-muted); text-align:center; margin:0;">地域 / 旅行日数 / テーマ</p>
+                            </div>
+                            <div style="display:flex; align-items:center; color:var(--text-muted);">→</div>
+                            <div style="flex:1.3; min-width:190px; background:rgba(99,102,241,0.1); border:2px solid rgba(99,102,241,0.5); border-radius:14px; padding:18px 16px; display:flex; flex-direction:column; gap:8px; position:relative;">
+                                <div style="font-size:1.6rem; text-align:center;">🧠</div>
+                                <div style="font-weight:700; font-size:0.95rem; color:var(--primary); text-align:center;">② AI ① · 日程生成</div>
+                                <p style="font-size:0.82rem; color:var(--text-muted); text-align:center; margin:0;">観光地・グルメ・宿泊先を含む<br>旅行日程 JSON の生成</p>
+                                <div style="text-align:center; margin-top:4px;"><span class="badge-tech" style="font-size:0.72rem;">Gemini API</span> <span class="badge-tech" style="font-size:0.72rem;">Prompt Engineering</span></div>
+                            </div>
+                            <div style="display:flex; align-items:center; color:var(--text-muted);">→</div>
+                            <div style="flex:1.3; min-width:190px; background:rgba(52,211,153,0.07); border:2px solid rgba(52,211,153,0.4); border-radius:14px; padding:18px 16px; display:flex; flex-direction:column; gap:8px;">
+                                <div style="font-size:1.6rem; text-align:center;">⚡</div>
+                                <div style="font-weight:700; font-size:0.95rem; color:var(--success); text-align:center;">③ AI ② · 動線最適化</div>
+                                <p style="font-size:0.82rem; color:var(--text-muted); text-align:center; margin:0;">「宿泊先を始終点に配置する」<br>プロンプト条件による動線精製</p>
+                                <div style="text-align:center; margin-top:4px;"><span class="badge-tech" style="font-size:0.72rem;">Prompt Tuning</span> <span class="badge-tech" style="font-size:0.72rem;">JSON Re-Parsing</span></div>
+                            </div>
+                            <div style="display:flex; align-items:center; color:var(--text-muted);">→</div>
+                            <div style="flex:1; min-width:170px; background:rgba(251,191,36,0.07); border:1px solid rgba(251,191,36,0.35); border-radius:14px; padding:18px 16px; display:flex; flex-direction:column; gap:8px;">
+                                <div style="font-size:1.6rem; text-align:center;">💾</div>
+                                <div style="font-weight:700; font-size:0.95rem; color:#fbbf24; text-align:center;">④ DB 永続化</div>
+                                <p style="font-size:0.82rem; color:var(--text-muted); text-align:center; margin:0;">DTO 逆シリアル化 →<br>MyBatis でマイページ保存</p>
+                            </div>
+                        </div>
+                        <div class="two-col" style="gap:14px;">
+                            <div class="h-card primary-border" style="gap:8px;">
+                                <span class="h-card-icon">🎯</span>
+                                <h4>設計上の核心判断</h4>
+                                <p style="font-size:0.85rem;">1回の API 呼び出しに頼らず、2段構成にすることで応答品質を安定させた。AI を「生成器」と「精製器」に役割分離。</p>
+                            </div>
+                            <div class="h-card accent-border" style="gap:8px;">
+                                <span class="h-card-icon">🔧</span>
+                                <h4>技術的チャレンジ</h4>
+                                <p style="font-size:0.85rem;">AI の自然言語応答を JSON スキーマで強制的に構造化し、DTO にマッピングする End-to-End パイプラインを独力で構築。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-9">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 2 · コア機能 (イ・ジュミョン)</span>
+                    <h2>AI プロンプトエンジニアリング ＆ JSON パース問題の解決</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">09 / 26</span>
+                </div>
+                <div class="slide-body">
+                    <div class="full-pad" style="display:flex; flex-direction:column; gap:20px;">
+                        <div class="ts-grid">
+                            <div class="ts-card ts-problem">
+                                <h3 style="color:var(--danger);"><i class="bi bi-bug-fill"></i> 問題点 · Problem</h3>
+                                <p>AI(Gemini) が自然言語 (文章) で回答するため、ビュー (Thymeleaf) でレンダリングが不可能な問題が発生。定型データの抽出ができず、DB 保存も不可.</p>
+                                <div style="margin-top:8px;">
+                                    <span class="badge-tech badge-danger">文章応答</span>
+                                    <span class="badge-tech badge-danger">パース失敗</span>
+                                    <span class="badge-tech badge-danger">レンダリングエラー</span>
+                                </div>
+                            </div>
+                            <div class="ts-card ts-solution">
+                                <h3 style="color:var(--success);"><i class="bi bi-lightbulb-fill"></i> 解決策 · Solution</h3>
+                                <p>プロンプト内で <strong style="color:var(--success);">「必ず指定された JSON 形式のみで応答すること」</strong> を明示的に強制。さらに 「宿泊先が日程の最初と最後になるよう動線を最適化する」 プロンプトチューニングを適用。</p>
+                                <div style="margin-top:8px;">
+                                    <span class="badge-tech badge-success">JSON 形式の強制</span>
+                                    <span class="badge-tech badge-success">プロンプトチューニング</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ts-flow">
+                            <div class="info-label" style="margin-bottom:14px;"><i class="bi bi-arrow-right-circle"></i> 解決プロセス Flow</div>
+                            <div class="ts-flow-steps">
+                                <div class="ts-step">① 文章応答の確認</div>
+                                <span class="ts-step-arrow">→</span>
+                                <div class="ts-step">② プロンプトに JSON スキーマ明示</div>
+                                <span class="ts-step-arrow">→</span>
+                                <div class="ts-step">③ JSON パースロジックの実装</div>
+                                <span class="ts-step-arrow">→</span>
+                                <div class="ts-step">④ DTO 逆シリアル化に成功</div>
+                                <span class="ts-step-arrow">→</span>
+                                <div class="ts-step" style="border-color:rgba(52,211,153,0.5); color:var(--success);">⑤ DB 保存 ＆ レンダリング完了 ✓</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-10">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 2 · コア機能 (イ・ジュミョン)</span>
+                    <h2>[Core 2] Gourmet &amp; Cafe · Google Places API</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">10 / 26</span>
+                </div>
+                <div class="slide-body">
+                    <div class="info-panel">
+                        <div>
+                            <div class="info-label">関連技術</div>
+                            <span class="badge-tech">Google Maps SDK</span>
+                            <span class="badge-tech">Places API</span>
+                            <span class="badge-tech">JavaScript</span>
+                            <span class="badge-tech">AJAX</span>
+                        </div>
+                        <div>
+                            <div class="info-label">核心実装</div>
+                            <div class="info-text">
+                                <ul>
+                                    <li>リアルタイムの地域ベースのグルメ ＆ カフェ検索環境の構築</li>
+                                    <li>都市別検索時に地図マーカーとリストの同期連動</li>
+                                    <li>Google Places 詳細情報の自動連動 (評価 · 住所 · 写真)</li>
+                                    <li>ウィッシュリストお気に入り登録機能とバックエンドの連動</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="info-label">差別化ポイント</div>
+                            <div class="info-text" style="font-size:0.88rem;">
+                                <p>単なるリスト出力を超え <strong style="color:var(--primary);">地図マーカーとカードがリアルタイムで連動</strong> して反応するインタラクティブな UI を実装。ユーザーが直感的に場所を探索可能。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visual-panel" style="flex-direction:column; gap:0; padding:24px 40px;">
+                        <div style="width:100%; height:100%; border-radius:12px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.15);">
+                            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/s4faKEWA8Ag?si=cTPvSwoZQcFhpTi8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen style="display:block; min-height:340px;"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-11">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 2 · コア機能 (イ・ジュミョン)</span>
+                    <h2>Data Truncation エラー解決 · DB スキーマ マイグレーション</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">11 / 26</span>
+                </div>
+                <div class="slide-body">
+                    <div class="full-pad" style="display:flex; flex-direction:column; gap:20px;">
+                        <div class="ts-grid">
+                            <div class="ts-card ts-problem">
+                                <h3 style="color:var(--danger);"><i class="bi bi-lightning-fill"></i> 問題点 · Problem</h3>
+                                <p>Google Maps の一部 URL が <strong style="color:var(--danger);">700文字以上</strong> に達し、DB INSERT 時に <code style="background:rgba(248,113,113,0.1); padding:2px 6px; border-radius:4px; color:var(--danger);">Exception 500 · Data Truncation</code> エラーが発生。</p>
+                                <p style="margin-top:10px;">既存のカラム型が <code style="background:rgba(248,113,113,0.1); padding:2px 6px; border-radius:4px; color:var(--danger);">VARCHAR(255)</code> で設計されており、保存容量が不十分。</p>
+                            </div>
+                            <div class="ts-card ts-solution">
+                                <h3 style="color:var(--success);"><i class="bi bi-tools"></i> 解決策 · Solution</h3>
+                                <p>エラーログ分析 → DB スキーマ設計の限界把握 → <code style="background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px; color:var(--success);">VARCHAR(255)</code> を <code style="background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px; color:var(--success);">TEXT 型</code> にマイグレーション。</p>
+                                <p style="margin-top:10px;">コードレベルでの回避ではなく、<strong style="color:var(--success);">DB 層からの完璧な原因究明</strong> 及び根本解決。</p>
+                            </div>
+                        </div>
+                        <div class="ts-flow">
+                            <div class="info-label" style="margin-bottom:14px;"><i class="bi bi-arrow-right-circle"></i> 解決プロセス Flow</div>
+                            <div class="ts-flow-steps">
+                                <div class="ts-step" style="border-color:rgba(248,113,113,0.4);">① 500 エラー確認</div>
+                                <span class="ts-step-arrow">→</span>
+                                <div class="ts-step">② サーバーログ分析</div>
+                                <span class="ts-step-arrow">→</span>
+                                <div class="ts-step">③ Data Truncation 原因把握</div>
+                                <span class="ts-step-arrow">→</span>
+                                <div class="ts-step">④ ERD 再設計</div>
+                                <span class="ts-step-arrow">→</span>
+                                <div class="ts-step">⑤ VARCHAR→TEXT マイグレーション</div>
+                                <span class="ts-step-arrow">→</span>
+                                <div class="ts-step" style="border-color:rgba(52,211,153,0.5); color:var(--success);">⑥ 正常保存 ✓</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 3 · コア機能 (チョン・ジェファン)</span>
+                    <h2>J-Route バックエンド及びコア機能の実装</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">12 / 26</span> 
+                </div>
+                <div class="slide-body" style="flex-direction: column; justify-content: center; padding: 40px 60px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h3 style="font-size: 1.5rem; color: var(--text); font-weight: 700;">主要ドメインのフルスタック実装</h3>
+                        <p style="color: var(--text-muted); margin-top: 10px;">データベースのロジック設計からフロントエンドとのデータバインディングまで、バックエンド開発を主導しました。</p>
+                    </div>
+                    <div class="four-col">
+                        <div class="h-card warning-border" style="text-align: center;">
+                            <span class="h-card-icon">💾</span>
+                            <h4>Destination DB</h4>
+                            <p>動的SQLによる検索処理と<br>旅行先データの統合管理</p>
+                        </div>
+                        <div class="h-card success-border" style="text-align: center;">
+                            <span class="h-card-icon">📝</span>
+                            <h4>Community Board</h4>
+                            <p>旅行記掲示板のCRUD実装と<br>権限ベースのロジック処理</p>
+                        </div>
+                        <div class="h-card accent-border" style="text-align: center;">
+                            <span class="h-card-icon">📊</span>
+                            <h4>Admin Dashboard</h4>
+                            <p>統計データのJSON変換及び<br>エンティティの一括削除処理</p>
+                        </div>
+                        <div class="h-card primary-border" style="text-align: center;">
+                            <span class="h-card-icon">🚆</span>
+                            <h4>Transport / Pass</h4>
+                            <p>外部APIレスポンスの解析と<br>交通経路データへのマッピング</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 3 · コア機能 (チョン・ジェファン)</span>
+                    <h2>[Destination] 旅行先DB管理システム</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">13 / 26</span> 
+                </div>
+                <div class="slide-body">
+                    <div class="info-panel">
+                        <div>
+                            <div class="info-label">関連技術</div>
+                            <span class="badge-tech">Spring MVC</span>
+                            <span class="badge-tech">MySQL / MyBatis</span>
+                            <span class="badge-tech">Java</span>
+                        </div>
+                        <div>
+                            <div class="info-label">担当者</div>
+                            <span class="badge-accent fw-bold">チョン・ジェファン</span>
+                        </div>
+                        <div>
+                            <div class="info-label">実装の要点</div>
+                            <div class="info-text">
+                                <ul>
+                                    <li><strong>動的クエリの適用:</strong> MyBatisの動的SQLを活用し、地域・カテゴリ別の条件検索や並び替えを実装。</li>
+                                    <li><strong>データの集計処理:</strong> DB内の評価点とレビュー数をグループ化し、メイン画面の「TOP 3」へ自動バインディング。</li>
+                                    <li><strong>旅行先データの管理:</strong> 新規旅行先の登録、情報の修正、不要なデータの削除（CRUD）機能を実装し、効率的なデータ運用環境を構築。</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visual-panel">
+                        <div class="four-col" style="width: 100%; height: 100%; display: grid; grid-template-rows: 1fr 1fr;">
+                            <div class="h-card warning-border">
+                                <span class="h-card-icon">🗄️</span>
+                                <h4>データ構造化</h4>
+                                <p>観光地・宿泊・グルメなど、地域やカテゴリ別に旅行先データを構造化して保存および管理。</p>
+                            </div>
+                            <div class="h-card primary-border">
+                                <span class="h-card-icon">🛠️</span>
+                                <h4>データの登録・管理</h4>
+                                <p>新規旅行先の追加から詳細情報の修正、削除まで、データベースを直接管理・運用できるシステムを構築。</p>
+                            </div>
+                            <div class="h-card accent-border">
+                                <span class="h-card-icon">🔍</span>
+                                <h4>検索</h4>
+                                <p>ユーザーの検索条件に応じた柔軟なSQLを実行し、必要な情報を正確にリストアップ。</p>
+                            </div>
+                            <div class="h-card success-border">
+                                <span class="h-card-icon">⭐</span>
+                                <h4>推薦システム</h4>
+                                <p>ユーザーレビュー数と平均評価をリアルタイムで集計し、今注目のスポットを即座に算出。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 3 · コア機能 (チョン・ジェファン)</span>
+                    <h2>[Community] 旅行記掲示板システム</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">14 / 26</span> 
+                </div>
+                <div class="slide-body">
+                    <div class="info-panel">
+                        <div>
+                            <div class="info-label">関連技術</div>
+                            <span class="badge-tech">Spring Security</span>
+                            <span class="badge-tech">Java</span>
+                            <span class="badge-tech">Thymeleaf</span>
+                        </div>
+                        <div>
+                            <div class="info-label">担当者</div>
+                            <span class="badge-accent fw-bold">チョン・ジェファン</span>
+                        </div>
+                        <div>
+                            <div class="info-label">実装の要点</div>
+                            <div class="info-text">
+                                <ul>
+                                    <li><strong>CRUDとページネーション:</strong> MVCアーキテクチャに基づき、掲示物の作成、読み取り、修正、削除機能およびリストのページネーションを実装。</li>
+                                    <li><strong>アクセス制御の適用:</strong> Spring Securityを活用し、リクエストURIごとの権限（ROLE_USER/ROLE_ADMIN）ベースの認可(Authorization)処理を適用。</li>
+                                    <li><strong>セッション検証ロジック:</strong> 現在のセッションユーザーIDと掲示物の作成者IDを比較し、作成者本人または管理者権限を持つユーザーのみがDML操作を行えるように設計。</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visual-panel-full">
+                        <iframe class="media-content" 
+                                src="https://www.youtube.com/embed/4hqRA_tpTAk?si=3uk37zNdW_48jjqo&autoplay=1&mute=1&loop=1&playlist=4hqRA_tpTAk" 
+                                title="YouTube video player" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 3 · コア機能 (チョン・ジェファン)</span>
+                    <h2>[Admin] 管理者ダッシュボード</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">15 / 26</span> 
+                </div>
+                <div class="slide-body">
+                    <div class="info-panel">
+                        <div>
+                            <div class="info-label">関連技術</div>
+                            <span class="badge-tech">Chart.js</span>
+                            <span class="badge-tech">Thymeleaf</span>
+                            <span class="badge-tech">MySQL</span>
+                        </div>
+                        <div>
+                            <div class="info-label">担当者</div>
+                            <span class="badge-accent fw-bold">チョン・ジェファン</span>
+                        </div>
+                        <div>
+                            <div class="info-label">実装の要点</div>
+                            <div class="info-text">
+                                <ul>
+                                    <li><strong>統計データの視覚化:</strong> データベースから会員・掲示物・レビューの統計データを抽出し、Chart.jsを用いてダッシュボード上に折れ線グラフや円グラフとしてレンダリング。</li>
+                                    <li><strong>エンティティの管理機能:</strong> Thymeleafを活用してデータベース内の全会員データとレビューリストを反復出力し、管理者(ADMIN)権限での照会機能を付与。</li>
+                                    <li><strong>一括削除トランザクション:</strong> 管理者の判断により、不適切なレビューやユーザーデータをDBから安全に削除(Delete)するトランザクション処理を実装。</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visual-panel-full">
+                        <iframe class="media-content" 
+                                src="https://www.youtube.com/embed/ifO15LkLm-0?si=6vI0Y24RlpuIjYka&autoplay=1&mute=1&loop=1&playlist=ifO15LkLm-0" 
+                                title="YouTube video player" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 3 · コア機能 (チョン・ジェファン)</span>
+                    <h2>[Transport] 交通・パス情報システム</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">16 / 26</span> 
+                </div>
+                <div class="slide-body">
+                    <div class="info-panel">
+                        <div>
+                            <div class="info-label">関連技術</div>
+                            <span class="badge-tech">Spring Boot</span>
+                            <span class="badge-tech">Directions API</span>
+                            <span class="badge-tech">AJAX</span>
+                        </div>
+                        <div>
+                            <div class="info-label">担当者</div>
+                            <span class="badge-accent fw-bold">チョン・ジェファン</span>
+                        </div>
+                        <div>
+                            <div class="info-label">実装の要点</div>
+                            <div class="info-text">
+                                <ul>
+                                    <li><strong>APIレスポンス解析:</strong> Directions APIを非同期通信(AJAX)で呼び出し、出発地から目的地までの経路データをJSON形式で取得してパース。</li>
+                                    <li><strong>データマッピング:</strong> 解析したJSONデータから、所要時間、乗換回数、交通手段ごとの詳細情報を抽出し、フロントエンドのDOM要素にマッピング。</li>
+                                    <li><strong>条件検索機能:</strong> DBに保存された日本国内の交通パス（周遊券など）データを条件検索し、ユーザーの選択した経路や地域と連携して画面に出力する機能を実装。</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visual-panel-full">
+                        <iframe class="media-content" 
+                                src="https://www.youtube.com/embed/4zKCy9Pz1fs?si=bSb1il8nPbf0UOg1&autoplay=1&mute=1&loop=1&playlist=4zKCy9Pz1fs" 
+                                title="YouTube video player" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-17">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 4 · サイドバーのコア機能 (イ・スンウク)</span>
+                    <h2>サイドバー統合ユーティリティ及びAPI連携 (Overview)</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">17 / 26</span> 
+                </div>
+                <div class="slide-body" style="flex-direction: column; justify-content: center; padding: 40px 60px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h3 style="font-size: 1.5rem; color: var(--text); font-weight: 700;">ユーザーの利便性を最大化する4つのサイドバー機能</h3>
+                        <p style="color: var(--text-muted); margin-top: 10px;">多様な外部の公共・商用APIを一つのUIにシームレスに連携させました。</p>
+                    </div>
+                    
+                    <div class="four-col">
+                        <div class="h-card primary-border" style="text-align: center; padding: 30px 20px;">
+                            <span class="h-card-icon" style="font-size: 3rem;">✈️</span>
+                            <h4 style="margin-bottom: 10px;">Flight</h4>
+                            <p style="font-size: 0.85rem;">リアルタイム航空券検索及び<br>模擬決済システムの連携</p>
+                        </div>
+                        <div class="h-card accent-border" style="text-align: center; padding: 30px 20px;">
+                            <span class="h-card-icon" style="font-size: 3rem;">🏨</span>
+                            <h4 style="margin-bottom: 10px;">Hotel</h4>
+                            <p style="font-size: 0.85rem;">Booking.com API基盤<br>世界中の宿泊施設をリアルタイム検索</p>
+                        </div>
+                        <div class="h-card success-border" style="text-align: center; padding: 30px 20px;">
+                            <span class="h-card-icon" style="font-size: 3rem;">⛅</span>
+                            <h4 style="margin-bottom: 10px;">Weather</h4>
+                            <p style="font-size: 0.85rem;">Open-Meteoの16日間予報及び<br>気温に合わせた服装の提案</p>
+                        </div>
+                        <div class="h-card warning-border" style="text-align: center; padding: 30px 20px;">
+                            <span class="h-card-icon" style="font-size: 3rem;">💰</span>
+                            <h4 style="margin-bottom: 10px;">Budget</h4>
+                            <p style="font-size: 0.85rem;">リアルタイム為替変換及び<br>ウィッシュリスト連動の予算プランナー</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-18">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 4 · サイドバーのコア機能 1</span>
+                    <h2>[Flight] リアルタイム航空券検索システム</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">18 / 26</span> 
+                </div>
+                <div class="slide-body">
+                    <div class="info-panel">
+                        <div>
+                            <div class="info-label">関連技術</div>
+                            <span class="badge-tech">Spring MVC</span>
+                            <span class="badge-tech">JavaScript / AJAX</span>
+                            <span class="badge-tech">Thymeleaf</span>
+                        </div>
+                        <div>
+                            <div class="info-label">主な実装内容</div>
+                            <div class="info-text">
+                                <ul>
+                                    <li>出発・到着地、日付、人数などの動的な検索条件入力フォームを実装</li>
+                                    <li>非同期通信(AJAX)を活用した航空券検索結果リストの出力</li>
+                                    <li>ユーザーインターフェース(UI)の最適化により、直感的な航空券選択のUXを提供</li>
+                                    <li>航空券選択後、PortOne基盤の模擬決済システムとの連携を準備</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="info-label">担当者</div>
+                            <span class="badge-accent fw-bold">イ・スンウク</span>
+                        </div>
+                    </div>
+                    <div class="visual-panel-full">
+                        <iframe width="100%" height="100%" 
+                                src="https://www.youtube.com/embed/8-exL4h8oJs?si=K2tzE5KcOgYzmRj8" 
+                                title="Flight feature video" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allowfullscreen
+                                style="box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 16px; background-color: #000;">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-19">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 4 · サイドバーのコア機能 2</span>
+                    <h2>[Hotel] 宿泊施設のリアルタイム予約・Booking.com API</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">19 / 26</span> 
+                </div>
+                <div class="slide-body">
+                    <div class="info-panel">
+                        <div>
+                            <div class="info-label">関連技術</div>
+                            <span class="badge-tech">Spring MVC</span>
+                            <span class="badge-tech">Booking.com API</span>
+                            <span class="badge-tech">JSON Parsing</span>
+                        </div>
+                        <div>
+                            <div class="info-label">主な実装内容及び特徴</div>
+                            <div class="info-text">
+                                <ul>
+                                    <li>RapidAPIを通じて、世界最大の宿泊プラットフォームであるBooking.comのデータをリアルタイムで連携</li>
+                                    <li>日本の主要都市別の宿泊施設検索、価格、および詳細情報画面を構成</li>
+                                    <li>ウィッシュリスト追加およびAJAX非同期通信の連携</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="info-label">担当者</div>
+                            <span class="badge-accent fw-bold">イ・スンウク</span>
+                        </div>
+                    </div>
+                    <div class="visual-panel-full">
+                        <iframe width="100%" height="100%" 
+                                src="https://www.youtube.com/embed/UW5_LVIXLfg?si=YXOFcfVrPmRAHZ2a" 
+                                title="Hotel feature video" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allowfullscreen
+                                style="box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 16px; background-color: #000;">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-20">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 4 · 課題解決プロセス</span>
+                    <h2>[Hotel] 商用APIキーのセキュリティ強化戦略</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">20 / 26</span> 
+                </div>
+                <div class="slide-body">
+                    <div class="info-panel">
+                        <div>
+                            <div class="info-label">関連技術</div>
+                            <span class="badge-tech">Properties管理</span>
+                            <span class="badge-tech">Git セキュリティ</span>
+                        </div>
+                        <div>
+                            <div class="info-label">担当者</div>
+                            <span class="badge-accent fw-bold">イ・スンウク</span>
+                        </div>
+                        <div>
+                            <div class="info-label">貢献の要約（セキュリティ強化）</div>
+                            <div class="info-text" style="font-size:0.88rem;">
+                                <p>開発環境で露出されやすい外部APIキーを安全に管理し、APIの不正利用や過金(Overage)問題を根本的に防止するセキュリティパイプラインを構築しました。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="visual-panel" style="flex-direction:column; gap:20px; padding: 28px 40px; overflow: visible;">
+                        <div style="flex:1; width: 100%; border-radius: 16px; overflow: hidden; position: relative;">
+                            <img src="images/my_security_file_structure.png" alt="シークレットプロパティファイルの分離" 
+                                 class="clickable-img" onclick="openLightbox(this.src)" title="クリックして拡大 (클릭하여 확대)"
+                                 style="width: 100%; height: 100%; object-fit: cover; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+                            
+                            <div style="position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.6); color: white; padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; pointer-events: none; z-index: 10;">
+                                <i class="bi bi-zoom-in"></i>(拡大して表示)
+                            </div>
+                        </div>
+                        <div class="two-col" style="gap: 16px; width: 100%;">
+                            <div class="h-card primary-border" style="padding: 16px 24px; margin: 0; text-align: center;">
+                                <h4 style="font-size: 0.95rem; margin-bottom: 8px;">1. シークレットプロパティファイルの分離</h4>
+                                <p style="font-size: 0.85rem; line-height: 1.5; margin: 0;"><code>application-secret.properties</code>ファイルを別途作成し、APIキーを保存。</p>
+                            </div>
+                            <div class="h-card accent-border" style="padding: 16px 24px; margin: 0; text-align: center;">
+                                <h4 style="font-size: 0.95rem; margin-bottom: 8px;">2. .gitignoreの徹底した適用</h4>
+                                <p style="font-size: 0.85rem; line-height: 1.5; margin: 0;">シークレットファイルがGitに絶対コミットされないように管理。コミット時のキャッシュ削除処理を実施。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-21">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 4 · サイドバーのコア機能 3</span>
+                    <h2>[Weather] スマート天気＆服装おすすめガイド</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">21 / 26</span> 
+                </div>
+                <div class="slide-body">
+                    <div class="info-panel">
+                        <div>
+                            <div class="info-label">関連技術</div>
+                            <span class="badge-tech">Spring MVC</span>
+                            <span class="badge-tech">Open-Meteo API</span>
+                            <span class="badge-tech">Chart.js / JS</span>
+                        </div>
+                        <div>
+                            <div class="info-label">主な実装内容</div>
+                            <div class="info-text">
+                                <ul>
+                                    <li>会員登録・認証の制限がないオープンソース「Open-Meteo API」を発掘し、16日間の長期気象データのパーシングを適用</li>
+                                    <li>Chart.jsを活用し、時間帯別の気温推移を視覚的なレスポンシブ折れ線グラフで実装</li>
+                                    <li>単純な気温表示にとどまらず、WMO天気コードをマッピングし、実用的な「服装の提案」ロジックを開発</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="info-label">担当者</div>
+                            <span class="badge-accent fw-bold">イ・スンウク</span>
+                        </div>
+                    </div>
+                    <div class="visual-panel-full">
+                        <iframe width="100%" height="100%" 
+                                src="https://www.youtube.com/embed/YKAx0KX1Ap0?si=E4b2gNaAQ5xNrbO5" 
+                                title="Weather feature video" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allowfullscreen
+                                style="box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 16px; background-color: #000;">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-22">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 4 · サイドバーのコア機能 4</span>
+                    <h2>[Budget] 為替計算＆スマート予算プランナー</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">22 / 26</span> 
+                </div>
+                <div class="slide-body">
+                    <div class="info-panel" style="width: 400px;">
+                        <div>
+                            <div class="info-label">関連技術</div>
+                            <span class="badge-tech">Spring MVC</span>
+                            <span class="badge-tech">Exchange API</span>
+                            <span class="badge-tech">JavaScript / AJAX</span>
+                        </div>
+                        <div>
+                            <div class="info-label">主な実装内容</div>
+                            <div class="info-text">
+                                <ul>
+                                    <li><strong>リアルタイム為替計算機:</strong> 最新の為替APIを連携し、円(JPY)↔ウォン(KRW)の双方向自動変換機能を提供</li>
+                                    <li><strong>ウィッシュリスト連動予算追加:</strong> ユーザーがマイページに保存した宿泊施設、航空券、飲食店のデータを読み込み、ワンクリックで予算リストに登録</li>
+                                    <li><strong>自動経費合算:</strong> 登録されたすべての旅行項目の金額をリアルタイムで計算し、総予想経費を画面に出力</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="info-label">担当者</div>
+                            <span class="badge-accent fw-bold">イ・スンウク</span>
+                        </div>
+                    </div>
+                    <div class="visual-panel-full">
+                        <iframe width="100%" height="100%" 
+                                src="https://www.youtube.com/embed/IcsPFTHXc9Q?si=FHelq-igrqtteBze" 
+                                title="Budget feature video" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allowfullscreen
+                                style="box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 16px; background-color: #000;">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" id="slide-23">
+            <div class="card">
+                <div class="slide-header">
+                    <span class="part-tag">Part 4 · 課題解決プロセス</span>
+                    <h2>[Budget] 予算プランナーのUX改善及びバグ修正</h2>
+                    <div class="header-accent-line"></div>
+                    <span class="slide-number">23 / 26</span> 
+                </div>
+                <div class="slide-body">
+                    <div class="info-panel">
+                        <div>
+                            <div class="info-label">関連技術</div>
+                            <span class="badge-tech">LocalStorage</span>
+                            <span class="badge-tech">JavaScript</span>
+                        </div>
+                        <div>
+                            <div class="info-label">担当者</div>
+                            <span class="badge-accent fw-bold">イ・スンウク</span>
+                        </div>
+                        <div>
+                            <div class="info-label">貢献の要約（問題解決）</div>
+                            <div class="info-text" style="font-size:0.88rem;">
+                                <p>複雑な予算データを扱うフロントエンド環境で発生した深刻なデータ消失現象とレンダリングのバグを、原因から分析して完璧に修正しました。</p>
+                            </div>
+                        </div>
+                        <p style="color:var(--danger); font-size:0.85rem; margin-top:15px; text-align:center;"></p>
+                    </div>
+                    <div class="visual-panel" style="flex-direction:column; gap:20px; padding: 28px 40px;">
+                        <div class="two-col" style="width:100%;">
+                            <div class="h-card danger-border fragment" style="border-color:rgba(220,38,38,0.35); padding: 16px 24px; margin: 0;">
+                                <span class="h-card-icon">🔥</span>
+                                <h4 style="color:var(--danger); font-size: 0.95rem; margin-bottom: 8px;">Problem 1. データの消失</h4>
+                                <p style="font-size: 0.85rem; line-height: 1.5; margin: 0;">予算をすべて登録した後に<b>リロード（F5）すると、追加したリストがすべて初期化（消失）される</b>致命的なUXの欠陥が発生。</p>
+                            </div>
+                            <div class="h-card success-border fragment" style="padding: 16px 24px; margin: 0;">
+                                <span class="h-card-icon">🛠️</span>
+                                <h4 style="color:var(--success); font-size: 0.95rem; margin-bottom: 8px;">Solution 1. LocalStorageの連携</h4>
+                                <p style="font-size: 0.85rem; line-height: 1.5; margin: 0;">サーバー通信の負荷なしに、ブラウザの<b><code>localStorage</code>に予算状態をリアルタイムで保存・同期</b>し、データ保存の問題を完璧に解決。</p>
+                            </div>
+                            <div class="h-card danger-border fragment" style="border-color:rgba(220,38,38,0.35); padding: 16px 24px; margin: 0;">
+                                <span class="h-card-icon">🔥</span>
+                                <h4 style="color:var(--danger); font-size: 0.95rem; margin-bottom: 8px;">Problem 2. 詳細画像の欠落</h4>
+                                <p style="font-size: 0.85rem; line-height: 1.5; margin: 0;">予算に含まれた宿泊施設・航空券をクリックして詳細情報ウィンドウを開く際、<b>画像がリンク切れになるか欠落する現象</b>を発見。</p>
+                            </div>
+                            <div class="h-card success-border fragment" style="padding: 16px 24px; margin: 0;">
+                                <span class="h-card-icon">🛠️</span>
+                                <h4 style="color:var(--success); font-size: 0.95rem; margin-bottom: 8px;">Solution 2. パラメータのチューニング</h4>
+                                <p style="font-size: 0.85rem; line-height: 1.5; margin: 0;"><code>openDetail</code>および<code>renderAddedItems</code>関数の呼び出し時に、<b><code>imageUrl</code>パラメータを明示的に渡す</b>ようデータフローを再設計し、エラーを解決。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+        /* [공통] 플랜 카드 & 데모 스텝 디자인 복구 */
+        .plan-card { display: flex; gap: 22px; align-items: flex-start; background: linear-gradient(135deg, #fff, #F7F9FF); border: 1px solid rgba(59,125,232,0.14); border-radius: 16px; padding: 24px 28px; margin-bottom: 18px; box-shadow: 0 2px 12px rgba(59,125,232,0.06); text-align: left; }
+        .plan-icon-wrap { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+        .plan-icon-wrap.yellow { background: linear-gradient(135deg, rgba(217,119,6,0.15), rgba(217,119,6,0.08)); }
+        .plan-icon-wrap.blue { background: linear-gradient(135deg, rgba(59,125,232,0.15), rgba(59,125,232,0.08)); }
+        .plan-icon-wrap.purple { background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(124,58,237,0.08)); }
+        .plan-card h4 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; margin-top: 0; }
+        .plan-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0; }
+
+        .demo-flow { display: flex; flex-direction: column; gap: 12px; }
+        .demo-step { display: flex; align-items: center; gap: 16px; background: linear-gradient(135deg, #fff, #F4F7FF); border: 1px solid rgba(59,125,232,0.12); border-radius: 12px; padding: 14px 20px; box-shadow: 0 1px 6px rgba(59,125,232,0.05); text-align: left; }
+        .demo-step-num { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--primary), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: #fff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(59,125,232,0.3); }
+        .demo-step p { font-size: 0.92rem; color: var(--text); margin: 0; }
+
+        .feedback-card { background: linear-gradient(135deg, #fff, #F7F9FF); border: 1px solid rgba(59,125,232,0.14); border-left: 4px solid var(--primary); border-radius: 14px; padding: 22px 26px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(59,125,232,0.05); text-align: left; }
+        .feedback-card.me { border-left-color: var(--accent); background: linear-gradient(135deg, #FFF7F3, #fff); }
+        .feedback-name { font-weight: 700; color: var(--primary); margin-bottom: 6px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; }
+        .feedback-card.me .feedback-name { color: var(--accent); }
+        .feedback-text { font-size: 0.95rem; color: var(--text); line-height: 1.65; margin: 0; }
+        .feedback-text::before { content: '"'; color: var(--primary); font-size: 1.5rem; line-height: 0; vertical-align: -0.4em; margin-right: 4px; }
+        .feedback-card.me .feedback-text::before { color: var(--accent); }
+
+        /* [해결] 투명 글씨(#fff) 문제를 파란색 하이라이트(var(--primary))로 해결 */
+        #slide-24 strong, #slide-25 strong {
+            color: var(--primary) !important;
+            background: rgba(59, 125, 232, 0.08);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+        /* 26번 슬라이드 배경 및 그라데이션 타이틀 강제 적용 */
+        #slide-26 .card {
+            justify-content: center !important; align-items: center !important; text-align: center !important;
+            background: linear-gradient(135deg, #EDF2FF 0%, #F5F0FF 50%, #FFF0EB 100%) !important;
+        }
+        #slide-26 .card::before { opacity: 0.8; display: block !important; }
+        .closing-title { font-size: 3.2rem; font-weight: 800; background: linear-gradient(135deg, var(--text), var(--primary), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; margin-top: 0; }
+        .closing-sub { font-size: 1.2rem; color: var(--text-muted); margin: 0; }
+    </style>
+
+    <div class="slide" id="slide-24">
+        <div class="card">
+            <div class="slide-header">
+                <span class="part-tag">Part 4 · 成果、回顧及び発展方向</span>
+                <h2>限界点及び今後の発展計画</h2>
+                <div class="header-accent-line"></div>
+                <span class="slide-number">24 / 26</span>
+            </div>
+            <div class="slide-body">
+                <div class="full-pad" style="display:flex; flex-direction:column; gap:16px; justify-content:center;">
+                    <div class="plan-card">
+                        <div class="plan-icon-wrap yellow">⚡</div>
+                        <div>
+                            <h4>目標 1. 性能 · キャッシングレイヤーの導入</h4>
+                            <p>現在 API 呼び出し制限 (Rate Limit) の脆弱性が存在。同時接続者の増加に備え、<strong>Redis ベースのキャッシング</strong> を導入することで、応答速度を 3倍以上改善し、API コストを削減する計画。</p>
+                        </div>
+                    </div>
+                    <div class="plan-card">
+                        <div class="plan-icon-wrap blue">🧪</div>
+                        <div>
+                            <h4>目標 2. 安定性 · JUnit ベース의 TDD 導入</h4>
+                            <p>機能統合の優先開発によるテストコード不足が主な限界点。 <strong>JUnit 5 + Mockito を活用したユニットテスト</strong> 及び結合テストの作成により、コードカバレッジ 70% 以上を目標。CI/CD パイプラインとの連携予定。</p>
+                        </div>
+                    </div>
+                    <div class="plan-card">
+                        <div class="plan-icon-wrap purple">💳</div>
+                        <div>
+                            <h4>目標 3. 拡張性 · 決済モジュール及び予約システムの連動</h4>
+                            <p>カカオペイ / トスペイの <strong>実決済モジュールの連動</strong> と、宿泊 · 航空券予約システムの統合を通じて、閲覧プラットフォームから <em style="color:var(--accent);">予約プラットフォーム</em> への進化を目標。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-25">
+        <div class="card">
+            <div class="slide-header">
+                <span class="part-tag">Part 4 · 成果、回顧及び発展方向</span>
+                <h2>デモ要約 ＆ 開発チーム全体の後記</h2>
+                <div class="header-accent-line"></div>
+                <span class="slide-number">25 / 26</span>
+            </div>
+            <div class="slide-body">
+                <div style="flex:1; padding:32px 36px; border-right:1px solid var(--card-border); display:flex; flex-direction:column; gap:16px;">
+                    <div class="section-title"><i class="bi bi-play-circle"></i> メイン Use-Case Flow</div>
+                    <div class="demo-flow">
+                        <div class="demo-step">
+                            <div class="demo-step-num">1</div>
+                            <p><strong>会員登録 ＆ ログイン</strong> — Spring Security 認証処理</p>
+                        </div>
+                        <div class="demo-step">
+                            <div class="demo-step-num">2</div>
+                            <p><strong>AI 旅行プランナー</strong> — 地域 · 日付 · テーマ入力後、Gemini AI が日程を自動生成</p>
+                        </div>
+                        <div class="demo-step">
+                            <div class="demo-step-num">3</div>
+                            <p><strong>プランナー保存</strong> — 生成された AI 日程をマイページに永続化</p>
+                        </div>
+                        <div class="demo-step">
+                            <div class="demo-step-num">4</div>
+                            <p><strong>グルメ探索</strong> — 目的地周辺のグルメを地図連動で探索</p>
+                        </div>
+                        <div class="demo-step">
+                            <div class="demo-step-num">5</div>
+                            <p><strong>お気に入り登録</strong> — AJAX 非同期ウィッシュリスト登録 (更新なし)</p>
+                        </div>
+                        <div class="demo-step">
+                            <div class="demo-step-num">6</div>
+                            <p><strong>マイページ</strong> — 保存された日程 ＆ お気に入りリストの統合確認</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="flex:1; padding:32px 36px; display:flex; flex-direction:column; gap:16px;">
+                    <div class="section-title"><i class="bi bi-chat-quote"></i> チーム開発後記</div>
+                    <div class="feedback-card me">
+                        <div class="feedback-name">イ・ジュミョン (リーダー · 本인)</div>
+                        <div class="feedback-text">AI API と DB 通信の過程で、エラーログ分析の重要性を深く実感しました。Data Truncation 問題をコードではなく DB 設計の段階で解決し、問題의 根本原因を探る習慣がいかに重要かを学びました。</div>
+                    </div>
+                    <div class="feedback-card">
+                        <div class="feedback-name">チョン・ジェファン</div>
+                        <div class="feedback-text">Git コンベンションとブランチ戦略を通じた協業ルールが、開発速度とコード品質にいかに大きな影響を与えるかを直接経験しました。規則がチームを守るということを学びました。</div>
+                    </div>
+                    <div class="feedback-card">
+                        <div class="feedback-name">イ・スンウク</div>
+                        <div class="feedback-text">Thymeleaf レイアウトダイアレクトを活用した UI コンポーネント化を通じて、再利用性の有用성을 직접 느꼈습니다. 하나의 컴포넌트 수정이 페이지 전체에 반영되는 경험이 인상적이었습니다.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-26">
+        <div class="card">
+            <div style="position:relative; z-index:2;">
+                <div style="font-size:1rem; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-muted); margin-bottom:24px;">Thank You</div>
+                <div class="closing-title">ご清聴ありがとうございました</div>
+                <p class="closing-sub" style="margin-bottom:40px;">J-Route チーム一同 · イ・ジュミョン · チョン・ジェファン · イ・スンウク</p>
+                <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
+                    <span class="tech-tag"><i class="bi bi-robot"></i> Gemini AI</span>
+                    <span class="tech-tag"><i class="bi bi-lightning-fill"></i> Spring Boot 3.2</span>
+                    <span class="tech-tag"><i class="bi bi-map"></i> Google Maps</span>
+                    <span class="tech-tag"><i class="bi bi-cloud-sun"></i> Open-Meteo</span>
+                    <span class="tech-tag"><i class="bi bi-database"></i> MySQL</span>
+                </div>
+                <div style="margin-top:40px; padding:20px 40px; background:rgba(255,255,255,0.7); border:1px solid var(--card-border); border-radius:16px; display:inline-block;">
+                    <p style="font-size:1.1rem; color:var(--text-muted);">💬 Q ＆ A &nbsp;·&nbsp; 質問を歓迎します</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide-info">
+        <span class="slide-num">Slide <span id="cur">1</span> / 26</span>
+        <div class="progress-bar"><div class="progress-fill" id="prog" style="width:3.84%;"></div></div>
+    </div>
+    <div class="nav-controls">
+        <button class="nav-btn" id="btn-prev" onclick="prevSlide()" disabled><i class="bi bi-arrow-left"></i></button>
+        <button class="nav-btn" id="btn-next" onclick="nextSlide()"><i class="bi bi-arrow-right"></i></button>
+    </div>
+
+</div> <div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
+    <button class="close-btn" onclick="closeLightbox()"><i class="bi bi-x-lg"></i></button>
+    <img src="" alt="拡大画像" class="lightbox-img" id="lightbox-img" onclick="event.stopPropagation()">
+</div>
+
+<script>
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    let cur = 0;
+
+    function showSlide(n) {
+        slides.forEach((s, i) => {
+            s.classList.remove('active', 'previous');
+            // 프래그먼트 초기화
+            const fragments = s.querySelectorAll('.fragment');
+            if (fragments) fragments.forEach(f => f.classList.remove('visible'));
+
+            if (i === n) s.classList.add('active');
+            if (i === n - 1) s.classList.add('previous');
+        });
+
+        const curEl = document.getElementById('cur');
+        if (curEl) curEl.textContent = n + 1;
+
+        const progEl = document.getElementById('prog');
+        if (progEl) progEl.style.width = ((n + 1) / total * 100) + '%';
+
+        const btnPrev = document.getElementById('btn-prev');
+        if (btnPrev) btnPrev.disabled = n === 0;
+
+        const btnNext = document.getElementById('btn-next');
+        if (btnNext) btnNext.disabled = n === total - 1;
+    }
+
+    function nextSlide() {
+        const activeSlide = slides[cur];
+        const hiddenFragments = activeSlide.querySelectorAll('.fragment:not(.visible)');
+
+        if (hiddenFragments && hiddenFragments.length > 0) {
+            hiddenFragments[0].classList.add('visible');
+        } else if (cur < total - 1) {
+            cur++;
+            showSlide(cur);
+        }
+    }
+
+    function prevSlide() {
+        if (cur > 0) {
+            cur--;
+            showSlide(cur);
+        }
+    }
+
+    function openLightbox(src) {
+        const lbImg = document.getElementById('lightbox-img');
+        const lb = document.getElementById('lightbox');
+        if (lbImg && lb) {
+            lbImg.src = src;
+            lb.classList.add('active');
+        }
+    }
+
+    function closeLightbox() {
+        const lb = document.getElementById('lightbox');
+        if (lb) lb.classList.remove('active');
+    }
+
+    window.addEventListener('keydown', (e) => {
+        const lightbox = document.getElementById('lightbox');
+        if (lightbox && lightbox.classList.contains('active')) {
+            if (e.key === 'Escape') closeLightbox();
+            return; 
+        }
+        if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+        if (e.key === 'ArrowLeft') prevSlide();
+    });
+
+    // ==========================================
+    // 🌟 URL에 #slide-5 등이 있으면 해당 번호로 시작 🌟
+    // ==========================================
+    const hash = window.location.hash;
+    if (hash && hash.includes('slide-')) {
+        // '#slide-5' 에서 숫자 5만 뽑아내서 인덱스(4)로 변환
+        const targetNum = parseInt(hash.split('-')[1]);
+        if (!isNaN(targetNum) && targetNum > 0 && targetNum <= total) {
+            cur = targetNum - 1;
+        }
+    }
+
+    // 계산된 번호(기본 1번, 링크 타고 왔으면 5번)로 슬라이드 띄우기
+    showSlide(cur);
+</script>
+</body>
+</html>
